@@ -8,6 +8,7 @@ import { EmailService } from "src/email/email.service";
 import { JwtAccessPayload, JwtVerificationPayload } from "./interfaces/jwt-payload.interface";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { IAuthService } from "./interfaces/IAuthCandiateService";
+import { LoginResponce, RegisterResponce, verificatonResponce } from "./interfaces/api-response.interface";
 
 
 @Injectable()
@@ -21,6 +22,12 @@ export class AuthService implements IAuthService {
         private readonly candidateService:ICandidateService,
         private readonly emailService:EmailService
     ) {}
+
+    private toPlainUser(user: UserDocument | null): UserDocument | null {
+        if (!user) return null;
+        return user.toObject({ virtuals: true, getters: true }) as UserDocument;
+    }
+
 
     async validateUser(email: string, password: string): Promise<UserDocument | null> {
         this.logger.debug(`Attempting to validate user: ${email}`)
@@ -44,7 +51,7 @@ export class AuthService implements IAuthService {
         return user
     }
 
-    async login(user: any): Promise<any> {
+    async login(user: any): Promise<LoginResponce> {
         const payload: JwtAccessPayload = {
             userId:user._id,
             email: user.email,
@@ -57,7 +64,7 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async registerCandidate(dto: RegisterCandidateDto): Promise<any> {
+    async registerCandidate(dto: RegisterCandidateDto): Promise<RegisterResponce> {
         const existingUser = await this.candidateService.findByEmail(dto.email)
         if (existingUser) {
             throw new ConflictException('Email address already registered.');
@@ -81,13 +88,12 @@ export class AuthService implements IAuthService {
         }
 
         return {
-            message: 'Registration successful. Please use the generated token to verify your account. (Email sending skipped for demo)',
-            user:newUser
+            message: 'Registration successful. Please use the generated token to verify your account',
+            user:newUser!.toObject({ getters: true, virtuals: false }) as UserDocument,
         };
-
     }
 
-    async verifyEmail(token: string): Promise<any> {
+    async verifyEmail(token: string): Promise<verificatonResponce> {
         let payload:JwtVerificationPayload
         try {
             payload = await this.jwtService.verify(token,{
@@ -116,7 +122,7 @@ export class AuthService implements IAuthService {
 
         return {
             message: 'Email successfully verified. You can now log in.',
-            verifieduser
+            user:verifieduser!
         }
     }
 }

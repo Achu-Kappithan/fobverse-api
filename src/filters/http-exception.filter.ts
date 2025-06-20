@@ -1,55 +1,99 @@
+
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
 import { Request, Response } from "express";
+import { ErrorApiResponse } from "src/shared/responses/api.response"; 
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(HttpExceptionFilter.name)
+  private readonly logger = new Logger(HttpExceptionFilter.name);
 
-    catch(exception: unknown, host: ArgumentsHost) {
-        const ctx =host.switchToHttp()
-        const response = ctx.getResponse<Response>()
-        const request  =ctx.getRequest<Request>()
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
-        const  status = exception instanceof HttpException 
-                        ? exception.getStatus() 
-                        : HttpStatus.INTERNAL_SERVER_ERROR;
+    let status: HttpStatus;
+    let frontendMessage: string; 
+    let errorName: string;
+    let details: any = {}; 
 
-        const errorResponse = exception instanceof HttpException
-                        ?(exception.getResponse()as Record<string,any>)
-                        : {message: 'Internal server error' , statusCode: HttpStatus.INTERNAL_SERVER_ERROR }
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
 
-        const logMessage =`
-            [${request.method} ${request.url}]
-            Status: ${status}
-            Error: ${JSON.stringify(errorResponse)}
-            User Agent: ${request.headers['user-agent'] || 'N/A'}
-            IP: ${request.ip || 'N/A'}
-            Timestamp: ${new Date().toISOString()}
-            Stack: ${exception instanceof Error ? exception.stack : 'N/A'}
-            `
-            if(status >= 500) {
-                this.logger.error(logMessage, exception instanceof Error ? exception.stack :"")
-            }else{
-                this.logger.warn(logMessage);
-            }
+      if (typeof exceptionResponse === 'string') {
+        frontendMessage = exceptionResponse;
+        errorName = exception.name;
+      } else if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+        const responseObj = exceptionResponse as { message?: string | string[]; error?: string; statusCode?: number; [key: string]: any; };
 
-        const responsePayload =  {
-            statusCode: status,
-            timestamp: new Date().toISOString(),
-            path: request.url,
-            method: request.method,
-            message: (errorResponse.message || 'Internal Server Error').split(', '), 
-            error: typeof errorResponse === 'object' && 'error' in errorResponse ? errorResponse.error : HttpStatus[status],
-            details: errorResponse.message instanceof Array ? errorResponse.message : undefined 
+        if (Array.isArray(responseObj.message)) {
+          frontendMessage = responseObj.message.join('; '); 
+          details.validationErrors = responseObj.message;
+        } else {
+          frontendMessage = responseObj.message || 'An unexpected error occurred.';
         }
 
-        if(Array.isArray(responsePayload.message)){
-            responsePayload.message = responsePayload.message.join(', ');
-        }else if (typeof responsePayload.message == 'string') {
+        errorName = responseObj.error || exception.name;
 
-        }else {
-            responsePayload.message = 'An unexpected error occurred'
-        }
-        response.status(status).json(responsePayload)
+        const { message, error, statusCode: _, ...restDetails } = responseObj;
+        Object.assign(details, restDetails); 
+      } else {
+        frontendMessage = `HTTP Error ${status}`;
+        errorName = exception.name;
+      }
+    } else {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      frontendMessage = 'An internal server error occurred.';
+      errorName = 'InternalServerError';
+      if (exception instanceof Error) {
+        details.originalErrorMessage = exception.message;
+      }
     }
+
+    if (status === HttpStatus.UNAUTHORIZED) {
+      frontendMessage = 'Authentication required or invalid credentials.';
+    } else if (status === HttpStatus.FORBIDDEN) {
+      frontendMessage = 'You do not have permission to access this resource.';
+    } else if (status === HttpStatus.NOT_FOUND) {
+      frontendMessage = 'The requested resource was not found.';
+    } else if (status === HttpStatus.CONFLICT) {
+      frontendMessage = 'Resource already exists or a conflict occurred.';
+    } else if (status === HttpStatus.BAD_REQUEST && frontendMessage === 'An unexpected error occurred.') {
+      frontendMessage = 'Invalid request parameters.';
+    }
+
+    const logMessage = `
+        [${request.method} ${request.url}]
+        Status: ${status}
+        Frontend Message: "${frontendMessage}"
+        Error Name: "${errorName}"
+        Original Exception: ${exception instanceof Error ? exception.message : JSON.stringify(exception)}
+        Details: ${JSON.stringify(details)}
+        User Agent: ${request.headers['user-agent'] || 'N/A'}
+        IP: ${request.ip || 'N/A'}
+        Timestamp: ${new Date().toISOString()}
+        Stack: ${exception instanceof Error ? exception.stack : 'N/A'}
+    `;
+
+    if (status >= 500) {
+      this.logger.error(logMessage);
+    } else {
+      this.logger.warn(logMessage);
+    }
+
+    const responsePayload: ErrorApiResponse = {
+      success: false,
+      statusCode: status,
+      message: frontendMessage,
+      error: errorName,
+      path: request.url,
+    };
+
+    if (Object.keys(details).length > 0) {
+      responsePayload.details = details;
+    }
+
+    response.status(status).json(responsePayload);
+  }
 }

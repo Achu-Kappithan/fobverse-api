@@ -1,17 +1,19 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
-import { ValidationPipe } from '@nestjs/common';
-import { WinstonModule } from 'nest-winston';
-import { loggerConfig } from './shared/configs/logger.config';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston';
+import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule,{
-    logger:WinstonModule.createLogger(
-      loggerConfig(process.env.NODE_ENV || 'development')
-    )
+    bufferLogs: true,
   });
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+
+  app.enableCors()
+  app.setGlobalPrefix('api/v1');
 
   app.useGlobalFilters(new HttpExceptionFilter())
 
@@ -22,6 +24,11 @@ async function bootstrap() {
       transform:true, 
       disableErrorMessages: process.env.NODE_ENV === 'production',
     })
+  )
+
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new ResponseInterceptor()
   )
 
   const configService = app.get(ConfigService);

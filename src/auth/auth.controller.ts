@@ -15,15 +15,9 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(@Body()LoginDto:LoginDto) {
         const user = await this.authService.validateUser(LoginDto.email,LoginDto.password)
-
         if(!user){
             throw new UnauthorizedException('Invalid credentials.')
         }
-
-        if (!user.isVerified) {
-            throw new UnauthorizedException('Account not verified. Please check your email or request a new verification link.');
-        }
-
         return this.authService.login(user);
     }
 
@@ -47,7 +41,7 @@ export class AuthController {
         throw new BadRequestException('Verification token is missing.');
         }
         const result = await this.authService.verifyEmail(token);
-        return { url: 'http://localhost:4200/email-verified' };
+        return result
     }
     
 }
