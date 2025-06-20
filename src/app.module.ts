@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from './shared/shared.module';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './shared/configs/logger.config';
+import { CandiateModule } from './candidates/candidates.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -26,7 +28,9 @@ import { loggerConfig } from './shared/configs/logger.config';
       },
       inject:[ConfigService]
     }),
-    SharedModule
+    SharedModule,
+    CandiateModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],
