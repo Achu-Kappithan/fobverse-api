@@ -5,10 +5,12 @@ import { CANDIDATE_SERVICE, ICandidateService } from "src/candidates/interfaces/
 import { UserDocument } from "src/candidates/schema/candidate.schema";
 import * as bcrypt from 'bcrypt'
 import { EmailService } from "src/email/email.service";
-import { JwtAccessPayload, JwtVerificationPayload } from "./interfaces/jwt-payload.interface";
+import { JwtAccessPayload, JwtRefreshPayload, JwtVerificationPayload } from "./interfaces/jwt-payload.interface";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { IAuthService } from "./interfaces/IAuthCandiateService";
 import { LoginResponce, RegisterResponce, verificatonResponce } from "./interfaces/api-response.interface";
+import { LoginDto } from "./dto/login.dto";
+import { JwtTokenService } from "./jwt.services/jwt-service";
 
 
 @Injectable()
@@ -16,11 +18,13 @@ export class AuthService implements IAuthService {
     private readonly logger = new Logger(AuthService.name)
 
     constructor(
-        private readonly jwtService:JwtService,
-        private readonly configService:ConfigService,
+        
         @Inject(CANDIDATE_SERVICE)
         private readonly candidateService:ICandidateService,
-        private readonly emailService:EmailService
+        private readonly emailService:EmailService,
+        private readonly jwtService:JwtService,
+        private readonly configService:ConfigService,
+
     ) {}
 
     private toPlainUser(user: UserDocument | null): UserDocument | null {
@@ -51,16 +55,47 @@ export class AuthService implements IAuthService {
         return user
     }
 
-    async login(user: any): Promise<LoginResponce> {
-        const payload: JwtAccessPayload = {
+    async login(dto: LoginDto): Promise<LoginResponce> {
+        this.logger.log(`Attempting login for email: ${dto.email}`)
+
+        const user = await this.candidateService.findByEmail(dto.email)
+        
+        if(!user){
+            throw new UnauthorizedException('Invalid credentials')
+        }
+
+        if(!user.isVerified){
+            throw new UnauthorizedException('Account not verified. Please check your email for verification instructions.')
+        }
+        
+        const AccessPayload: JwtAccessPayload = {
             userId:user._id,
             email: user.email,
             role:user.role,
             is_verified: user.isVerified
         }
 
+        const RefreshPayload:JwtRefreshPayload ={
+            userId: user.id,
+            email : user.email
+        }
+        
+        const AccessToken = this.jwtService.sign(AccessPayload, {
+                secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+                expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
+            });
+
+        const RefreshToken = this.jwtService.sign(RefreshPayload, {
+                secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+                expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
+            });
+
+            this.logger.log(AccessToken,RefreshToken)
+
         return {
-            accessToken:this.jwtService.sign(payload)
+            user:user,
+            accessToken: AccessToken,
+            refreshToken: RefreshToken
         }
     }
 

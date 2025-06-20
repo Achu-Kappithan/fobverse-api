@@ -7,8 +7,10 @@ import { jwtConfig } from "src/shared/configs/jwt.config";
 import { AuthService } from "./auth.service";
 import { AUTH_SERVICE } from "./interfaces/IAuthCandiateService";
 import { AuthController } from "./auth.controller";
-import { JwtStrategy } from "./strategies/jwt.strategy";
 import { EmailModule } from "src/email/email.module";
+import { JwtAccessStrategy } from "./strategies/jwt.strategy";
+import { jwtRefreshStrategy } from "./strategies/jwt-refresh.strategy";
+import { JwtTokenService } from "./jwt.services/jwt-service";
 
 @Module({
   imports: [
@@ -27,12 +29,12 @@ import { EmailModule } from "src/email/email.module";
       provide: AUTH_SERVICE,
       useClass:AuthService
     },
-    JwtStrategy
+    JwtAccessStrategy
   ],
   controllers: [AuthController],
   exports:[
       AUTH_SERVICE,
-      JwtModule
+      JwtModule,
   ]
 })
 export class AuthModule {}

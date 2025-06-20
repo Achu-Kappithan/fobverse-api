@@ -12,7 +12,14 @@ async function bootstrap() {
   });
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
-  app.enableCors()
+  app.enableCors(
+    {
+    origin: 'http://localhost:4200', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, 
+    allowedHeaders: 'Content-Type, Authorization', 
+  })
+  
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalFilters(new HttpExceptionFilter())

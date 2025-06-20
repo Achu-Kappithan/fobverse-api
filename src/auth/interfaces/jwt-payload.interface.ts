@@ -9,6 +9,7 @@ export interface JwtAccessPayload {
 
 export interface JwtRefreshPayload {
   userId: string;
+  email: string
 }
 
 export interface JwtVerificationPayload {
