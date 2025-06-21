@@ -5,6 +5,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER, WinstonModule } from 'nest-winston';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
+import * as cookeParser from 'cookie-parser'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule,{
@@ -32,6 +33,9 @@ async function bootstrap() {
       disableErrorMessages: process.env.NODE_ENV === 'production',
     })
   )
+
+  app.use(cookeParser())
+
 
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector)),

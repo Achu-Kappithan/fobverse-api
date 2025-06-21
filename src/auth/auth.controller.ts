@@ -1,10 +1,14 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Redirect, Request, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Redirect, Req, Request, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { AUTH_SERVICE, IAuthService } from "./interfaces/IAuthCandiateService";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { setJwtCookie } from "src/shared/utils/cookie.util";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
+import { AuthGuard } from "@nestjs/passport";
+import { get } from "http";
+import { UserDocument } from "src/candidates/schema/candidate.schema";
+import { JwtRefreshPayload } from "./interfaces/jwt-payload.interface";
 
 
 @Controller('auth')
@@ -48,29 +52,60 @@ export class AuthController {
 
     @Post('candidate/login')
     async candidateLogin(@Body()loginDto:LoginDto,@Res({ passthrough: true }) response: Response){
-        const {user,accessToken,refreshToken} = await this.authService.login(loginDto)
+        const {accessToken,refreshToken} = await this.authService.login(loginDto)
 
         setJwtCookie(
         response,this.configservice,
         'access_token',accessToken, 
         'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
-        true 
+        true,
+        (7*24*60*60*1000)
         );
 
         setJwtCookie(
         response,this.configservice,
         'refresh_token',refreshToken,
         'JWT_REFRESH_TOKEN_EXPIRATION_TIME_MS',
-        true 
+        true ,
+        (7*24*60*60*1000)
         );
 
         return {
-            user: user,
             accessToken: accessToken,
             refreshToken: refreshToken,
             message: 'Login successful.'
-
         }
     }
+
+    @Get('getuser')
+    @UseGuards(AuthGuard('access_token'))
+    @HttpCode(HttpStatus.OK)
+     getCurrentUser(@Request() req:any){
+        const user  = req.user as UserDocument
+        return {user:user,message:"completed"}
+    }
+
+    @Post('refresh')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard('jwt-refresh'))
+    async refreshTokens(@Req() req: any, @Res({ passthrough: true }) response: Response): Promise<any> {
+        const candidate = req.user as JwtRefreshPayload;
+        
+        const {newAccess,message} = await this.authService.regenerateAccessToken(candidate)
+
+        setJwtCookie(
+        response,this.configservice,
+        'access_token',newAccess, 
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
+        true,
+        (7*24*60*60*1000)
+        );
+
+        return {
+        accessToken: newAccess,
+        message: message,
+        };
+    }
+
     
 }

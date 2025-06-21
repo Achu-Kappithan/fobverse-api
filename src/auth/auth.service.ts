@@ -8,7 +8,7 @@ import { EmailService } from "src/email/email.service";
 import { JwtAccessPayload, JwtRefreshPayload, JwtVerificationPayload } from "./interfaces/jwt-payload.interface";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { IAuthService } from "./interfaces/IAuthCandiateService";
-import { LoginResponce, RegisterResponce, verificatonResponce } from "./interfaces/api-response.interface";
+import { LoginResponce, RegisterResponce, tokenresponce, verificatonResponce } from "./interfaces/api-response.interface";
 import { LoginDto } from "./dto/login.dto";
 import { JwtTokenService } from "./jwt.services/jwt-service";
 
@@ -93,7 +93,6 @@ export class AuthService implements IAuthService {
             this.logger.log(AccessToken,RefreshToken)
 
         return {
-            user:user,
             accessToken: AccessToken,
             refreshToken: RefreshToken
         }
@@ -158,6 +157,35 @@ export class AuthService implements IAuthService {
         return {
             message: 'Email successfully verified. You can now log in.',
             user:verifieduser!
+        }
+    }
+
+    async  regenerateAccessToken(paylod: JwtRefreshPayload): Promise<tokenresponce> {
+        
+        if (!paylod || !paylod.userId || !paylod.email ) {
+            throw new UnauthorizedException('Invalid refresh token payload or user data.');
+        }
+
+        const  user = await this.candidateService.findByEmail(paylod.email)
+
+        if(!user){
+            throw new UnauthorizedException(" Issue Regading the account Status")
+        }
+
+        const tokenPaylod:JwtAccessPayload ={
+            userId: user._id,
+            email: user.email,
+            role: user.role,
+            is_verified: user.isVerified
+        }
+
+        const newAccessToken = this.jwtService.sign(tokenPaylod,{
+            secret:this.configService.get<string>('JWT_ACCESS_SECRET'),
+            expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN')
+        })
+        return {
+            message:"Access token refreshed successfully",
+            newAccess: newAccessToken
         }
     }
 }

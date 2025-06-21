@@ -51,18 +51,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     }
 
-    if (status === HttpStatus.UNAUTHORIZED) {
-      frontendMessage = 'Authentication required or invalid credentials.';
-    } else if (status === HttpStatus.FORBIDDEN) {
-      frontendMessage = 'You do not have permission to access this resource.';
-    } else if (status === HttpStatus.NOT_FOUND) {
-      frontendMessage = 'The requested resource was not found.';
-    } else if (status === HttpStatus.CONFLICT) {
-      frontendMessage = 'Resource already exists or a conflict occurred.';
-    } else if (status === HttpStatus.BAD_REQUEST && frontendMessage === 'An unexpected error occurred.') {
-      frontendMessage = 'Invalid request parameters.';
-    }
-
     const logMessage = `
         [${request.method} ${request.url}]
         Status: ${status}
