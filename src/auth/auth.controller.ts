@@ -1,40 +1,30 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Redirect, Req, Request, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Inject, Logger, Post, Query, Req, Request, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { AUTH_SERVICE, IAuthService } from "./interfaces/IAuthCandiateService";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
-import { setJwtCookie } from "src/shared/utils/cookie.util";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
-import { get } from "http";
 import { UserDocument } from "src/candidates/schema/candidate.schema";
-import { JwtRefreshPayload } from "./interfaces/jwt-payload.interface";
+import { JwtAccessPayload, JwtRefreshPayload } from "./interfaces/jwt-payload.interface";
+import { setJwtCookie } from "src/shared/utils/cookie.util";
 
 
 @Controller('auth')
 export class AuthController {
+    logger = new Logger(AuthController.name)
     constructor(
         @Inject(AUTH_SERVICE)
         private readonly  authService:IAuthService,
-        private readonly configservice:ConfigService
+        private readonly ConfigService:ConfigService
     ) {}
 
-    @Post('login')
-    @HttpCode(HttpStatus.OK)
-    async login(@Body()LoginDto:LoginDto) {
-        const user = await this.authService.validateUser(LoginDto.email,LoginDto.password)
-        if(!user){
-            throw new UnauthorizedException('Invalid credentials.')
-        }
-        return this.authService.login(user);
-    }
 
     @UseGuards()
     @Get('profile')
     getProfile(@Request() req) {
         return { message: `Welcome, ${req.user.email}! This is a protected resource.`, user: req.user };
     }
-
 
     @Post('/candidate/register')
     @HttpCode(HttpStatus.CREATED)
@@ -51,28 +41,28 @@ export class AuthController {
     }
 
     @Post('candidate/login')
-    async candidateLogin(@Body()loginDto:LoginDto,@Res({ passthrough: true }) response: Response){
-        const {accessToken,refreshToken} = await this.authService.login(loginDto)
+    @HttpCode(HttpStatus.OK)
+    async Login(@Body()loginDto:LoginDto,@Res({ passthrough: true }) response: Response){
+        const user = await this.authService.validateUser(loginDto.email,loginDto.password)
+        const {accessToken,refreshToken,userData} =await this.authService.login(user)
 
         setJwtCookie(
-        response,this.configservice,
+        response,this.ConfigService,
         'access_token',accessToken, 
-        'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
+        'JWT_ACCESS_EXPIRES_IN',
         true,
         (7*24*60*60*1000)
         );
 
         setJwtCookie(
-        response,this.configservice,
+        response,this.ConfigService,
         'refresh_token',refreshToken,
-        'JWT_REFRESH_TOKEN_EXPIRATION_TIME_MS',
-        true ,
+        'JWT_REFRESH_EXPIRES_IN',
+        true,
         (7*24*60*60*1000)
         );
 
         return {
-            accessToken: accessToken,
-            refreshToken: refreshToken,
             message: 'Login successful.'
         }
     }
@@ -82,7 +72,14 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
      getCurrentUser(@Request() req:any){
         const user  = req.user as UserDocument
-        return {user:user,message:"completed"}
+        console.log(user)
+        return {
+            id : user.id,
+            role: user.role,
+            email: user.email,
+            is_verified: user.isVerified,
+            message:"completed"
+        }
     }
 
     @Post('refresh')
@@ -94,7 +91,7 @@ export class AuthController {
         const {newAccess,message} = await this.authService.regenerateAccessToken(candidate)
 
         setJwtCookie(
-        response,this.configservice,
+        response,this.ConfigService,
         'access_token',newAccess, 
         'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
         true,
@@ -106,6 +103,5 @@ export class AuthController {
         message: message,
         };
     }
-
     
 }

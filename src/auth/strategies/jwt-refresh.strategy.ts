@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
@@ -10,7 +10,8 @@ import { JwtRefreshPayload } from "../interfaces/jwt-payload.interface";
 
 
 @Injectable()
-export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-Refresh'){
+export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-refresh'){
+    logger = new Logger(jwtRefreshStrategy.name)
     constructor(
         private readonly configService: ConfigService,
         @Inject(CANDIDATE_REPOSITORY)
@@ -18,16 +19,23 @@ export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-Refresh')
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
-            (request:Request) => {
-                    return request?.cookies?.['refresh_token']
+                (request:Request) => {
+                    this.logger.debug(`[ExtractJwt] Full request.cookies object: ${JSON.stringify(request?.cookies)}`);
+                    const token = request?.cookies?.['refresh_token']
+                    this.logger.debug(`[ExtractJwt] Attempting to extract access_token from cookie. Found: ${!!token ? 'YES' : 'NO'}`)
+                    if(!token){
+                        this.logger.warn(`[ExtractJwt] No access_token found in cookie.`);
+                    }
+                    return  token
                 }
             ]),
             ignoreExpiration: false,
             secretOrKey:configService.get<string>('JWT_ACCESS_SECRET') || ""
         })
+        this.logger.debug(`[Strategy Init] JwtAccessStrategy initialized. Secret status: ${configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`);
     }
 
-    async validate(payload: JwtRefreshPayload): Promise<UserDocument> { // <-- Validate JwtRefreshPayload
+    async validate(payload: JwtRefreshPayload): Promise<UserDocument> { 
     const { userId } = payload;
     const candidate = await this.candidateService.findById(userId);
 

@@ -35,8 +35,6 @@ async function bootstrap() {
   )
 
   app.use(cookeParser())
-
-
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector)),
     new ResponseInterceptor()

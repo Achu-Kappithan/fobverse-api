@@ -5,6 +5,7 @@ import { UserDocument } from "src/candidates/schema/candidate.schema"
 export interface LoginResponce {
     accessToken: string
     refreshToken: string,
+    userData: UserDocument | null
 }
 
 export interface RegisterResponce {

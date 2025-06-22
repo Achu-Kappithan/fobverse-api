@@ -10,7 +10,6 @@ import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { IAuthService } from "./interfaces/IAuthCandiateService";
 import { LoginResponce, RegisterResponce, tokenresponce, verificatonResponce } from "./interfaces/api-response.interface";
 import { LoginDto } from "./dto/login.dto";
-import { JwtTokenService } from "./jwt.services/jwt-service";
 
 
 @Injectable()
@@ -31,7 +30,6 @@ export class AuthService implements IAuthService {
         if (!user) return null;
         return user.toObject({ virtuals: true, getters: true }) as UserDocument;
     }
-
 
     async validateUser(email: string, password: string): Promise<UserDocument | null> {
         this.logger.debug(`Attempting to validate user: ${email}`)
@@ -55,19 +53,9 @@ export class AuthService implements IAuthService {
         return user
     }
 
-    async login(dto: LoginDto): Promise<LoginResponce> {
-        this.logger.log(`Attempting login for email: ${dto.email}`)
+    async login(user: UserDocument): Promise<LoginResponce> {
 
-        const user = await this.candidateService.findByEmail(dto.email)
-        
-        if(!user){
-            throw new UnauthorizedException('Invalid credentials')
-        }
-
-        if(!user.isVerified){
-            throw new UnauthorizedException('Account not verified. Please check your email for verification instructions.')
-        }
-        
+        this.logger.debug(`[AuthService.login] Preparing payload for tokens for user: ${user.email}`);
         const AccessPayload: JwtAccessPayload = {
             userId:user._id,
             email: user.email,
@@ -79,7 +67,7 @@ export class AuthService implements IAuthService {
             userId: user.id,
             email : user.email
         }
-        
+
         const AccessToken = this.jwtService.sign(AccessPayload, {
                 secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
                 expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
@@ -90,11 +78,11 @@ export class AuthService implements IAuthService {
                 expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
             });
 
-            this.logger.log(AccessToken,RefreshToken)
 
         return {
             accessToken: AccessToken,
-            refreshToken: RefreshToken
+            refreshToken: RefreshToken,
+            userData:this.toPlainUser(user)
         }
     }
 

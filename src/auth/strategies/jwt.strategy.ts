@@ -18,9 +18,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request:Request) => {
-          this.logger.debug(`[ExtractJwt] Full request.cookies object: ${JSON.stringify(request?.cookies)}`);
           const token = request?.cookies?.['access_token']
-           this.logger.debug(`[ExtractJwt] Attempting to extract access_token from cookie. Found: ${!!token ? 'YES' : 'NO'}`);
           if(!token ){
             this.logger.warn(`[ExtractJwt] No access_token found in cookie.`);
           }
@@ -30,7 +28,6 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
       ignoreExpiration: false,
       secretOrKey:configService.get<string>('JWT_ACCESS_SECRET') || ""
     })
-    this.logger.debug(`[Strategy Init] JwtAccessStrategy initialized. Secret status: ${configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`);
   }
 
   async validate(payload:JwtAccessPayload): Promise<UserDocument> {
@@ -55,7 +52,6 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
       throw new UnauthorizedException('Access denied: Your account is not verified. Please verify your email.');
     }
     const sanitizedUser= user.toObject({ getters: true, virtuals: true }) as UserDocument;
-    this.logger.debug(`[Validate] Validation successful for user: ${sanitizedUser.email}. Returning sanitized user object.`);
     return sanitizedUser
   }
 
