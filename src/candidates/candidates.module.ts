@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import mongoose from "mongoose";
 import { User, UserSchema } from "./schema/candidate.schema";
 import { CANDIDATE_REPOSITORY } from "./interfaces/candidate-repository.interface";
 import { CandidateRepository } from "./candidate.repository";
@@ -23,7 +22,8 @@ import { CandidateService } from "./candidate.service";
         }
     ],
     exports:[
-        CANDIDATE_SERVICE
+        CANDIDATE_SERVICE,
+        CANDIDATE_REPOSITORY
     ]
 })
 export class CandiateModule{}

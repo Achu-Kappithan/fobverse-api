@@ -10,3 +10,10 @@ export class LoginDto {
   @IsNotEmpty({ message: 'Password cannot be empty.' })
   password: string; 
 }
+
+
+export class GoogleLoginDto {
+  email: string;
+  idToken: string; 
+
+}

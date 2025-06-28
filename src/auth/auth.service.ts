@@ -9,22 +9,35 @@ import { JwtAccessPayload, JwtRefreshPayload, JwtVerificationPayload } from "./i
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { IAuthService } from "./interfaces/IAuthCandiateService";
 import { LoginResponce, RegisterResponce, tokenresponce, verificatonResponce } from "./interfaces/api-response.interface";
-import { LoginDto } from "./dto/login.dto";
+import { GoogleLoginDto, LoginDto } from "./dto/login.dto";
+import { OAuth2Client } from "google-auth-library";
+import { CANDIDATE_REPOSITORY, ICandidateRepository } from "src/candidates/interfaces/candidate-repository.interface";
+import { privateDecrypt } from "crypto";
+import { use } from "passport";
+import { JwtTokenService } from "./jwt.services/jwt-service";
 
 
 @Injectable()
 export class AuthService implements IAuthService {
     private readonly logger = new Logger(AuthService.name)
+    private googleClint:OAuth2Client
 
     constructor(
         
         @Inject(CANDIDATE_SERVICE)
         private readonly candidateService:ICandidateService,
+        @Inject(CANDIDATE_REPOSITORY)
+        private readonly candidateRepository:ICandidateRepository,
         private readonly emailService:EmailService,
         private readonly jwtService:JwtService,
         private readonly configService:ConfigService,
+        private readonly jwtTokenService: JwtTokenService
 
-    ) {}
+    ) {
+        this.googleClint = new OAuth2Client(
+            this.configService.get<string>('CLIENT_ID')
+        )
+    }
 
     private toPlainUser(user: UserDocument | null): UserDocument | null {
         if (!user) return null;
@@ -118,6 +131,10 @@ export class AuthService implements IAuthService {
     async verifyEmail(token: string): Promise<verificatonResponce> {
         let payload:JwtVerificationPayload
         try {
+            if (!token) {
+                throw new BadRequestException('Verification token is missing.');
+            }
+
             payload = await this.jwtService.verify(token,{
                 secret:this.configService.get<string>('JWT_VERIFICATION_SECRET')
             })
@@ -174,6 +191,78 @@ export class AuthService implements IAuthService {
         return {
             message:"Access token refreshed successfully",
             newAccess: newAccessToken
+        }
+    }
+
+    async googleLogin(idToken:string): Promise<LoginResponce | null> {
+        this.logger.log(`[authService] googleId${idToken}`)
+
+        const ticket = await this.googleClint.verifyIdToken({
+            idToken,
+            audience:this.configService.get<string>('CLIENT_ID')
+        });
+
+        const payload = ticket.getPayload()
+        this.logger.log(`[authService] get details from the google payload${payload}`)
+
+        if(!payload) {
+            throw new UnauthorizedException("Invalid Google Token Payload")
+        }
+
+        const googleId = payload.sub
+        const email = payload.email
+        const name = payload.name
+        const isVerified = payload.email_verified
+
+        if(!email){
+            throw new  UnauthorizedException('Google ID Token did not cotain User Email')
+        }
+
+        let user = await this.candidateRepository.findByEmail(email)
+
+        this.logger.debug(`[authService] fetch user  using google email${user}`)
+
+        if(!user){
+            user = await this.candidateRepository.create({
+                name: name,
+                email: email,
+                googleId:googleId,
+                isVerified:isVerified
+            })
+
+            if(!user){
+                throw new UnauthorizedException('Faild to create new user during the Login')
+            }
+        }else {
+            if(!user.googleId && user.googleId !== googleId){
+                this.logger.log(`Linking Google is To the Existinng User ${user.email}`)
+            }
+            user = await  this.candidateRepository.UpdateGoogleId(user._id.toString(),googleId)
+            if(!user){
+                throw new UnauthorizedException("Faild to link google a/c to the existing user")
+            }
+            this.logger.log(`existing user logged in  view  googleId`)
+        }
+
+        const AccessPayload: JwtAccessPayload = {
+            userId:user._id,
+            email: user.email,
+            role:user.role,
+            is_verified: user.isVerified
+        }
+
+        const RefreshPayload:JwtRefreshPayload ={
+            userId: user.id,
+            email : user.email
+        }
+
+        const accessToken = this.jwtTokenService.generateAccessToken(AccessPayload)
+        const refreshToken = this.jwtTokenService.generateRefreshToken(RefreshPayload)
+
+            return {
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            userData:this.toPlainUser(user)
         }
     }
 }

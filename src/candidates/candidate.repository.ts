@@ -19,4 +19,9 @@ export class CandidateRepository extends BaseRepository<UserDocument> implements
     async updateVerificationStatus(userId: string, status: boolean): Promise<UserDocument | null> {
         return this.update({_id:userId},{isVerified:status})
     }
+
+    async UpdateGoogleId(id:string,gooleid:string):Promise<UserDocument | null >{
+        return  this.userModel.findByIdAndUpdate(id,{googleId: gooleid},{new:true}) 
+    }
+
 }

@@ -22,13 +22,13 @@ export class EmailService {
 
         })
 
-        this.transporter.verify((error,sucess)=>{
-            if(error){
-                this.logger.error('Email transporter verification failed:', error);
-            }else{
-                this.logger.log('Email transporter ready for sending messages.')
-            }
-        })
+        // this.transporter.verify((error,sucess)=>{
+        //     if(error){
+        //         this.logger.error('Email transporter verification failed:', error);
+        //     }else{
+        //         this.logger.log('Email transporter ready for sending messages.')
+        //     }
+        // })
     }
 
     async sendEmail (to:string, subject: string, htmlContent: string, from?:string): Promise<void>{

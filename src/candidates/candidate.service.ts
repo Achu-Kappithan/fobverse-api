@@ -40,6 +40,20 @@ export class CandidateService implements ICandidateService {
         return this.candidateRepository.updateVerificationStatus(userId,status)
     }
 
+    async createGoogleUser(name: string, email: string , googleId: string,isVerified:boolean): Promise<UserDocument | null> {
+         const newUser = {
+            name,
+            email,
+            googleId,
+            isVerified
+        }
+        return this.candidateRepository.create(newUser)
+    }
+
+    async linkGoogleAccount(id: string, googleId: string): Promise<UserDocument | null> {
+        return  this.candidateRepository.UpdateGoogleId(id,googleId)
+    }
+
 
 
 }

@@ -10,6 +10,7 @@ import { Request } from 'express';
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token') {
    logger = new Logger(JwtAccessStrategy.name)
+  
   constructor(
     private readonly configService: ConfigService,
     @Inject(CANDIDATE_SERVICE) 
@@ -19,12 +20,13 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request:Request) => {
           const token = request?.cookies?.['access_token']
+          this.logger.log(`[jwtStratagy] jwt token from cookies${token}`)
           if(!token ){
             this.logger.warn(`[ExtractJwt] No access_token found in cookie.`);
           }
-          return token
+          return token  
         }
-      ]),
+      ]),   
       ignoreExpiration: false,
       secretOrKey:configService.get<string>('JWT_ACCESS_SECRET') || ""
     })
@@ -37,7 +39,6 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
       this.logger.warn(`[Validate] Token payload missing userId. Payload: ${JSON.stringify(payload)}`);
       throw new UnauthorizedException('Invalid token payload: userId missing.');
     }
-
 
     const {userId} = payload;
     const user = await this.candidateService.findById(userId);

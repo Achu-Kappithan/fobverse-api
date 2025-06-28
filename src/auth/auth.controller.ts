@@ -1,9 +1,9 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Inject, Logger, Post, Query, Req, Request, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { AUTH_SERVICE, IAuthService } from "./interfaces/IAuthCandiateService";
-import { LoginDto } from "./dto/login.dto";
+import { GoogleLoginDto, LoginDto } from "./dto/login.dto";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { ConfigService } from "@nestjs/config";
-import { Response } from "express";
+import {  Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 import { UserDocument } from "src/candidates/schema/candidate.schema";
 import { JwtAccessPayload, JwtRefreshPayload } from "./interfaces/jwt-payload.interface";
@@ -16,9 +16,8 @@ export class AuthController {
     constructor(
         @Inject(AUTH_SERVICE)
         private readonly  authService:IAuthService,
-        private readonly ConfigService:ConfigService
+        private readonly configService:ConfigService
     ) {}
-
 
     @UseGuards()
     @Get('profile')
@@ -34,9 +33,6 @@ export class AuthController {
 
     @Get('verify-email')
     async verifyEmail(@Query('token') token: string) {
-        if (!token) {
-        throw new BadRequestException('Verification token is missing.');
-        }
         return await this.authService.verifyEmail(token);
     }
 
@@ -47,7 +43,7 @@ export class AuthController {
         const {accessToken,refreshToken,userData} =await this.authService.login(user)
 
         setJwtCookie(
-        response,this.ConfigService,
+        response,this.configService,
         'access_token',accessToken, 
         'JWT_ACCESS_EXPIRES_IN',
         true,
@@ -55,7 +51,7 @@ export class AuthController {
         );
 
         setJwtCookie(
-        response,this.ConfigService,
+        response,this.configService,
         'refresh_token',refreshToken,
         'JWT_REFRESH_EXPIRES_IN',
         true,
@@ -91,7 +87,7 @@ export class AuthController {
         const {newAccess,message} = await this.authService.regenerateAccessToken(candidate)
 
         setJwtCookie(
-        response,this.ConfigService,
+        response,this.configService,
         'access_token',newAccess, 
         'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
         true,
@@ -103,5 +99,37 @@ export class AuthController {
         message: message,
         };
     }
+
+    @Get('google')
+    async googleAuthCallback(@Query('googleId') googleId:string, @Res({ passthrough: true }) response: Response): Promise<any>{
+        const data = await this.authService.googleLogin(googleId)
+        this.logger.log(`user  details in googleauth ${data} `)
     
+         setJwtCookie(
+        response,this.configService,
+        'access_token',data!.accessToken, 
+        'JWT_ACCESS_EXPIRES_IN',
+        true,
+        (7*24*60*60*1000)
+        );
+
+        setJwtCookie(
+        response,this.configService,
+        'refresh_token',data!.refreshToken,
+        'JWT_REFRESH_EXPIRES_IN',
+        true,
+        (7*24*60*60*1000)
+        );
+
+         return {
+            message: 'Login successful.'
+        }
+    }
+
 }
+
+
+
+
+
+

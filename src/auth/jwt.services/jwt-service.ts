@@ -1,8 +1,8 @@
 import { ConfigService } from "@nestjs/config";
 import { JwtAccessPayload, JwtRefreshPayload, JwtVerificationPayload } from "../interfaces/jwt-payload.interface";
-import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { Inject, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { ICandidateService } from "src/candidates/interfaces/candidate-service.interface";
+import { CANDIDATE_SERVICE, ICandidateService } from "src/candidates/interfaces/candidate-service.interface";
 
 
 @Injectable()
@@ -12,7 +12,7 @@ export class JwtTokenService {
     constructor(
         private readonly configService:ConfigService,
         private jwtService:JwtService,
-        private candidateService: ICandidateService
+        @Inject(CANDIDATE_SERVICE) private readonly candidateService: ICandidateService,
     ){}
 
 

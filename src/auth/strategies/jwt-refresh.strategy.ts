@@ -22,7 +22,6 @@ export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-refresh')
                 (request:Request) => {
                     this.logger.debug(`[ExtractJwt] Full request.cookies object: ${JSON.stringify(request?.cookies)}`);
                     const token = request?.cookies?.['refresh_token']
-                    this.logger.debug(`[ExtractJwt] Attempting to extract access_token from cookie. Found: ${!!token ? 'YES' : 'NO'}`)
                     if(!token){
                         this.logger.warn(`[ExtractJwt] No access_token found in cookie.`);
                     }
@@ -43,6 +42,6 @@ export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-refresh')
       throw new UnauthorizedException('Refresh token invalid: Candidate not found.');
     }
 
-    return candidate.toObject({ getters: true, virtuals: true }) as UserDocument; // Ensure it's a plain object
+    return candidate.toObject({ getters: true, virtuals: true }) as UserDocument; 
   }
 }

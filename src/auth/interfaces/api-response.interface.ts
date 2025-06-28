@@ -3,7 +3,7 @@ import { UserDocument } from "src/candidates/schema/candidate.schema"
 
 
 export interface LoginResponce {
-    accessToken: string
+    accessToken: string,
     refreshToken: string,
     userData: UserDocument | null
 }

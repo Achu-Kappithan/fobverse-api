@@ -11,6 +11,7 @@ import { EmailModule } from "src/email/email.module";
 import { JwtAccessStrategy } from "./strategies/jwt.strategy";
 import { jwtRefreshStrategy } from "./strategies/jwt-refresh.strategy";
 import { JwtTokenService } from "./jwt.services/jwt-service";
+import { GoogleStrategy } from "./strategies/google.strategy";
 
 @Module({
   imports: [
@@ -22,19 +23,21 @@ import { JwtTokenService } from "./jwt.services/jwt-service";
     }),
     ConfigModule,
     CandiateModule,
-    EmailModule
+    EmailModule,
   ],
   providers: [
     {
       provide: AUTH_SERVICE,
       useClass:AuthService
     },
-    JwtAccessStrategy
+    JwtAccessStrategy,
+    GoogleStrategy,
+    jwtRefreshStrategy,
+    JwtTokenService
   ],
   controllers: [AuthController],
   exports:[
       AUTH_SERVICE,
-      JwtModule,
   ]
 })
 export class AuthModule {}
