@@ -1,4 +1,4 @@
-import { User, UserDocument } from "../schema/candidate.schema";
+import { UserDocument } from "src/auth/schema/candidate.schema";
 
 
 export interface ICandidateService {

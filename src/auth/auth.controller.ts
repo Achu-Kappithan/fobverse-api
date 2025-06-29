@@ -5,9 +5,9 @@ import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { ConfigService } from "@nestjs/config";
 import {  Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
-import { UserDocument } from "src/candidates/schema/candidate.schema";
 import { JwtAccessPayload, JwtRefreshPayload } from "./interfaces/jwt-payload.interface";
 import { setJwtCookie } from "src/shared/utils/cookie.util";
+import { UserDocument } from "./schema/candidate.schema";
 
 
 @Controller('auth')
@@ -25,7 +25,7 @@ export class AuthController {
         return { message: `Welcome, ${req.user.email}! This is a protected resource.`, user: req.user };
     }
 
-    @Post('/candidate/register')
+    @Post('/register')
     @HttpCode(HttpStatus.CREATED)
     async registerCandidate(@Body() registerDto: RegisterCandidateDto) {
         return this.authService.registerCandidate(registerDto);
@@ -36,11 +36,12 @@ export class AuthController {
         return await this.authService.verifyEmail(token);
     }
 
-    @Post('candidate/login')
+    @Post('/login')
     @HttpCode(HttpStatus.OK)
     async Login(@Body()loginDto:LoginDto,@Res({ passthrough: true }) response: Response){
-        const user = await this.authService.validateUser(loginDto.email,loginDto.password)
-        const {accessToken,refreshToken,userData} =await this.authService.login(user)
+        console.log(loginDto)
+        const user = await this.authService.validateUser(loginDto.email,loginDto.password,loginDto.role)
+        const {accessToken,refreshToken,data} =await this.authService.login(user)
 
         setJwtCookie(
         response,this.configService,
@@ -59,7 +60,8 @@ export class AuthController {
         );
 
         return {
-            message: 'Login successful.'
+            message: 'Login successful.',
+            data
         }
     }
 
@@ -127,9 +129,6 @@ export class AuthController {
     }
 
 }
-
-
-
 
 
 

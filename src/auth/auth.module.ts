@@ -12,9 +12,14 @@ import { JwtAccessStrategy } from "./strategies/jwt.strategy";
 import { jwtRefreshStrategy } from "./strategies/jwt-refresh.strategy";
 import { JwtTokenService } from "./jwt.services/jwt-service";
 import { GoogleStrategy } from "./strategies/google.strategy";
+import { AUTH_REPOSITORY } from "./interfaces/IAuthRepository";
+import { AuthRepository } from "./auth.repository";
+import { MongooseModule } from "@nestjs/mongoose";
+import { User, UserSchema } from "./schema/candidate.schema";
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule, 
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -29,6 +34,10 @@ import { GoogleStrategy } from "./strategies/google.strategy";
     {
       provide: AUTH_SERVICE,
       useClass:AuthService
+    },
+    {
+      provide:AUTH_REPOSITORY,
+      useClass:AuthRepository
     },
     JwtAccessStrategy,
     GoogleStrategy,

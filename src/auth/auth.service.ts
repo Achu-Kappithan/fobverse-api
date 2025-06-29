@@ -2,7 +2,6 @@ import { BadRequestException, ConflictException, Inject, Injectable, Logger, Una
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { CANDIDATE_SERVICE, ICandidateService } from "src/candidates/interfaces/candidate-service.interface";
-import { UserDocument } from "src/candidates/schema/candidate.schema";
 import * as bcrypt from 'bcrypt'
 import { EmailService } from "src/email/email.service";
 import { JwtAccessPayload, JwtRefreshPayload, JwtVerificationPayload } from "./interfaces/jwt-payload.interface";
@@ -15,6 +14,8 @@ import { CANDIDATE_REPOSITORY, ICandidateRepository } from "src/candidates/inter
 import { privateDecrypt } from "crypto";
 import { use } from "passport";
 import { JwtTokenService } from "./jwt.services/jwt-service";
+import { UserDocument } from "./schema/candidate.schema";
+import { AUTH_REPOSITORY, IAuthRepository } from "./interfaces/IAuthRepository";
 
 
 @Injectable()
@@ -24,10 +25,8 @@ export class AuthService implements IAuthService {
 
     constructor(
         
-        @Inject(CANDIDATE_SERVICE)
-        private readonly candidateService:ICandidateService,
-        @Inject(CANDIDATE_REPOSITORY)
-        private readonly candidateRepository:ICandidateRepository,
+        @Inject(AUTH_REPOSITORY)
+        private readonly authRepository:IAuthRepository,
         private readonly emailService:EmailService,
         private readonly jwtService:JwtService,
         private readonly configService:ConfigService,
@@ -44,16 +43,32 @@ export class AuthService implements IAuthService {
         return user.toObject({ virtuals: true, getters: true }) as UserDocument;
     }
 
-    async validateUser(email: string, password: string): Promise<UserDocument | null> {
+    async findByEmail(email: string): Promise<UserDocument | null> {
+        this.logger.debug(`Finding user by email: ${email}`)
+        return this.authRepository.findByEmail(email)
+    }
+
+    async findById(id: string): Promise<UserDocument | null> {
+        this.logger.debug(`Finding user by Id:${id}`)
+        return this.authRepository.findById(id)
+    }
+    
+
+    async validateUser(email: string, password: string, role:string): Promise<UserDocument | null> {
         this.logger.debug(`Attempting to validate user: ${email}`)
-        const user = await this.candidateService.findByEmail(email)
+        const user = await this.authRepository.findByEmail(email)
 
         if(!user){
             this.logger.warn(`Login attempt for ${email}: User not found.`)
             return null
         }
 
-         if (!user.isVerified) {
+        if(user.role !== role){
+            this.logger.warn(`Mismath of User Role ${role}`)
+            throw new UnauthorizedException('Invaid User role')
+        }
+
+        if (!user.isVerified) {
             this.logger.warn(`Login attempt for ${email}: User not verified.`);
             throw new UnauthorizedException('Please verify your email address.');
         }
@@ -91,21 +106,21 @@ export class AuthService implements IAuthService {
                 expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
             });
 
-
         return {
             accessToken: AccessToken,
             refreshToken: RefreshToken,
-            userData:this.toPlainUser(user)
+            data:this.toPlainUser(user)
+            
         }
     }
 
     async registerCandidate(dto: RegisterCandidateDto): Promise<RegisterResponce> {
-        const existingUser = await this.candidateService.findByEmail(dto.email)
+        const existingUser = await this.authRepository.findByEmail(dto.email)
         if (existingUser) {
             throw new ConflictException('Email address already registered.');
         }
         
-        const newUser = await this.candidateService.createCandidate(dto.fullName,dto.email,dto.password!)
+        const newUser = await this.createUser(dto.fullName,dto.email,dto.password!,dto.role)
         if(newUser){
             this.logger.log(`New candidate registered: ${newUser.email}`)
             const verificationPayload: JwtVerificationPayload = {
@@ -128,6 +143,18 @@ export class AuthService implements IAuthService {
         };
     }
 
+    async createUser(name: string, email: string, password: string, role:string): Promise<UserDocument | null> {
+        const hashPassword = await bcrypt.hash(password,10)
+        const newUser = {
+            name,
+            email,
+            password:hashPassword,
+            role: role
+        }
+        this.logger.log(`Creating new candidate: ${email}`)
+        return this.authRepository.create(newUser)
+    }
+
     async verifyEmail(token: string): Promise<verificatonResponce> {
         let payload:JwtVerificationPayload
         try {
@@ -144,7 +171,7 @@ export class AuthService implements IAuthService {
             throw new BadRequestException('Invalid or expired verification link.');
         }
 
-        const user = await this.candidateService.findById(payload.userId)
+        const user = await this.authRepository.findById(payload.userId)
 
         if (!user) {
             this.logger.warn(`Email verification attempt for non-existent user ID: ${payload.userId}`);
@@ -156,7 +183,7 @@ export class AuthService implements IAuthService {
             throw new BadRequestException('Email already verified.');
         }
 
-        const verifieduser =await this.candidateService.updateVerificationStatus(user._id.toString(),true)
+        const verifieduser =await this.authRepository.updateVerificationStatus(user._id.toString(),true)
         this.logger.log(`User ${verifieduser} successfully verified.`)
 
         return {
@@ -171,7 +198,7 @@ export class AuthService implements IAuthService {
             throw new UnauthorizedException('Invalid refresh token payload or user data.');
         }
 
-        const  user = await this.candidateService.findByEmail(paylod.email)
+        const  user = await this.authRepository.findByEmail(paylod.email)
 
         if(!user){
             throw new UnauthorizedException(" Issue Regading the account Status")
@@ -218,12 +245,12 @@ export class AuthService implements IAuthService {
             throw new  UnauthorizedException('Google ID Token did not cotain User Email')
         }
 
-        let user = await this.candidateRepository.findByEmail(email)
+        let user = await this.authRepository.findByEmail(email)
 
         this.logger.debug(`[authService] fetch user  using google email${user}`)
 
         if(!user){
-            user = await this.candidateRepository.create({
+            user = await this.authRepository.create({
                 name: name,
                 email: email,
                 googleId:googleId,
@@ -237,7 +264,7 @@ export class AuthService implements IAuthService {
             if(!user.googleId && user.googleId !== googleId){
                 this.logger.log(`Linking Google is To the Existinng User ${user.email}`)
             }
-            user = await  this.candidateRepository.UpdateGoogleId(user._id.toString(),googleId)
+            user = await  this.authRepository.UpdateGoogleId(user._id.toString(),googleId)
             if(!user){
                 throw new UnauthorizedException("Faild to link google a/c to the existing user")
             }
@@ -262,7 +289,11 @@ export class AuthService implements IAuthService {
             return {
             accessToken: accessToken,
             refreshToken: refreshToken,
-            userData:this.toPlainUser(user)
+            data:this.toPlainUser(user)
         }
+    }
+
+    async linkGoogleAccount(id: string, googleId: string): Promise<UserDocument | null> {
+        return  this.authRepository.UpdateGoogleId(id,googleId)
     }
 }

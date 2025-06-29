@@ -18,7 +18,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T | ServiceRespon
 
     return next.handle().pipe(
       map(responseBody => { 
-        let actualData: T | undefined;
+        let data: T | undefined;
         let finalMessage: string;
         const statusCode = response.statusCode || HttpStatus.OK;
 
@@ -29,25 +29,25 @@ export class ResponseInterceptor<T> implements NestInterceptor<T | ServiceRespon
             finalMessage = servicePayload.message;
 
             if (servicePayload.data !== undefined) {
-              actualData = servicePayload.data;
+              data = servicePayload.data;
             } else {
               const { message, ...restOfPayload } = servicePayload;
-              actualData = restOfPayload as T; 
+              data = restOfPayload as T; 
             }
           } else {
             finalMessage = 'Operation successful';
-            actualData = responseBody;
+            data = responseBody;
           }
         } else {
           finalMessage = 'Operation successful'; 
-          actualData = responseBody;
+          data = responseBody;
         }
 
         return {
           success: true,
           statusCode: statusCode,
           message: finalMessage,
-          data: actualData,
+          data,
           timestamp: new Date().toISOString(),
           path: request.url,
           method: request.method,

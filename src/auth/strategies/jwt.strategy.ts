@@ -4,8 +4,9 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { CANDIDATE_SERVICE, ICandidateService } from 'src/candidates/interfaces/candidate-service.interface';
 import { JwtAccessPayload } from '../interfaces/jwt-payload.interface';
-import { UserDocument } from 'src/candidates/schema/candidate.schema';
 import { Request } from 'express';
+import { UserDocument } from '../schema/candidate.schema';
+import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token') {
@@ -13,8 +14,10 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
   
   constructor(
     private readonly configService: ConfigService,
-    @Inject(CANDIDATE_SERVICE) 
-    private readonly candidateService: ICandidateService,
+    // @Inject(CANDIDATE_SERVICE) 
+    // private readonly candidateService: ICandidateService,
+    @Inject(AUTH_SERVICE)
+    private readonly authService: IAuthService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -41,7 +44,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy,'access_token')
     }
 
     const {userId} = payload;
-    const user = await this.candidateService.findById(userId);
+    const user = await this.authService.findById(userId);
 
     if (!user) {
       this.logger.warn(`[Validate] Candidate not found in DB for userId: ${payload.userId}`);

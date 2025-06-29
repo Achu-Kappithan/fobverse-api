@@ -5,8 +5,11 @@ import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { CANDIDATE_REPOSITORY } from "src/candidates/interfaces/candidate-repository.interface";
 import { ICandidateService } from "src/candidates/interfaces/candidate-service.interface";
-import { UserDocument } from "src/candidates/schema/candidate.schema";
 import { JwtRefreshPayload } from "../interfaces/jwt-payload.interface";
+import { UserDocument } from "../schema/candidate.schema";
+import { AUTH_REPOSITORY } from "../interfaces/IAuthRepository";
+import { AuthRepository } from "../auth.repository";
+import { AUTH_SERVICE, IAuthService } from "../interfaces/IAuthCandiateService";
 
 
 @Injectable()
@@ -14,8 +17,10 @@ export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-refresh')
     logger = new Logger(jwtRefreshStrategy.name)
     constructor(
         private readonly configService: ConfigService,
-        @Inject(CANDIDATE_REPOSITORY)
-        private readonly candidateService:ICandidateService
+        // @Inject(CANDIDATE_REPOSITORY)
+        // private readonly candidateService:ICandidateService
+        @Inject(AUTH_SERVICE)
+        private readonly authService: IAuthService
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
@@ -36,7 +41,7 @@ export class jwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-refresh')
 
     async validate(payload: JwtRefreshPayload): Promise<UserDocument> { 
     const { userId } = payload;
-    const candidate = await this.candidateService.findById(userId);
+    const candidate = await this.authService.findById(userId);
 
     if (!candidate) {
       throw new UnauthorizedException('Refresh token invalid: Candidate not found.');

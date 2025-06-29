@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { User, UserSchema } from "./schema/candidate.schema";
 import { CANDIDATE_REPOSITORY } from "./interfaces/candidate-repository.interface";
 import { CandidateRepository } from "./candidate.repository";
 import { CANDIDATE_SERVICE } from "./interfaces/candidate-service.interface";
 import { CandidateService } from "./candidate.service";
+import { User, UserSchema } from "src/auth/schema/candidate.schema";
 
 
 @Module({

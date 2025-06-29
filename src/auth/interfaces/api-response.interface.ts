@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { UserDocument } from "src/candidates/schema/candidate.schema"
+import { UserDocument } from "../schema/candidate.schema";
 
 
 export interface LoginResponce {
     accessToken: string,
     refreshToken: string,
-    userData: UserDocument | null
+    data: UserDocument | null
 }
 
 export interface RegisterResponce {

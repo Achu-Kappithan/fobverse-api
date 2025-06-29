@@ -19,4 +19,8 @@ export class RegisterCandidateDto {
   @IsOptional()
   @IsString()
   googleId?: string;
+
+  @IsString()
+  @IsNotEmpty({message: "User role is not defined"})
+  role:string
 }

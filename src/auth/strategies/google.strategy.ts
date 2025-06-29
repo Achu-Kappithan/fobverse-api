@@ -9,6 +9,8 @@ import { JwtAccessStrategy } from "./jwt.strategy";
 import { JwtAccessPayload, JwtRefreshPayload } from "../interfaces/jwt-payload.interface";
 import { RegisterResponce } from "../interfaces/api-response.interface";
 import { CANDIDATE_SERVICE, ICandidateService } from "src/candidates/interfaces/candidate-service.interface";
+import { AUTH_SERVICE, IAuthService } from "../interfaces/IAuthCandiateService";
+import { AuthService } from "../auth.service";
 
 
 @Injectable()
@@ -16,11 +18,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy,'google'){
     private readonly logger = new Logger(GoogleStrategy.name)
     constructor(
         private readonly configService: ConfigService,
-            // private readonly candidateService: CandidateService,
             private jwtService : JwtService,
             private jwtTokenService: JwtTokenService,
-            @Inject(CANDIDATE_SERVICE)
-            private readonly candidateService:ICandidateService
+            // @Inject(CANDIDATE_SERVICE)
+            // private readonly candidateService:ICandidateService,
+            @Inject(AUTH_SERVICE)
+            private readonly authService: IAuthService
     ){
         super({
             clientID    : configService.get<string>('CLIENT_ID') || "",
@@ -45,7 +48,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy,'google'){
                 throw new UnauthorizedException('Google profile missing email. Cannot proceed with login.');
             }
 
-            let user = await this.candidateService.findByEmail(userEmail);
+            let user = await this.authService.findByEmail(userEmail);
 
             if(!user){
                 this.logger.log(`Creating new user with googleId ${googleId} and ${userEmail}`)
@@ -54,7 +57,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy,'google'){
 
             }else if(!user.googleId){
                 this.logger.log(`Linking existing user ${userEmail} to Google ID: ${googleId}`);
-                user = await this.candidateService.linkGoogleAccount(user._id, googleId);
+                user = await this.authService.linkGoogleAccount(user._id, googleId);
             }
 
 

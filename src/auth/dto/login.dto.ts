@@ -1,5 +1,5 @@
 
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, isNotEmpty, IsNotEmpty, isString, IsString, } from 'class-validator';
 
 export class LoginDto {
   @IsEmail({}, { message: 'Please provide a valid email address.' })
@@ -8,7 +8,11 @@ export class LoginDto {
 
   @IsString({ message: 'Password must be a string.' })
   @IsNotEmpty({ message: 'Password cannot be empty.' })
-  password: string; 
+  password: string;
+
+  @IsString({message:'UserRole is not defined'})
+  @IsNotEmpty({message: 'Password cannot be empty'})
+  role:string;
 }
 
 
