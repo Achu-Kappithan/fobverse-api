@@ -10,27 +10,27 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal:true,
-      envFilePath:'.env'
+      isGlobal: true,
+      envFilePath: '.env',
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory:(config:ConfigService)=>({
-        uri:config.get<string>('MONGO_URI')
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('MONGO_URI'),
       }),
-      inject:[ConfigService]
+      inject: [ConfigService],
     }),
     WinstonModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory:(config: ConfigService)=>{
-        const nodeEnv =config.get<string>('NODE_ENV')
-        return loggerConfig(nodeEnv!)
+      useFactory: (config: ConfigService) => {
+        const nodeEnv = config.get<string>('NODE_ENV');
+        return loggerConfig(nodeEnv!);
       },
-      inject:[ConfigService]
+      inject: [ConfigService],
     }),
     SharedModule,
     CandiateModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [],
   providers: [],

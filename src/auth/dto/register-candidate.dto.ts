@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterCandidateDto {
   @IsNotEmpty()
@@ -21,6 +27,6 @@ export class RegisterCandidateDto {
   googleId?: string;
 
   @IsString()
-  @IsNotEmpty({message: "User role is not defined"})
-  role:string
+  @IsNotEmpty({ message: 'User role is not defined' })
+  role: string;
 }

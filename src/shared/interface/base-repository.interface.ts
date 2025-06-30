@@ -1,7 +1,6 @@
-import { Document, FilterQuery, UpdateQuery } from "mongoose";
+import { Document, FilterQuery, UpdateQuery } from 'mongoose';
 
-
-export interface IBaseRepository<T extends Document>{
+export interface IBaseRepository<T extends Document> {
   create(document: T | any): Promise<T>;
   findById(id: string): Promise<T | null>;
   findOne(filter: FilterQuery<T>): Promise<T | null>;

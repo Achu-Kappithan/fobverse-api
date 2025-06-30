@@ -1,31 +1,29 @@
-import { Exclude, Expose } from "class-transformer";
-import { ObjectId } from "mongoose";
-
+import { Exclude, Expose } from 'class-transformer';
+import { ObjectId } from 'mongoose';
 
 export class ResponseRegisterDto {
+  @Expose()
+  _id: ObjectId;
 
-    @Expose()
-    _id:ObjectId
+  @Expose()
+  fullName: string;
 
-    @Expose()
-    fullName:string
+  @Expose()
+  email: string;
 
-    @Expose()
-    email:string
+  @Expose()
+  role: string;
 
-    @Expose()
-    role:string
+  @Exclude()
+  password: string;
 
-    @Exclude()
-    password:string
+  @Exclude()
+  googleId: string;
 
-    @Exclude()
-    googleId:string
+  @Exclude()
+  __v: string;
 
-    @Exclude()
-    __v:string
-
-    constructor(partial: Partial<ResponseRegisterDto>){
-        Object.assign(this,partial)
-    }
+  constructor(partial: Partial<ResponseRegisterDto>) {
+    Object.assign(this, partial);
+  }
 }

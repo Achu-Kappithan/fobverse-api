@@ -21,7 +21,10 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     return this.model.find(filter).exec();
   }
 
-  async update(filter: FilterQuery<T>, update: UpdateQuery<T>): Promise<T | null> {
+  async update(
+    filter: FilterQuery<T>,
+    update: UpdateQuery<T>,
+  ): Promise<T | null> {
     return this.model.findOneAndUpdate(filter, update, { new: true }).exec();
   }
 

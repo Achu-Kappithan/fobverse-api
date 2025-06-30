@@ -1,7 +1,13 @@
-
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
-import { Request, Response } from "express";
-import { ErrorApiResponse } from "src/shared/responses/api.response"; 
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { ErrorApiResponse } from 'src/shared/responses/api.response';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -13,9 +19,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status: HttpStatus;
-    let frontendMessage: string; 
+    let frontendMessage: string;
     let errorName: string;
-    let details: any = {}; 
+    const details: any = {};
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -24,20 +30,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (typeof exceptionResponse === 'string') {
         frontendMessage = exceptionResponse;
         errorName = exception.name;
-      } else if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-        const responseObj = exceptionResponse as { message?: string | string[]; error?: string; statusCode?: number; [key: string]: any; };
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
+        const responseObj = exceptionResponse as {
+          message?: string | string[];
+          error?: string;
+          statusCode?: number;
+          [key: string]: any;
+        };
 
         if (Array.isArray(responseObj.message)) {
-          frontendMessage = responseObj.message.join('; '); 
+          frontendMessage = responseObj.message.join('; ');
           details.validationErrors = responseObj.message;
         } else {
-          frontendMessage = responseObj.message || 'An unexpected error occurred.';
+          frontendMessage =
+            responseObj.message || 'An unexpected error occurred.';
         }
 
         errorName = responseObj.error || exception.name;
 
         const { message, error, statusCode: _, ...restDetails } = responseObj;
-        Object.assign(details, restDetails); 
+        Object.assign(details, restDetails);
       } else {
         frontendMessage = `HTTP Error ${status}`;
         errorName = exception.name;

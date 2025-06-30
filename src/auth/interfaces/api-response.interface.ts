@@ -1,27 +1,23 @@
-import { UserDocument } from "../schema/candidate.schema";
-
+import { UserDocument } from '../schema/candidate.schema';
 
 export interface LoginResponce {
-    accessToken: string,
-    refreshToken: string,
-    data: UserDocument | null
+  accessToken: string;
+  refreshToken: string;
+  data: UserDocument | null;
 }
 
 export interface RegisterResponce {
-    user: UserDocument;
-    message: string;
-    verificationToken?: string
+  user: UserDocument;
+  message: string;
+  verificationToken?: string;
 }
 
 export interface verificatonResponce {
-    message:string,
-    user:UserDocument
-
+  message: string;
+  user: UserDocument;
 }
 
 export interface tokenresponce {
-    newAccess:string,
-    message:string
+  newAccess: string;
+  message: string;
 }
-
-

@@ -13,33 +13,31 @@ export type UserDocument = HydratedDocument<User>;
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true })
-  name: string; 
+  name: string;
 
-  @Prop({ required: true, unique: true})
+  @Prop({ required: true, unique: true })
   email: string;
 
   @Prop({ required: false })
-  password?: string; 
+  password?: string;
 
   @Prop({ default: false })
   isVerified: boolean;
 
   @Prop({ default: false })
-  isGlobalAdmin: boolean; 
+  isGlobalAdmin: boolean;
 
-  @Prop({ required: false})
-  googleId?: string; 
+  @Prop({ required: false })
+  googleId?: string;
 
   @Prop({
-    type: String, 
-    enum: UserRole, 
-    default: UserRole.CANDIDATE, 
+    type: String,
+    enum: UserRole,
+    default: UserRole.CANDIDATE,
   })
   role: UserRole;
 
-  _id?:string
-
+  _id?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-

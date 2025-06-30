@@ -1,58 +1,63 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import Mail from "nodemailer/lib/mailer";
-import * as nodemailer  from 'nodemailer'
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import Mail from 'nodemailer/lib/mailer';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
-    private frontendUrl: string;
-    private senderEmail: string;
-    private transporter: Mail
-    private readonly logger = new Logger(EmailService.name)
+  private frontendUrl: string;
+  private senderEmail: string;
+  private transporter: Mail;
+  private readonly logger = new Logger(EmailService.name);
 
-    constructor(private readonly confiService:ConfigService){
-        this.frontendUrl = this.confiService.get<string>('FRONTEND_URL') ?? "",
-        this.senderEmail =this.confiService.get<string>('EMAIL_USER') ?? 'fobverseweb@gmail.com'
-        this.transporter = nodemailer.createTransport({
-            service:'gmail',
-            auth: {
-                user:this.confiService.get<string>('EMAIL_USER'),
-                pass:this.confiService.get<string>('EMAIL_PASSWORD')
-            }
+  constructor(private readonly confiService: ConfigService) {
+    ((this.frontendUrl = this.confiService.get<string>('FRONTEND_URL') ?? ''),
+      (this.senderEmail =
+        this.confiService.get<string>('EMAIL_USER') ??
+        'fobverseweb@gmail.com'));
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.confiService.get<string>('EMAIL_USER'),
+        pass: this.confiService.get<string>('EMAIL_PASSWORD'),
+      },
+    });
+  }
 
-        })
+  async sendEmail(
+    to: string,
+    subject: string,
+    htmlContent: string,
+    from?: string,
+  ): Promise<void> {
+    const mailOptions = {
+      from: from || `"FobVerse" <${this.senderEmail}>`,
+      to: to,
+      subject: subject,
+      html: htmlContent,
+    };
 
-        // this.transporter.verify((error,sucess)=>{
-        //     if(error){
-        //         this.logger.error('Email transporter verification failed:', error);
-        //     }else{
-        //         this.logger.log('Email transporter ready for sending messages.')
-        //     }
-        // })
+    try {
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Verification email sent to ${to}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send verification email to ${to}: ${error.message}`,
+        error.stack,
+      );
+      throw new Error(
+        'Could not send verification email. Please try again later.',
+      );
     }
+  }
 
-    async sendEmail (to:string, subject: string, htmlContent: string, from?:string): Promise<void>{
-
-        const mailOptions = {
-        from: from || `"FobVerse" <${this.senderEmail}>`,
-        to: to,
-        subject: subject,
-        html: htmlContent,
-        };
-
-        try {
-            await this.transporter.sendMail(mailOptions)
-            this.logger.log(`Verification email sent to ${to}`)
-        } catch (error) {
-            this.logger.error(`Failed to send verification email to ${to}: ${error.message}`, error.stack)
-            throw new Error('Could not send verification email. Please try again later.')
-        }
-    }
-
-    async sendVerificationEmail(to:string , verificationjwt:string):Promise<void>{
-        const verificationLink = `${this.frontendUrl}/email/verification?token=${verificationjwt}`;
-        const subject = 'Verify Your Email Address for Your App Name';
-        const htmlContent = `
+  async sendVerificationEmail(
+    to: string,
+    verificationjwt: string,
+  ): Promise<void> {
+    const verificationLink = `${this.frontendUrl}/email/verification?token=${verificationjwt}`;
+    const subject = 'Verify Your Email Address for Your App Name';
+    const htmlContent = `
             <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
                     <tr>
@@ -101,6 +106,6 @@ export class EmailService {
             </div>
         `;
 
-        await this.sendEmail(to,subject,htmlContent)
-    }
+    await this.sendEmail(to, subject, htmlContent);
+  }
 }
