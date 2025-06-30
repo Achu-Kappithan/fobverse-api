@@ -1,22 +1,17 @@
 import { BadRequestException, ConflictException, Inject, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { CANDIDATE_SERVICE, ICandidateService } from "src/candidates/interfaces/candidate-service.interface";
 import * as bcrypt from 'bcrypt'
 import { EmailService } from "src/email/email.service";
 import { JwtAccessPayload, JwtRefreshPayload, JwtVerificationPayload } from "./interfaces/jwt-payload.interface";
 import { RegisterCandidateDto } from "./dto/register-candidate.dto";
 import { IAuthService } from "./interfaces/IAuthCandiateService";
 import { LoginResponce, RegisterResponce, tokenresponce, verificatonResponce } from "./interfaces/api-response.interface";
-import { GoogleLoginDto, LoginDto } from "./dto/login.dto";
+import { LoginDto } from "./dto/login.dto";
 import { OAuth2Client } from "google-auth-library";
-import { CANDIDATE_REPOSITORY, ICandidateRepository } from "src/candidates/interfaces/candidate-repository.interface";
-import { privateDecrypt } from "crypto";
-import { use } from "passport";
 import { JwtTokenService } from "./jwt.services/jwt-service";
 import { UserDocument } from "./schema/candidate.schema";
 import { AUTH_REPOSITORY, IAuthRepository } from "./interfaces/IAuthRepository";
-import { errorMonitor } from "events";
 
 
 @Injectable()
@@ -251,6 +246,8 @@ export class AuthService implements IAuthService {
         if(user && user.role !== role){
             throw  new ConflictException(" User alredy Exist Try with another email")
         }
+
+        
 
         if(!user ){
             user = await this.authRepository.create({

@@ -18,7 +18,6 @@ export class User {
   @Prop({ required: true, unique: true})
   email: string;
 
-  @Exclude()
   @Prop({ required: false })
   password?: string; 
 
@@ -28,7 +27,6 @@ export class User {
   @Prop({ default: false })
   isGlobalAdmin: boolean; 
 
-  @Exclude()
   @Prop({ required: false})
   googleId?: string; 
 
@@ -45,6 +43,3 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-UserSchema.virtual('id').get(function() {
-  return this._id.toString();
-});

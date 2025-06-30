@@ -3,7 +3,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { BaseRepository } from "src/shared/repositories/base.repository";
 import { User, UserDocument } from "./schema/candidate.schema";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
-import { Mode } from "fs";
 import { Model } from "mongoose";
 
 
