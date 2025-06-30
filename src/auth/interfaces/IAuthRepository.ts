@@ -6,6 +6,7 @@ export interface IAuthRepository extends IBaseRepository<UserDocument> {
     findByEmail(email:string):Promise<UserDocument |null >
     updateVerificationStatus(userId:string, status:boolean): Promise<UserDocument| null>
     UpdateGoogleId(id:string,googleid:string):Promise<UserDocument | null >
+    findUserbyEmailAndRole(emai:string,role:string): Promise<UserDocument | null>
 }
 
 

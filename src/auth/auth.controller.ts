@@ -103,13 +103,14 @@ export class AuthController {
     }
 
     @Get('google')
-    async googleAuthCallback(@Query('googleId') googleId:string, @Res({ passthrough: true }) response: Response): Promise<any>{
-        const data = await this.authService.googleLogin(googleId)
+    @HttpCode(HttpStatus.ACCEPTED)
+    async googleAuthCallback(@Query() query: { googleId: string; role: string }, @Res({ passthrough: true }) response: Response): Promise<any>{
+        const {accessToken,refreshToken,data} = await this.authService.googleLogin(query.googleId,query.role)
         this.logger.log(`user  details in googleauth ${data} `)
     
          setJwtCookie(
         response,this.configService,
-        'access_token',data!.accessToken, 
+        'access_token',accessToken, 
         'JWT_ACCESS_EXPIRES_IN',
         true,
         (7*24*60*60*1000)
@@ -117,18 +118,51 @@ export class AuthController {
 
         setJwtCookie(
         response,this.configService,
-        'refresh_token',data!.refreshToken,
+        'refresh_token',refreshToken,
         'JWT_REFRESH_EXPIRES_IN',
         true,
         (7*24*60*60*1000)
         );
 
          return {
-            message: 'Login successful.'
+            message: 'Login successful.',
+            data
         }
     }
 
+    @Post('admin/login')
+    @HttpCode(HttpStatus.OK)
+    async adminLogin(@Body() dto:LoginDto, @Res({ passthrough: true }) response: Response){
+        const user = await this.authService.validateAdmin(dto)
+        const {accessToken,refreshToken,data} =await this.authService.login(user)
+
+        setJwtCookie(
+        response,this.configService,
+        'access_token',accessToken, 
+        'JWT_ACCESS_EXPIRES_IN',
+        true,
+        (7*24*60*60*1000)
+        );
+
+        setJwtCookie(
+        response,this.configService,
+        'refresh_token',refreshToken,
+        'JWT_REFRESH_EXPIRES_IN',
+        true,
+        (7*24*60*60*1000)
+        );
+
+        return {
+            message: 'Login successful.',
+            data
+        }
+
+    }
+
 }
+
+
+
 
 
 

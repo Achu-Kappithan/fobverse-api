@@ -25,4 +25,8 @@ export class AuthRepository extends BaseRepository<UserDocument> implements IAut
         return  this.userModel.findByIdAndUpdate(id,{googleId: gooleid},{new:true}) 
     }
 
+    async findUserbyEmailAndRole(emai: string, role: string): Promise<UserDocument | null> {
+        return this.userModel.findOne({email:emai,role:role})
+    }
+
 }

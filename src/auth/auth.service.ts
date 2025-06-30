@@ -16,6 +16,7 @@ import { use } from "passport";
 import { JwtTokenService } from "./jwt.services/jwt-service";
 import { UserDocument } from "./schema/candidate.schema";
 import { AUTH_REPOSITORY, IAuthRepository } from "./interfaces/IAuthRepository";
+import { errorMonitor } from "events";
 
 
 @Injectable()
@@ -221,8 +222,8 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async googleLogin(idToken:string): Promise<LoginResponce | null> {
-        this.logger.log(`[authService] googleId${idToken}`)
+    async googleLogin(idToken:string,role:string): Promise<LoginResponce> {
+        this.logger.log(`[authService] googleId${idToken} and User role is ${role}`)
 
         const ticket = await this.googleClint.verifyIdToken({
             idToken,
@@ -247,21 +248,26 @@ export class AuthService implements IAuthService {
 
         let user = await this.authRepository.findByEmail(email)
 
-        this.logger.debug(`[authService] fetch user  using google email${user}`)
+        if(user && user.role !== role){
+            throw  new ConflictException(" User alredy Exist Try with another email")
+        }
 
-        if(!user){
+        if(!user ){
             user = await this.authRepository.create({
                 name: name,
                 email: email,
                 googleId:googleId,
-                isVerified:isVerified
+                isVerified:isVerified,
+                role:role
             })
+
+            console.log("newly creatd user",user)
 
             if(!user){
                 throw new UnauthorizedException('Faild to create new user during the Login')
             }
         }else {
-            if(!user.googleId && user.googleId !== googleId){
+            if(!user.googleId && user.googleId !== googleId && user.role === role){
                 this.logger.log(`Linking Google is To the Existinng User ${user.email}`)
             }
             user = await  this.authRepository.UpdateGoogleId(user._id.toString(),googleId)
@@ -286,7 +292,7 @@ export class AuthService implements IAuthService {
         const accessToken = this.jwtTokenService.generateAccessToken(AccessPayload)
         const refreshToken = this.jwtTokenService.generateRefreshToken(RefreshPayload)
 
-            return {
+        return {
             accessToken: accessToken,
             refreshToken: refreshToken,
             data:this.toPlainUser(user)
@@ -295,5 +301,38 @@ export class AuthService implements IAuthService {
 
     async linkGoogleAccount(id: string, googleId: string): Promise<UserDocument | null> {
         return  this.authRepository.UpdateGoogleId(id,googleId)
+    }
+
+    async validateAdmin(dto: LoginDto): Promise<UserDocument | null> {
+        this.logger.debug('[authService] adminLogin dto',dto)
+
+        const user = await this.authRepository.findByEmail(dto.email)
+
+        if(!user){
+            this.logger.warn(`Login attempt for ${dto.email}: User not found.`)
+            return null
+        }
+
+        if(!user.isGlobalAdmin){
+            throw new UnauthorizedException('You are not authorized to access the admin panel.')
+        }
+
+        if(user.role !== dto.role){
+            this.logger.warn(`Mismath of User Role ${dto.role}`)
+            throw new UnauthorizedException('Invaid User role')
+        }
+
+        if (!user.isVerified) {
+            this.logger.warn(`Login attempt for ${dto.email}: User not verified.`);
+            throw new UnauthorizedException('Please verify your email address.');
+        }
+
+        if (!(await bcrypt.compare(dto.password, user.password!))) {
+            this.logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
+            return null;
+        }
+        this.logger.log(`User ${dto.email} successfully validated.`);
+        return user
+
     }
 }
