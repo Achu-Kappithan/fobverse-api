@@ -3,6 +3,7 @@ import {
   JwtAccessPayload,
   JwtRefreshPayload,
   JwtVerificationPayload,
+  passwordResetPayload
 } from '../interfaces/jwt-payload.interface';
 import {
   Inject,
@@ -79,4 +80,28 @@ export class JwtTokenService {
       );
     }
   }
+
+
+  GeneratePassResetToken(payload:passwordResetPayload):string {
+    try {
+        const token = this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
+        expiresIn: this.configService.get<string>(
+          'JWT_VERIFICATION_EXPIRES_IN',
+        ),
+      });
+      return token;
+    } catch (error) {
+      this.logger.error(
+        `Error generating passwordReestToken for user ${payload.id}: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        'Failed to generate passwordReestToken token.',
+      );
+    }
+  }
+
+
 }
+
+

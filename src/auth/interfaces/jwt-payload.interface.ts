@@ -14,3 +14,9 @@ export interface JwtVerificationPayload {
   email: string;
   userId: string;
 }
+
+export interface passwordResetPayload {
+  id:string;
+  email:string;
+  role:string
+}

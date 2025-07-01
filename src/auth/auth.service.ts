@@ -14,16 +14,18 @@ import {
   JwtAccessPayload,
   JwtRefreshPayload,
   JwtVerificationPayload,
+  passwordResetPayload,
 } from './interfaces/jwt-payload.interface';
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { IAuthService } from './interfaces/IAuthCandiateService';
 import {
+  generalResponce,
   LoginResponce,
   RegisterResponce,
   tokenresponce,
   verificatonResponce,
 } from './interfaces/api-response.interface';
-import { LoginDto } from './dto/login.dto';
+import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from './dto/login.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
 import { UserDocument } from './schema/candidate.schema';
@@ -52,15 +54,21 @@ export class AuthService implements IAuthService {
     return user.toObject({ virtuals: true, getters: true }) as UserDocument;
   }
 
+  // find user by Email
+
   async findByEmail(email: string): Promise<UserDocument | null> {
     this.logger.debug(`Finding user by email: ${email}`);
     return this.authRepository.findByEmail(email);
   }
 
+  //find user by Id
+
   async findById(id: string): Promise<UserDocument | null> {
     this.logger.debug(`Finding user by Id:${id}`);
     return this.authRepository.findById(id);
   }
+
+  //vaildate user for login 
 
   async validateUser(
     email: string,
@@ -92,6 +100,8 @@ export class AuthService implements IAuthService {
     this.logger.log(`User ${email} successfully validated.`);
     return user;
   }
+
+  //complete login process
 
   async login(user: UserDocument): Promise<LoginResponce> {
     this.logger.debug(
@@ -125,6 +135,8 @@ export class AuthService implements IAuthService {
       data: this.toPlainUser(user),
     };
   }
+
+  //  registering new user
 
   async registerCandidate(
     dto: RegisterCandidateDto,
@@ -170,6 +182,8 @@ export class AuthService implements IAuthService {
     };
   }
 
+  // create a new user 
+
   async createUser(
     name: string,
     email: string,
@@ -186,6 +200,8 @@ export class AuthService implements IAuthService {
     this.logger.log(`Creating new candidate: ${email}`);
     return this.authRepository.create(newUser);
   }
+
+// Email verification  (Registration Process)
 
   async verifyEmail(token: string): Promise<verificatonResponce> {
     let payload: JwtVerificationPayload;
@@ -233,6 +249,8 @@ export class AuthService implements IAuthService {
     };
   }
 
+  // create new Access Token user RefreshTokens
+
   async regenerateAccessToken(
     paylod: JwtRefreshPayload,
   ): Promise<tokenresponce> {
@@ -264,6 +282,8 @@ export class AuthService implements IAuthService {
       newAccess: newAccessToken,
     };
   }
+
+  // google Login
 
   async googleLogin(idToken: string, role: string): Promise<LoginResponce> {
     this.logger.log(
@@ -358,6 +378,8 @@ export class AuthService implements IAuthService {
     };
   }
 
+  // link google id to existing User
+
   async linkGoogleAccount(
     id: string,
     googleId: string,
@@ -398,4 +420,78 @@ export class AuthService implements IAuthService {
     this.logger.log(`User ${dto.email} successfully validated.`);
     return user;
   }
+
+  // validate Email with User role  for Updateing password
+
+  async validateEmailAndRoleExistence(dto: forgotPasswordDto): Promise<generalResponce> {
+    const {email,role }= dto
+    this.logger.log('[authService] data from the frondend  for reset password',dto)
+
+    const user  = await this.authRepository.findUserbyEmailAndRole(email,role)
+    this.logger.debug('[authService] fetch user from db for udpateing password ',user)
+
+    if(!user){
+      throw new UnauthorizedException("Invalid User Try with another Email")
+    }
+
+    if(!user.isVerified){
+      throw new UnauthorizedException("Unverified User. Please verify your account.")
+    }
+
+    const Tokenpayload :passwordResetPayload= {
+      id:user._id,
+      email: user.email,
+      role: user.role
+    }
+
+    const verificationToken = await  this.jwtTokenService.GeneratePassResetToken(Tokenpayload)
+    this.logger.debug(`[authService] create token for password updation${verificationToken}`)
+
+    this.emailService.sendForgotPasswordEmail(user.email,verificationToken)
+
+    return {
+      message: 'Password reset link sent. Please check your email to update your password.'
+    }
+  }
+
+  // update  New password
+
+  async UpdateNewPassword(dto: UpdatePasswordDto): Promise<generalResponce> {
+    const {password,token } = dto
+    let payload: passwordResetPayload
+
+    try {
+      if (!token) {
+        throw new BadRequestException('Verification token is missing.');
+      }
+      console.log(token)
+
+      payload = await this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
+      });
+      console.log("token get",payload)
+      this.logger.log(
+        `Verification token valid for user ID: ${payload.id}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Email verification failed: Invalid or expired token - ${error.message}`,
+      );
+      throw new BadRequestException('Invalid or expired verification link.');
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const updatedUser = await this.authRepository.update({ _id: payload.id }, { $set: { password: hashPassword } })
+
+    if(!updatedUser){
+      throw new BadRequestException("Can'Update Password Try again")
+    }
+
+    return {
+      message: "You've successfully reset your password. Please log in to continue."
+    }
+
+  }
+
 }

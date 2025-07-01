@@ -15,6 +15,27 @@ export class LoginDto {
 }
 
 export class GoogleLoginDto {
+  @IsString()
   email: string;
+
+  @IsString()
   idToken: string;
+}
+
+export class forgotPasswordDto {
+  @IsEmail({},{message: "Email for forgotPassword is not vaild"})
+  email:string
+
+  @IsString()
+  role:string
+}
+
+export class UpdatePasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  password:string
+
+  @IsString()
+  @IsNotEmpty()
+  token:string
 }

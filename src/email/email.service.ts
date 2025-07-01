@@ -56,7 +56,7 @@ export class EmailService {
     verificationjwt: string,
   ): Promise<void> {
     const verificationLink = `${this.frontendUrl}/email/verification?token=${verificationjwt}`;
-    const subject = 'Verify Your Email Address for Your App Name';
+    const subject = 'Verify Your Email Address for FobVerse';
     const htmlContent = `
             <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
@@ -107,5 +107,59 @@ export class EmailService {
         `;
 
     await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async sendForgotPasswordEmail(to:string, token:string):Promise<void> {
+    const resetLink = `${this.frontendUrl}/forgotpassword/newpassword?token=${token}`;
+    const subject = 'Verify Your Email Address for FobVerse';
+    const htmlContent = `<div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+              <tr>
+                  <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+                      <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+                  </td>
+              </tr>
+              <tr>
+                  <td style="padding: 40px 20px; text-align: center;">
+                      <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Reset Your Password</h2>
+                      <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                          Hello,
+                      </p>
+                      <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                          You requested to reset your password for your Fobverse account. Please click the button below to set a new password:
+                      </p>
+                      <p style="margin-bottom: 20px;">
+                          <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #7B3FE4; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: 500;">
+                              Reset Password
+                          </a>
+                      </p>
+                      <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">
+                          If the button doesn't work, copy and paste this link into your browser:
+                          <br>
+                          <a href="${resetLink}" style="color: #a78bfa; text-decoration: underline; word-break: break-all;">${resetLink}</a>
+                      </p>
+                      <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">
+                          This link will expire in 24 hours.
+                      </p>
+                      <p style="color: #6b7280; font-size: 14px;">
+                          If you did not request a password reset, please ignore this email or contact support if you have concerns.
+                      </p>
+                  </td>
+              </tr>
+              <tr>
+                  <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                      <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                          © 2025 Fobverse. All rights reserved.
+                      </p>
+                      <p style="color: #6b7280; font-size: 12px; margin: 5px 0;">
+                          <a href="https://fobverse.com" style="color: #a78bfa; text-decoration: none;">Visit our website</a>
+                      </p>
+                  </td>
+              </tr>
+          </table>
+      </div>`
+
+      await this.sendEmail(to,subject,htmlContent)
+
   }
 }

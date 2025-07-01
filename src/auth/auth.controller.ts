@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AUTH_SERVICE, IAuthService } from './interfaces/IAuthCandiateService';
-import { LoginDto } from './dto/login.dto';
+import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from './dto/login.dto';
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
@@ -22,7 +22,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtRefreshPayload } from './interfaces/jwt-payload.interface';
 import { setJwtCookie } from 'src/shared/utils/cookie.util';
 import { UserDocument } from './schema/candidate.schema';
-import { LoginResponce } from './interfaces/api-response.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -207,5 +206,16 @@ export class AuthController {
       message: 'Login successful.',
       data,
     };
+  }
+
+  @Post('forgotpassword')
+  @HttpCode(HttpStatus.CREATED)
+  async updatePassword( @Body() dto:forgotPasswordDto){
+    return this.authService.validateEmailAndRoleExistence(dto)
+  }
+
+  @Post('updatepassword')
+  async updateNewPassword(@Body() dto:UpdatePasswordDto){
+    return this.authService.UpdateNewPassword(dto)
   }
 }

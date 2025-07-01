@@ -1,5 +1,6 @@
 import { RegisterCandidateDto } from 'src/auth/dto/register-candidate.dto';
 import {
+  generalResponce,
   LoginResponce,
   RegisterResponce,
   tokenresponce,
@@ -7,7 +8,7 @@ import {
 } from './api-response.interface';
 import { JwtRefreshPayload } from './jwt-payload.interface';
 import { UserDocument } from '../schema/candidate.schema';
-import { LoginDto } from '../dto/login.dto';
+import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from '../dto/login.dto';
 
 export interface IAuthService {
   validateUser(
@@ -25,6 +26,8 @@ export interface IAuthService {
   linkGoogleAccount(id: string, googleId: string): Promise<UserDocument | null>;
   findById(id: string): Promise<UserDocument | null>;
   validateAdmin(dto: LoginDto): Promise<UserDocument | null>;
+  validateEmailAndRoleExistence(dto:forgotPasswordDto):Promise<generalResponce>
+  UpdateNewPassword(dto:UpdatePasswordDto):Promise<generalResponce>
 }
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';

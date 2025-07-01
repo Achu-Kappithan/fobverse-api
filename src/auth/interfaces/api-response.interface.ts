@@ -21,3 +21,7 @@ export interface tokenresponce {
   newAccess: string;
   message: string;
 }
+
+export interface generalResponce {
+  message:string
+}
