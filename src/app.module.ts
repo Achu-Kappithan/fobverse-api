@@ -6,6 +6,7 @@ import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './shared/configs/logger.config';
 import { CandiateModule } from './candidates/candidates.module';
 import { AuthModule } from './auth/auth.module';
+import { CompanyModule } from './company/company.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthModule } from './auth/auth.module';
     SharedModule,
     CandiateModule,
     AuthModule,
+    CompanyModule,
   ],
   controllers: [],
   providers: [],

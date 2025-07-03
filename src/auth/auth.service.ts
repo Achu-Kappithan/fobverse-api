@@ -30,6 +30,8 @@ import { OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
 import { UserDocument } from './schema/candidate.schema';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
+import { COMPANY_SERVICE, IComapnyService } from 'src/company/interface/profile.service.interface';
+import { CreateProfileDto } from 'src/company/dtos/create.profile.dto';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -39,6 +41,8 @@ export class AuthService implements IAuthService {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
+    @Inject(COMPANY_SERVICE)
+    private readonly _companyService: IComapnyService,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -101,7 +105,7 @@ export class AuthService implements IAuthService {
     return user;
   }
 
-  //complete login process
+  //complete user login process
 
   async login(user: UserDocument): Promise<LoginResponce> {
     this.logger.debug(
@@ -119,15 +123,8 @@ export class AuthService implements IAuthService {
       email: user.email,
     };
 
-    const AccessToken = this.jwtService.sign(AccessPayload, {
-      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
-    });
-
-    const RefreshToken = this.jwtService.sign(RefreshPayload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
-    });
+    const AccessToken = await this.jwtTokenService.generateAccessToken(AccessPayload)
+    const RefreshToken = await this.jwtTokenService.generateRefreshToken(RefreshPayload)
 
     return {
       accessToken: AccessToken,
@@ -241,7 +238,13 @@ export class AuthService implements IAuthService {
       user._id.toString(),
       true,
     );
+    const profiledata:CreateProfileDto = {
+      userId:verifieduser!._id,
+      companyName:verifieduser!.name
+    }
+
     this.logger.log(`User ${verifieduser} successfully verified.`);
+    this._companyService.createProfile(profiledata)
 
     return {
       message: 'Email successfully verified. You can now log in.',
@@ -389,23 +392,18 @@ export class AuthService implements IAuthService {
 
   async validateAdmin(dto: LoginDto): Promise<UserDocument | null> {
     this.logger.debug('[authService] adminLogin dto', dto);
-
-    const user = await this.authRepository.findByEmail(dto.email);
+ 
+    const user = await this.authRepository.findUserbyEmailAndRole(dto.email,dto.role);
 
     if (!user) {
       this.logger.warn(`Login attempt for ${dto.email}: User not found.`);
-      return null;
+      throw new UnauthorizedException(`Invalid User or User not found`)
     }
 
     if (!user.isGlobalAdmin) {
       throw new UnauthorizedException(
         'You are not authorized to access the admin panel.',
       );
-    }
-
-    if (user.role !== dto.role) {
-      this.logger.warn(`Mismath of User Role ${dto.role}`);
-      throw new UnauthorizedException('Invaid User role');
     }
 
     if (!user.isVerified) {
@@ -415,8 +413,9 @@ export class AuthService implements IAuthService {
 
     if (!(await bcrypt.compare(dto.password, user.password!))) {
       this.logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
-      return null;
+      throw new UnauthorizedException(`Invalid Email or Passwrod`)
     }
+
     this.logger.log(`User ${dto.email} successfully validated.`);
     return user;
   }
@@ -487,7 +486,7 @@ export class AuthService implements IAuthService {
     if(!updatedUser){
       throw new BadRequestException("Can'Update Password Try again")
     }
-
+    
     return {
       message: "You've successfully reset your password. Please log in to continue."
     }

@@ -16,10 +16,11 @@ import { AUTH_REPOSITORY } from './interfaces/IAuthRepository';
 import { AuthRepository } from './auth.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/candidate.schema';
+import { CompanyModule } from 'src/company/company.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema  }]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -29,6 +30,7 @@ import { User, UserSchema } from './schema/candidate.schema';
     ConfigModule,
     CandiateModule,
     EmailModule,
+    CompanyModule
   ],
   providers: [
     {
