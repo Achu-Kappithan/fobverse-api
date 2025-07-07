@@ -4,10 +4,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from './shared/shared.module';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './shared/configs/logger.config';
-import { CandiateModule } from './candidates/candidates.module';
 import { AuthModule } from './auth/auth.module';
 import { CompanyModule } from './company/company.module';
 import { AdminModule } from './admin/admin.module';
+import { CandiateModule } from './candiate/candidate.module';
 
 @Module({
   imports: [

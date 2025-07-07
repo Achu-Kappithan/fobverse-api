@@ -10,7 +10,7 @@ export class CompanyResponseDto {
   userId: string;
 
   @Expose()
-  companyName: string;
+  name: string;
 
   @Expose()
   industry?: string;

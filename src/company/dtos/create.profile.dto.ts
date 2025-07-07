@@ -6,5 +6,5 @@ export class CreateProfileDto {
   userId: string;
 
   @IsNotEmpty()
-  companyName: string;
+  name: string;
 }

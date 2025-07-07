@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { CandiateModule } from 'src/candidates/candidates.module';
 import { jwtConfig } from 'src/shared/configs/jwt.config';
 import { AuthService } from './auth.service';
 import { AUTH_SERVICE } from './interfaces/IAuthCandiateService';
@@ -17,6 +16,7 @@ import { AuthRepository } from './auth.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/candidate.schema';
 import { CompanyModule } from 'src/company/company.module';
+import { CandiateModule } from 'src/candiate/candidate.module';
 
 @Module({
   imports: [
