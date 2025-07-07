@@ -32,7 +32,6 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  @UseGuards()
   @Get('profile')
   getProfile(@Request() req) {
     return {
@@ -98,7 +97,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   getCurrentUser(@Request() req: any) {
     const user = req.user as UserDocument;
-    console.log(user);
+    this.logger.log(`User details from getuser: ${JSON.stringify(user)}`);
     return {
       id: user.id,
       role: user.role,

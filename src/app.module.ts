@@ -7,6 +7,7 @@ import { loggerConfig } from './shared/configs/logger.config';
 import { CandiateModule } from './candidates/candidates.module';
 import { AuthModule } from './auth/auth.module';
 import { CompanyModule } from './company/company.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CompanyModule } from './company/company.module';
     CandiateModule,
     AuthModule,
     CompanyModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],

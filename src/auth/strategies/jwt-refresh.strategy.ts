@@ -20,8 +20,6 @@ export class jwtRefreshStrategy extends PassportStrategy(
   logger = new Logger(jwtRefreshStrategy.name);
   constructor(
     private readonly configService: ConfigService,
-    // @Inject(CANDIDATE_REPOSITORY)
-    // private readonly candidateService:ICandidateService
     @Inject(AUTH_SERVICE)
     private readonly authService: IAuthService,
   ) {

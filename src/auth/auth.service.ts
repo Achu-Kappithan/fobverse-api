@@ -84,6 +84,7 @@ export class AuthService implements IAuthService {
 
     if (!user) {
       this.logger.warn(`Login attempt for ${email}: User not found.`);
+      throw new UnauthorizedException(`Login attempt for ${email}: User not found.`)
       return null;
     }
 
@@ -99,8 +100,9 @@ export class AuthService implements IAuthService {
 
     if (!(await bcrypt.compare(password, user.password!))) {
       this.logger.warn(`Login attempt for ${email}: Invalid password.`);
-      return null;
+      throw new UnauthorizedException(`Invalid Email or Password`)
     }
+
     this.logger.log(`User ${email} successfully validated.`);
     return user;
   }
