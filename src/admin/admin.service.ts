@@ -1,8 +1,8 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from 'src/company/interface/profile.repository.interface';
 import { CompanyRepository } from 'src/company/comapny.repository';
-import { GetAllcompanyResponce } from './interfaces/responce.interface';
+import { GetAllcompanyResponce, PlainResponse } from './interfaces/responce.interface';
 import { CompanyProfileDocument } from 'src/company/schema/company.profile.schema';
 import { plainToInstance } from 'class-transformer';
 import { CompanyResponseDto } from 'src/company/dtos/responce.allcompany';
@@ -53,16 +53,34 @@ export class AdminService implements IAdminService {
             const obj = doc.toObject()
             return {
                 ...obj,
-                _id: obj._id.toString(),
+                id: obj._id.toString(),
                 userId: obj.userId.toString()
             }
         }),
         { excludeExtraneousValues: true },
         );
+        console.log(mapdeData)
         return {
             message: "datafetching successfully completed",
             data:mapdeData
         }
+    }
+
+    async updateCompanyStatus(id:string): Promise<PlainResponse> {
+       const data = await this._companyRepository.updateStatus(id)
+       this.logger.debug(`[AdminService] status Updated data ${data}`)
+       return {
+        message: "Status  updated"
+       }
+    }
+
+    async updateCandidateStatus(id:string): Promise<PlainResponse> {
+       const data = await this._candidateRepository.updateStatus(id)
+       console.log(data)
+       this.logger.debug(`[AdminService] status Updated data ${data}`)
+       return {
+        message: "Status  updated"
+       }
     }
 
 }

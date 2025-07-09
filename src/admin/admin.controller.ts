@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
 import { ADMIN_SERVICE, IAdminService } from './interfaces/IAdminService';
 import { AdminService } from './admin.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -20,5 +20,21 @@ export class AdminController {
   @UseGuards(AuthGuard('access_token'))
   async getAllCandidates(){
     return this._adminService.getAllCandidates()
+  }
+
+  @Get('company/updatestatus')
+  @UseGuards(AuthGuard('access_token')) 
+  async updateStatus(
+    @Query('id') id:string
+  ){
+    return this._adminService.updateCompanyStatus(id)
+  }
+
+  @Get('candidate/updatestatus')
+  @UseGuards(AuthGuard('access_token'))
+  async updateCandidateStatus(
+    @Query('id') id:string
+  ){
+    return this._adminService.updateCandidateStatus(id)
   }
 }

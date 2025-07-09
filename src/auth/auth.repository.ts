@@ -20,6 +20,50 @@ export class AuthRepository
     return this.findOne({ email });
   }
 
+  async findCandidateByEmail(email: string): Promise<any> {
+    return this.userModel.aggregate([
+        {
+          $match: { email: email } 
+        },
+        {
+          $lookup: {
+            from: 'candidateprofiles',
+            localField: '_id',
+            foreignField: 'userId',
+            as: 'profile'
+          }
+        },
+        {
+        $unwind: {
+          path: '$profile',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ])
+  }
+
+  async findCompanyByEmail(email: string): Promise<any> {
+        return this.userModel.aggregate([
+        {
+          $match: { email: email } 
+        },
+        {
+          $lookup: {
+            from: 'companyprofiles',
+            localField: '_id',
+            foreignField: 'userId',
+            as: 'profile'
+          }
+        },
+        {
+        $unwind: {
+          path: '$profile',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ])
+  }
+
   async updateVerificationStatus(
     userId: string,
     status: boolean,

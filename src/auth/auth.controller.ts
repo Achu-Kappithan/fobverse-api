@@ -114,7 +114,7 @@ export class AuthController {
     @Req() req: any,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-    const candidate = req.user as JwtRefreshPayload;
+    const candidate = req.user as UserDocument;
 
     const { newAccess, message } =
       await this.authService.regenerateAccessToken(candidate);
