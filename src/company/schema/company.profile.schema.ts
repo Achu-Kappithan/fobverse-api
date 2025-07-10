@@ -9,7 +9,7 @@ export class CompanyProfile {
   userId: Types.ObjectId;
 
   @Prop({ required: true })
-  companyName: string;
+  name: string;
 
   @Prop()
   industry?: string;

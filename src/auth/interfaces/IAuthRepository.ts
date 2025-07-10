@@ -15,6 +15,10 @@ export interface IAuthRepository extends IBaseRepository<UserDocument> {
     email: string,
     role: string,
   ): Promise<UserDocument | null>;
+
+  findCandidateByEmail(email:string):Promise<any>
+
+  findCompanyByEmail(email:string):Promise<any>
 }
 
 export const AUTH_REPOSITORY = 'AUTH_REPOSITORY';

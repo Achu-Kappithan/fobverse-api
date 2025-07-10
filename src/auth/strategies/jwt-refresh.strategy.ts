@@ -20,8 +20,6 @@ export class jwtRefreshStrategy extends PassportStrategy(
   logger = new Logger(jwtRefreshStrategy.name);
   constructor(
     private readonly configService: ConfigService,
-    // @Inject(CANDIDATE_REPOSITORY)
-    // private readonly candidateService:ICandidateService
     @Inject(AUTH_SERVICE)
     private readonly authService: IAuthService,
   ) {
@@ -33,13 +31,13 @@ export class jwtRefreshStrategy extends PassportStrategy(
           );
           const token = request?.cookies?.['refresh_token'];
           if (!token) {
-            this.logger.warn(`[ExtractJwt] No access_token found in cookie.`);
+            this.logger.warn(`[ExtractJwt] No refresh_Token found in cookie.`);
           }
           return token;
-        },
+        }, 
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_ACCESS_SECRET') || '',
+      secretOrKey: configService.get<string>('JWT_REFRESH_SECRET') || '',
     });
     this.logger.debug(
       `[Strategy Init] JwtAccessStrategy initialized. Secret status: ${configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`,

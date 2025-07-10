@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   Logger,
@@ -25,13 +26,28 @@ import {
   tokenresponce,
   verificatonResponce,
 } from './interfaces/api-response.interface';
-import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from './dto/login.dto';
+import {
+  forgotPasswordDto,
+  LoginDto,
+  UpdatePasswordDto,
+} from './dto/login.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
 import { UserDocument } from './schema/candidate.schema';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
-import { COMPANY_SERVICE, IComapnyService } from 'src/company/interface/profile.service.interface';
+import {
+  COMPANY_SERVICE,
+  IComapnyService,
+} from 'src/company/interface/profile.service.interface';
 import { CreateProfileDto } from 'src/company/dtos/create.profile.dto';
+import {
+  CANDIDATE_REPOSITORY,
+  ICandidateRepository,
+} from 'src/candiate/interfaces/candidate-repository.interface';
+import {
+  CANDIDATE_SERVICE,
+  ICandidateService,
+} from 'src/candiate/interfaces/candidate-service.interface';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -43,6 +59,8 @@ export class AuthService implements IAuthService {
     private readonly authRepository: IAuthRepository,
     @Inject(COMPANY_SERVICE)
     private readonly _companyService: IComapnyService,
+    @Inject(CANDIDATE_SERVICE)
+    private readonly _candidateService: ICandidateService,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -72,7 +90,7 @@ export class AuthService implements IAuthService {
     return this.authRepository.findById(id);
   }
 
-  //vaildate user for login 
+  //vaildate user for login
 
   async validateUser(
     email: string,
@@ -80,29 +98,53 @@ export class AuthService implements IAuthService {
     role: string,
   ): Promise<UserDocument | null> {
     this.logger.debug(`Attempting to validate user: ${email}`);
-    const user = await this.authRepository.findByEmail(email);
+    let profileData;
 
-    if (!user) {
+    if (role === 'candidate') {
+      profileData = await this.authRepository.findCandidateByEmail(email);
+    } else if (role === 'company') {
+      profileData = await this.authRepository.findCompanyByEmail(email);
+    }
+    profileData = profileData[0];
+
+    if (!profileData) {
       this.logger.warn(`Login attempt for ${email}: User not found.`);
-      return null;
+      throw new UnauthorizedException(
+        `Login attempt for ${email}: User not found.`,
+      );
     }
 
-    if (user.role !== role) {
+    if (!profileData.password) {
+      throw new BadRequestException(
+        'This account is linked with google  use google to signin',
+      );
+    }
+
+    if (!(await bcrypt.compare(password, profileData.password!))) {
+      this.logger.warn(`Login attempt for ${email}: Invalid password.`);
+      throw new UnauthorizedException(`Invalid Email or Password`);
+    }
+
+    if (profileData.role !== role) {
       this.logger.warn(`Mismath of User Role ${role}`);
       throw new UnauthorizedException('Invaid User role');
     }
 
-    if (!user.isVerified) {
+    if (!profileData.isVerified) {
       this.logger.warn(`Login attempt for ${email}: User not verified.`);
       throw new UnauthorizedException('Please verify your email address.');
     }
 
-    if (!(await bcrypt.compare(password, user.password!))) {
-      this.logger.warn(`Login attempt for ${email}: Invalid password.`);
-      return null;
+    if (!profileData.profile.isActive) {
+      throw new ForbiddenException(
+        ' You are currently blocked plz contact admin..!',
+      );
     }
+
+    const { profile, ...cleanedProfile } = profileData;
+
     this.logger.log(`User ${email} successfully validated.`);
-    return user;
+    return cleanedProfile;
   }
 
   //complete user login process
@@ -119,17 +161,19 @@ export class AuthService implements IAuthService {
     };
 
     const RefreshPayload: JwtRefreshPayload = {
-      userId: user.id,
+      userId: user._id,
       email: user.email,
     };
 
-    const AccessToken = await this.jwtTokenService.generateAccessToken(AccessPayload)
-    const RefreshToken = await this.jwtTokenService.generateRefreshToken(RefreshPayload)
+    const AccessToken =
+      await this.jwtTokenService.generateAccessToken(AccessPayload);
+    const RefreshToken =
+      await this.jwtTokenService.generateRefreshToken(RefreshPayload);
 
     return {
       accessToken: AccessToken,
       refreshToken: RefreshToken,
-      data: this.toPlainUser(user),
+      data: user,
     };
   }
 
@@ -179,7 +223,7 @@ export class AuthService implements IAuthService {
     };
   }
 
-  // create a new user 
+  // create a new user
 
   async createUser(
     name: string,
@@ -198,7 +242,7 @@ export class AuthService implements IAuthService {
     return this.authRepository.create(newUser);
   }
 
-// Email verification  (Registration Process)
+  // Email verification  (Registration Process)
 
   async verifyEmail(token: string): Promise<verificatonResponce> {
     let payload: JwtVerificationPayload;
@@ -238,13 +282,23 @@ export class AuthService implements IAuthService {
       user._id.toString(),
       true,
     );
-    const profiledata:CreateProfileDto = {
-      userId:verifieduser!._id,
-      companyName:verifieduser!.name
-    }
+
+    const profiledata: CreateProfileDto = {
+      userId: verifieduser!._id,
+      name: verifieduser!.name,
+    };
 
     this.logger.log(`User ${verifieduser} successfully verified.`);
-    this._companyService.createProfile(profiledata)
+
+    try {
+      if (user.role == 'candidate') {
+        this._candidateService.createPorfile(profiledata);
+      } else if (user.role === 'company') {
+        this._companyService.createProfile(profiledata);
+      }
+    } catch (error) {
+      throw error;
+    }
 
     return {
       message: 'Email successfully verified. You can now log in.',
@@ -254,32 +308,17 @@ export class AuthService implements IAuthService {
 
   // create new Access Token user RefreshTokens
 
-  async regenerateAccessToken(
-    paylod: JwtRefreshPayload,
-  ): Promise<tokenresponce> {
-    if (!paylod || !paylod.userId || !paylod.email) {
-      throw new UnauthorizedException(
-        'Invalid refresh token payload or user data.',
-      );
-    }
-
-    const user = await this.authRepository.findByEmail(paylod.email);
-
-    if (!user) {
-      throw new UnauthorizedException(' Issue Regading the account Status');
-    }
-
+  async regenerateAccessToken(paylod: UserDocument): Promise<tokenresponce> {
     const tokenPaylod: JwtAccessPayload = {
-      userId: user._id,
-      email: user.email,
-      role: user.role,
-      is_verified: user.isVerified,
+      userId: paylod._id,
+      email: paylod.email,
+      role: paylod.role,
+      is_verified: paylod.isVerified,
     };
 
-    const newAccessToken = this.jwtService.sign(tokenPaylod, {
-      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
-    });
+    const newAccessToken =
+      await this.jwtTokenService.generateAccessToken(tokenPaylod);
+
     return {
       message: 'Access token refreshed successfully',
       newAccess: newAccessToken,
@@ -318,8 +357,14 @@ export class AuthService implements IAuthService {
       );
     }
 
-    let user = await this.authRepository.findByEmail(email);
+    let user;
+    if (role === 'candidate') {
+      user = await this.authRepository.findCandidateByEmail(email);
+    } else if (role === 'company') {
+      user = await this.authRepository.findCompanyByEmail(email);
+    }
 
+    user = user[0];
     if (user && user.role !== role) {
       throw new ConflictException(' User alredy Exist Try with another email');
     }
@@ -333,14 +378,33 @@ export class AuthService implements IAuthService {
         role: role,
       });
 
-      console.log('newly creatd user', user);
-
       if (!user) {
         throw new UnauthorizedException(
           'Faild to create new user during the Login',
         );
       }
+
+      const profiledata: CreateProfileDto = {
+        userId: user!._id,
+        name: user!.name,
+      };
+
+      try {
+        if (user.role == 'candidate') {
+          this._candidateService.createPorfile(profiledata);
+        } else if (user.role === 'company') {
+          this._companyService.createProfile(profiledata);
+        }
+      } catch (error) {
+        throw error;
+      }
     } else {
+      if (!user.profile.isActive) {
+        throw new ForbiddenException(
+          ' You are currently blocked plz contact admin..!',
+        );
+      }
+
       if (!user.googleId && user.googleId !== googleId && user.role === role) {
         this.logger.log(
           `Linking Google is To the Existinng User ${user.email}`,
@@ -371,13 +435,14 @@ export class AuthService implements IAuthService {
     };
 
     const accessToken = this.jwtTokenService.generateAccessToken(AccessPayload);
-    const refreshToken =
-      this.jwtTokenService.generateRefreshToken(RefreshPayload);
+    const refreshToken = this.jwtTokenService.generateRefreshToken(RefreshPayload);
+
+    const { profile, ...cleanedProfile } = user;
 
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
-      data: this.toPlainUser(user),
+      data: cleanedProfile,
     };
   }
 
@@ -392,12 +457,15 @@ export class AuthService implements IAuthService {
 
   async validateAdmin(dto: LoginDto): Promise<UserDocument | null> {
     this.logger.debug('[authService] adminLogin dto', dto);
- 
-    const user = await this.authRepository.findUserbyEmailAndRole(dto.email,dto.role);
+
+    const user = await this.authRepository.findUserbyEmailAndRole(
+      dto.email,
+      dto.role,
+    );
 
     if (!user) {
       this.logger.warn(`Login attempt for ${dto.email}: User not found.`);
-      throw new UnauthorizedException(`Invalid User or User not found`)
+      throw new UnauthorizedException(`Invalid User or User not found`);
     }
 
     if (!user.isGlobalAdmin) {
@@ -413,7 +481,7 @@ export class AuthService implements IAuthService {
 
     if (!(await bcrypt.compare(dto.password, user.password!))) {
       this.logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
-      throw new UnauthorizedException(`Invalid Email or Passwrod`)
+      throw new UnauthorizedException(`Invalid Email or Passwrod`);
     }
 
     this.logger.log(`User ${dto.email} successfully validated.`);
@@ -422,56 +490,66 @@ export class AuthService implements IAuthService {
 
   // validate Email with User role  for Updateing password
 
-  async validateEmailAndRoleExistence(dto: forgotPasswordDto): Promise<generalResponce> {
-    const {email,role }= dto
-    this.logger.log('[authService] data from the frondend  for reset password',dto)
+  async validateEmailAndRoleExistence(
+    dto: forgotPasswordDto,
+  ): Promise<generalResponce> {
+    const { email, role } = dto;
+    this.logger.log(
+      '[authService] data from the frondend  for reset password',
+      dto,
+    );
 
-    const user  = await this.authRepository.findUserbyEmailAndRole(email,role)
-    this.logger.debug('[authService] fetch user from db for udpateing password ',user)
+    const user = await this.authRepository.findUserbyEmailAndRole(email, role);
+    this.logger.debug(
+      '[authService] fetch user from db for udpateing password ',
+      user,
+    );
 
-    if(!user){
-      throw new UnauthorizedException("Invalid User Try with another Email")
+    if (!user) {
+      throw new UnauthorizedException('Invalid User Try with another Email');
     }
 
-    if(!user.isVerified){
-      throw new UnauthorizedException("Unverified User. Please verify your account.")
+    if (!user.isVerified) {
+      throw new UnauthorizedException(
+        'Unverified User. Please verify your account.',
+      );
     }
 
-    const Tokenpayload :passwordResetPayload= {
-      id:user._id,
+    const Tokenpayload: passwordResetPayload = {
+      id: user._id,
       email: user.email,
-      role: user.role
-    }
+      role: user.role,
+    };
 
-    const verificationToken = await  this.jwtTokenService.GeneratePassResetToken(Tokenpayload)
-    this.logger.debug(`[authService] create token for password updation${verificationToken}`)
+    const verificationToken =
+      await this.jwtTokenService.GeneratePassResetToken(Tokenpayload);
+    this.logger.debug(
+      `[authService] create token for password updation${verificationToken}`,
+    );
 
-    this.emailService.sendForgotPasswordEmail(user.email,verificationToken)
+    this.emailService.sendForgotPasswordEmail(user.email, verificationToken);
 
     return {
-      message: 'Password reset link sent. Please check your email to update your password.'
-    }
+      message:
+        'Password reset link sent. Please check your email to update your password.',
+    };
   }
 
   // update  New password
 
   async UpdateNewPassword(dto: UpdatePasswordDto): Promise<generalResponce> {
-    const {password,token } = dto
-    let payload: passwordResetPayload
+    const { password, token } = dto;
+    let payload: passwordResetPayload;
 
     try {
       if (!token) {
         throw new BadRequestException('Verification token is missing.');
       }
-      console.log(token)
 
       payload = await this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
       });
-      console.log("token get",payload)
-      this.logger.log(
-        `Verification token valid for user ID: ${payload.id}`,
-      );
+      this.logger.log(`Verification token valid for user ID: ${payload.id}`);
     } catch (error) {
       this.logger.error(
         `Email verification failed: Invalid or expired token - ${error.message}`,
@@ -481,16 +559,18 @@ export class AuthService implements IAuthService {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const updatedUser = await this.authRepository.update({ _id: payload.id }, { $set: { password: hashPassword } })
+    const updatedUser = await this.authRepository.update(
+      { _id: payload.id },
+      { $set: { password: hashPassword } },
+    );
 
-    if(!updatedUser){
-      throw new BadRequestException("Can'Update Password Try again")
+    if (!updatedUser) {
+      throw new BadRequestException("Can'Update Password Try again");
     }
-    
+
     return {
-      message: "You've successfully reset your password. Please log in to continue."
-    }
-
+      message:
+        "You've successfully reset your password. Please log in to continue.",
+    };
   }
-
 }

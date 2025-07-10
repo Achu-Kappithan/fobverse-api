@@ -3,7 +3,7 @@ import {
   JwtAccessPayload,
   JwtRefreshPayload,
   JwtVerificationPayload,
-  passwordResetPayload
+  passwordResetPayload,
 } from '../interfaces/jwt-payload.interface';
 import {
   Inject,
@@ -15,7 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import {
   CANDIDATE_SERVICE,
   ICandidateService,
-} from 'src/candidates/interfaces/candidate-service.interface';
+} from 'src/candiate/interfaces/candidate-service.interface';
 
 @Injectable()
 export class JwtTokenService {
@@ -81,10 +81,9 @@ export class JwtTokenService {
     }
   }
 
-
-  GeneratePassResetToken(payload:passwordResetPayload):string {
+  GeneratePassResetToken(payload: passwordResetPayload): string {
     try {
-        const token = this.jwtService.sign(payload, {
+      const token = this.jwtService.sign(payload, {
         secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
         expiresIn: this.configService.get<string>(
           'JWT_VERIFICATION_EXPIRES_IN',
@@ -100,8 +99,4 @@ export class JwtTokenService {
       );
     }
   }
-
-
 }
-
-

@@ -13,12 +13,14 @@ export class CompanyService implements IComapnyService{
     ){}
 
     async createProfile(dto: CreateProfileDto): Promise<void> {
-       this.logger.debug(`[CompanyService] creating new company profiel${dto.companyName}`)
+       this.logger.debug(`[CompanyService] creating new company profiel${dto.name}`)
         const newProfile = await this._companyRepository.create(dto)
         this.logger.debug(`[CompanyService] new profile created ${newProfile}`)
         if(!newProfile){
             throw new InternalServerErrorException('error regding profile creation')
         }
     }
+
+
 
 }

@@ -1,8 +1,12 @@
 import { Injectable } from "@nestjs/common";
+import { BaseRepository } from "src/shared/repositories/base.repository";
+import { CompanyProfileDocument } from "../schema/company.profile.schema";
+import { UpdateResult } from "mongoose";
 
 
-@Injectable()
-export class IcompanyRepository {
+export interface IcompanyRepository extends BaseRepository<CompanyProfileDocument> {
+
+    updateStatus(id:string):Promise<UpdateResult>
 
 }
 
