@@ -34,6 +34,8 @@ export class CompanyProfile {
 
   @Prop()
   description?: string;
+
+  _id?:string
 }
 
 export const CompanyProfileSchema = SchemaFactory.createForClass(CompanyProfile);

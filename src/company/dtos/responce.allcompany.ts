@@ -2,7 +2,7 @@
 
 import { Expose } from 'class-transformer';
 
-export class CompanyResponseDto {
+export class CompanyProfileResponseDto {
   @Expose()
   _id: string;
 

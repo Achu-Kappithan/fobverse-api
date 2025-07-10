@@ -485,7 +485,7 @@ export class AuthService implements IAuthService {
     }
 
     this.logger.log(`User ${dto.email} successfully validated.`);
-    return user;
+    return  this.toPlainUser(user)
   }
 
   // validate Email with User role  for Updateing password

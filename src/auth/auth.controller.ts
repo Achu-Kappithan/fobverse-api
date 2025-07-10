@@ -57,7 +57,6 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    console.log(loginDto);
     const user = await this.authService.validateUser(
       loginDto.email,
       loginDto.password,
@@ -82,7 +81,7 @@ export class AuthController {
       'refresh_token',
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
-      true,
+      false,
       7 * 24 * 60 * 60 * 1000,
     );
 
@@ -90,6 +89,14 @@ export class AuthController {
       message: 'Login successful.',
       data,
     };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return { message: 'Logged out successfully' };
   }
 
   @Get('getuser')
@@ -161,7 +168,7 @@ export class AuthController {
       'refresh_token',
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
-      true,
+      false,
       7 * 24 * 60 * 60 * 1000,
     );
 
@@ -197,13 +204,16 @@ export class AuthController {
       'refresh_token',
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
-      true,
+      false,
       7 * 24 * 60 * 60 * 1000,
     );
 
     return {
-      message: 'Login successful.',
-      data,
+      id: data?._id.toString(),
+      role: data?.role,
+      email: data?.email,
+      is_verified: data?.isVerified,
+      message: 'Login successful'
     };
   }
 
