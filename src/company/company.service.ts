@@ -1,12 +1,12 @@
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger, Req, Request } from '@nestjs/common';
 import { IComapnyService } from './interface/profile.service.interface';
 import { COMAPNY_REPOSITORY } from './interface/profile.repository.interface';
 import { CompanyRepository } from './comapny.repository';
 import { CreateProfileDto } from './dtos/create.profile.dto';
 import { CompanyProfileResponseDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
-import { plainToInstance } from 'class-transformer';
-import { compareSync } from 'bcrypt';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { UpdateProfileDto } from './dtos/update.profile.dtos';
 
 @Injectable()
 export class CompanyService implements IComapnyService{
@@ -39,13 +39,27 @@ export class CompanyService implements IComapnyService{
             }
             ,{excludeExtraneousValues:true}
         )
-        console.log("profiledata of user",mappedData)
         return {
             message: 'success',
             data: mappedData! 
         }
     }
 
+    async updatePorfile(id:string,dto:UpdateProfileDto):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
+        const updatedata = await this._companyRepository.update({userId:id},{$set:dto})
 
-
+        const mappedData = plainToInstance(
+        CompanyProfileResponseDto,
+        {
+            ...updatedata?.toObject(),
+            _id: updatedata?._id.toString(),
+            userId: updatedata?.userId.toString()
+        },
+        {excludeExtraneousValues : true}
+        )
+        return {
+            message:"ProfileData updated successfully",
+            data:mappedData
+        }
+    }
 }

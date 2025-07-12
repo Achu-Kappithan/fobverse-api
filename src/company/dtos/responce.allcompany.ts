@@ -1,6 +1,40 @@
+import { Exclude, Expose, Type } from 'class-transformer';
 
+class InternalUserDto {
+  @Expose()
+  name: string;
 
-import { Expose } from 'class-transformer';
+  @Expose()
+  email: string;
+
+  @Expose()
+  role: string;
+
+  @Expose()
+  profilePic?: string;
+
+  @Exclude()
+  password: string;
+}
+
+class TeamMemberDto {
+  @Expose()
+  name: string;
+
+  @Expose()
+  role: string;
+
+  @Expose()
+  image: string;
+}
+
+export class ContactInfoItem {
+  @Expose()
+  type: string;
+
+  @Expose()
+  value: string;
+}
 
 export class CompanyProfileResponseDto {
   @Expose()
@@ -16,7 +50,7 @@ export class CompanyProfileResponseDto {
   industry?: string;
 
   @Expose()
-  contactInfo?: string[];
+  contactInfo?: ContactInfoItem[];  @Expose()
 
   @Expose()
   officeLocation?: string[];
@@ -25,7 +59,10 @@ export class CompanyProfileResponseDto {
   techStack?: string[];
 
   @Expose()
-  location?: string;
+  imageGallery:string[]
+
+  @Expose()
+  benafits?:string[]
 
   @Expose()
   logoUrl?: string;
@@ -41,4 +78,12 @@ export class CompanyProfileResponseDto {
 
   @Expose()
   updatedAt: Date;
+
+  @Expose()
+  @Type(() => TeamMemberDto)
+  teamMembers?: TeamMemberDto[];
+
+  @Expose()
+  @Type(() => InternalUserDto)
+  internalUsers?: InternalUserDto[];
 }

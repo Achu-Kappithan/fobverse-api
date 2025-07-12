@@ -364,7 +364,7 @@ export class AuthService implements IAuthService {
       user = await this.authRepository.findCompanyByEmail(email);
     }
 
-    user = user[0];
+    user = user[0]
     if (user && user.role !== role) {
       throw new ConflictException(' User alredy Exist Try with another email');
     }
@@ -437,12 +437,13 @@ export class AuthService implements IAuthService {
     const accessToken = this.jwtTokenService.generateAccessToken(AccessPayload);
     const refreshToken = this.jwtTokenService.generateRefreshToken(RefreshPayload);
 
-    const { profile, ...cleanedProfile } = user;
+    const { profile, ...cleanedProfile } = user.toObject()
+    console.log(cleanedProfile)
 
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
-      data: cleanedProfile,
+      data: cleanedProfile
     };
   }
 
