@@ -1,43 +1,76 @@
 import { PartialType } from '@nestjs/mapped-types';
-import {
-  IsBoolean,
-  IsOptional,
-  IsString,
-  IsArray,
-  IsUrl,
-} from 'class-validator';
 import { CreateProfileDto } from './create.profile.dto';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class UpdateCompanyProfileDto extends PartialType(CreateProfileDto) {
-  @IsOptional()
+
+export class TeamMember {
+  @IsNotEmpty()
   @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  role: string;
+
+  image?: string;
+}
+
+
+
+export class InternalUser {
+  @IsNotEmpty()
+  email: string;
+
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
+  role: string;
+
+  @IsNotEmpty()
+  name: string;
+
+  profilePic?: string;
+}
+
+
+export class UpdateProfileDto extends PartialType(CreateProfileDto) {
+  name: string;
+
+  @IsOptional()
   industry?: string;
 
   @IsOptional()
-  @IsArray()
-  contactInfo?: string[];
-
-  @IsOptional()
-  @IsArray()
   officeLocation?: string[];
 
   @IsOptional()
-  @IsArray()
   techStack?: string[];
 
   @IsOptional()
-  @IsString()
-  location?: string;
+  imageGallery?:string[]
 
   @IsOptional()
-  @IsUrl()
+  teamMembers?: TeamMember[];
+
+  @IsOptional()
+  internalUsers?: InternalUser[];
+
+  @IsOptional()
+  benafits?:string[]
+
+  @IsOptional()
   logoUrl?: string;
 
   @IsOptional()
-  @IsString()
   description?: string;
 
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  contactInfo?: { type: string; value: string }[];
+
 }
+
+
+
+
+
+

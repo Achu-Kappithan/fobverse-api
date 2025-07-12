@@ -5,7 +5,7 @@ import { CompanyRepository } from 'src/company/comapny.repository';
 import { GetAllcompanyResponce, PlainResponse } from './interfaces/responce.interface';
 import { CompanyProfileDocument } from 'src/company/schema/company.profile.schema';
 import { plainToInstance } from 'class-transformer';
-import { CompanyResponseDto } from 'src/company/dtos/responce.allcompany';
+import { CompanyProfileResponseDto } from 'src/company/dtos/responce.allcompany';
 import { CandidateProfileResponseDto } from 'src/candiate/dtos/candidate-responce.dto';
 import { GetAllcandidatesResponce } from 'src/candiate/interfaces/responce.interface';
 import { CANDIDATE_REPOSITORY, ICandidateRepository } from 'src/candiate/interfaces/candidate-repository.interface';
@@ -22,11 +22,11 @@ export class AdminService implements IAdminService {
 
     //for featching all companyes
 
-    async getAllCompnys():Promise<GetAllcompanyResponce<CompanyResponseDto>>{
+    async getAllCompnys():Promise<GetAllcompanyResponce<CompanyProfileResponseDto>>{
         const data = await this._companyRepository.findAll()
         this.logger.debug(`[Adminservice] All company details fetch ${data}`)
         const mapdeData = plainToInstance(
-            CompanyResponseDto,
+            CompanyProfileResponseDto,
             data.map(doc => {
                 const obj = doc.toObject();
                 return {
