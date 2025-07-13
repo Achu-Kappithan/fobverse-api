@@ -1,14 +1,13 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from 'src/company/interface/profile.repository.interface';
-import { CompanyRepository } from 'src/company/comapny.repository';
 import { GetAllcompanyResponce, PlainResponse } from './interfaces/responce.interface';
-import { CompanyProfileDocument } from 'src/company/schema/company.profile.schema';
 import { plainToInstance } from 'class-transformer';
 import { CompanyProfileResponseDto } from 'src/company/dtos/responce.allcompany';
 import { CandidateProfileResponseDto } from 'src/candiate/dtos/candidate-responce.dto';
 import { GetAllcandidatesResponce } from 'src/candiate/interfaces/responce.interface';
 import { CANDIDATE_REPOSITORY, ICandidateRepository } from 'src/candiate/interfaces/candidate-repository.interface';
+import { MESSAGES } from 'src/shared/constants/constants.messages';
 
 @Injectable()
 export class AdminService implements IAdminService {
@@ -38,7 +37,7 @@ export class AdminService implements IAdminService {
             { excludeExtraneousValues: true }
             );
         return {
-            message:"data fetched successfully",
+            message:MESSAGES.ADMIN.DATA_RETRIEVED,
             data: mapdeData
         }
     }
@@ -61,7 +60,7 @@ export class AdminService implements IAdminService {
         );
         console.log(mapdeData)
         return {
-            message: "datafetching successfully completed",
+            message:MESSAGES.ADMIN.DATA_RETRIEVED,
             data:mapdeData
         }
     }
@@ -70,7 +69,7 @@ export class AdminService implements IAdminService {
        const data = await this._companyRepository.updateStatus(id)
        this.logger.debug(`[AdminService] status Updated data ${data}`)
        return {
-        message: "Status  updated"
+        message:MESSAGES.ADMIN.STATUS_UPDATED
        }
     }
 
@@ -79,7 +78,7 @@ export class AdminService implements IAdminService {
        console.log(data)
        this.logger.debug(`[AdminService] status Updated data ${data}`)
        return {
-        message: "Status  updated"
+        message: MESSAGES.ADMIN.STATUS_UPDATED
        }
     }
 

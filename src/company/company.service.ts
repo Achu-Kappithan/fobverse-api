@@ -7,6 +7,7 @@ import { CompanyProfileResponseDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { UpdateProfileDto } from './dtos/update.profile.dtos';
+import { MESSAGES } from 'src/shared/constants/constants.messages';
 
 @Injectable()
 export class CompanyService implements IComapnyService{
@@ -22,7 +23,7 @@ export class CompanyService implements IComapnyService{
         const newProfile = await this._companyRepository.create(dto)
         this.logger.debug(`[CompanyService] new profile created ${newProfile}`)
         if(!newProfile){
-            throw new InternalServerErrorException('error regding profile creation')
+            throw new InternalServerErrorException(MESSAGES.AUTH.PROFILE_CREATION_FAIILD)
         }
     }
 
@@ -40,7 +41,7 @@ export class CompanyService implements IComapnyService{
             ,{excludeExtraneousValues:true}
         )
         return {
-            message: 'success',
+            message:MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
             data: mappedData! 
         }
     }
@@ -58,7 +59,7 @@ export class CompanyService implements IComapnyService{
         {excludeExtraneousValues : true}
         )
         return {
-            message:"ProfileData updated successfully",
+            message:MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
             data:mappedData
         }
     }

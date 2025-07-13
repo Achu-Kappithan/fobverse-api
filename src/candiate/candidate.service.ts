@@ -4,9 +4,9 @@ import {
   CANDIDATE_REPOSITORY,
   ICandidateRepository,
 } from './interfaces/candidate-repository.interface';
-import { UserDocument } from 'src/auth/schema/candidate.schema';
 import { CreateCandidateProfileDto } from './dtos/create-candidate-profile.dto';
 import { CandidateProfileDocument } from './schema/candidate.profile.schema';
+import { MESSAGES } from 'src/shared/constants/constants.messages';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -33,7 +33,7 @@ export class CandidateService implements ICandidateService {
     this.logger.debug(`new profil created ${newprofile}`)
 
     if(!newprofile){
-      throw new InternalServerErrorException("Unable to complete profile creation")
+      throw new InternalServerErrorException(MESSAGES.AUTH.PROFILE_CREATION_FAIILD)
     }
   }
 

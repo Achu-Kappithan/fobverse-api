@@ -8,19 +8,19 @@ export class DatabaseService implements OnModuleInit {
 
   onModuleInit() {
     this.connection.on('connecting', () => {
-      console.log('🔄 Attempting to connect to MongoDB...');
+      console.log(' Attempting to connect to MongoDB...');
     });
 
     this.connection.on('connected', () => {
-      console.log('✅ Successfully connected to MongoDB!');
+      console.log(' Successfully connected to MongoDB!');
     });
 
     this.connection.on('error', (err) => {
-      console.error('❌ MongoDB connection error:', err.message);
+      console.error('MongoDB connection error:', err.message);
     });
 
     this.connection.on('disconnected', () => {
-      console.log('⚠️ Disconnected from MongoDB');
+      console.log(' Disconnected from MongoDB');
     });
   }
 }

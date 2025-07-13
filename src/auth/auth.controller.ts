@@ -19,9 +19,9 @@ import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtRefreshPayload } from './interfaces/jwt-payload.interface';
 import { setJwtCookie } from 'src/shared/utils/cookie.util';
 import { UserDocument } from './schema/candidate.schema';
+import { MESSAGES } from 'src/shared/constants/constants.messages';
 
 @Controller('auth')
 export class AuthController {
@@ -86,7 +86,7 @@ export class AuthController {
     );
 
     return {
-      message: 'Login successful.',
+      message:MESSAGES.AUTH.LOGIN_SUCCESS,
       data,
     };
   }
@@ -96,7 +96,7 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    return { message: 'Logged out successfully' };
+    return { message:MESSAGES.AUTH.LOGOUT_SUCCESS };
   }
 
   @Get('getuser')
@@ -173,7 +173,7 @@ export class AuthController {
     );
 
     return {
-      message: 'Login successful.',
+      message: MESSAGES.AUTH.LOGIN_SUCCESS,
       data,
     };
   }
@@ -213,7 +213,7 @@ export class AuthController {
       role: data?.role,
       email: data?.email,
       is_verified: data?.isVerified,
-      message: 'Login successful'
+      message:MESSAGES.AUTH.LOGIN_SUCCESS
     };
   }
 
