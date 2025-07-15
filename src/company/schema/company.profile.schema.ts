@@ -1,13 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+
+export enum UserRole {
+  HR = 'hr',
+  INTERVIEWER = 'interviewer',
+}
 
 @Schema({_id:false})
 export class TeamMember {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
-  role: string;
+  @Prop({ required: true, enum: UserRole })
+  role: UserRole;
 
   @Prop()
   image?: string;

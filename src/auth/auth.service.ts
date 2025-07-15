@@ -435,7 +435,6 @@ export class AuthService implements IAuthService {
     const refreshToken = this.jwtTokenService.generateRefreshToken(RefreshPayload);
 
     const { profile, ...cleanedProfile } = user.toObject()
-    console.log(cleanedProfile)
 
     return {
       accessToken: accessToken,

@@ -58,7 +58,7 @@ export class AdminService implements IAdminService {
         }),
         { excludeExtraneousValues: true },
         );
-        console.log(mapdeData)
+        this.logger.log(`[AdminService] mapped data of company for fetching ${mapdeData}`)
         return {
             message:MESSAGES.ADMIN.DATA_RETRIEVED,
             data:mapdeData
@@ -75,7 +75,6 @@ export class AdminService implements IAdminService {
 
     async updateCandidateStatus(id:string): Promise<PlainResponse> {
        const data = await this._candidateRepository.updateStatus(id)
-       console.log(data)
        this.logger.debug(`[AdminService] status Updated data ${data}`)
        return {
         message: MESSAGES.ADMIN.STATUS_UPDATED
