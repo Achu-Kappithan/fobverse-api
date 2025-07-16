@@ -6,9 +6,8 @@ import {
   tokenresponce,
   verificatonResponce,
 } from './api-response.interface';
-import { JwtRefreshPayload } from './jwt-payload.interface';
-import { UserDocument } from '../schema/candidate.schema';
 import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from '../dto/login.dto';
+import { UserDocument } from '../schema/user.schema';
 
 export interface IAuthService {
   validateUser(
@@ -28,6 +27,8 @@ export interface IAuthService {
   validateAdmin(dto: LoginDto): Promise<UserDocument | null>;
   validateEmailAndRoleExistence(dto:forgotPasswordDto):Promise<generalResponce>
   UpdateNewPassword(dto:UpdatePasswordDto):Promise<generalResponce>
+  companyUserLogin(dot:LoginDto): Promise<LoginResponce>
+
 }
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';

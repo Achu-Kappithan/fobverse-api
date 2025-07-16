@@ -9,7 +9,7 @@ import {
 export class RegisterCandidateDto {
   @IsNotEmpty()
   @IsString()
-  fullName: string;
+  name: string;
 
   @IsNotEmpty()
   @IsEmail({}, { message: 'Invalid email format' })

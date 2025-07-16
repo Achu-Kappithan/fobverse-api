@@ -69,19 +69,19 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         this.logger.log(
           `Linking existing user ${userEmail} to Google ID: ${googleId}`,
         );
-        user = await this.authService.linkGoogleAccount(user._id, googleId);
+        user = await this.authService.linkGoogleAccount(user._id.toString(), googleId);
       }
 
       const AccessPayload: JwtAccessPayload = {
         email: user!.email,
-        userId: user!._id,
+        UserId: user!._id.toString(),
         role: user!.role,
-        is_verified: user!.isVerified,
+        profileId: user!.companyId!.toString()
       };
 
       const RefreshPayload: JwtRefreshPayload = {
         email: user!.email,
-        userId: user!._id,
+        UserId: user!._id.toString(),
       };
 
       const accessToken =

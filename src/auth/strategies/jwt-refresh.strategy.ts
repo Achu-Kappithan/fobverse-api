@@ -9,8 +9,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtRefreshPayload } from '../interfaces/jwt-payload.interface';
-import { UserDocument } from '../schema/candidate.schema';
 import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
+import { UserDocument } from '../schema/user.schema';
 
 @Injectable()
 export class jwtRefreshStrategy extends PassportStrategy(
@@ -45,8 +45,8 @@ export class jwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(payload: JwtRefreshPayload): Promise<UserDocument> {
-    const { userId } = payload;
-    const candidate = await this.authService.findById(userId);
+    const { UserId } = payload;
+    const candidate = await this.authService.findById(UserId);
 
     if (!candidate) {
       throw new UnauthorizedException(

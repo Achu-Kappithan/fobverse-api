@@ -9,8 +9,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtAccessPayload } from '../interfaces/jwt-payload.interface';
 import { Request } from 'express';
-import { UserDocument } from '../schema/candidate.schema';
 import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
+import { UserDocument } from '../schema/user.schema';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -45,19 +45,19 @@ export class JwtAccessStrategy extends PassportStrategy(
       `[Validate] JwtAccessStrategy validate method called with payload: ${JSON.stringify(payload)}`,
     );
 
-    if (!payload.userId) {
+    if (!payload.UserId) {
       this.logger.warn(
         `[Validate] Token payload missing userId. Payload: ${JSON.stringify(payload)}`,
       );
       throw new UnauthorizedException('Invalid token payload: userId missing.');
     }
 
-    const { userId } = payload;
-    const user = await this.authService.findById(userId);
+    const { UserId } = payload;
+    const user = await this.authService.findById(UserId);
 
     if (!user) {
       this.logger.warn(
-        `[Validate] Candidate not found in DB for userId: ${payload.userId}`,
+        `[Validate] Candidate not found in DB for userId: ${payload.UserId}`,
       );
       throw new UnauthorizedException('Access denied: Candidate not found.');
     }

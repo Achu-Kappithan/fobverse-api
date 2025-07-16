@@ -31,7 +31,7 @@ export class AdminService implements IAdminService {
                 return {
                 ...obj,
                 _id: obj._id.toString(),
-                userId: obj.userId.toString(),
+                adminUserId: obj.adminUserId.toString(),
                 };
             }),
             { excludeExtraneousValues: true }
@@ -53,7 +53,7 @@ export class AdminService implements IAdminService {
             return {
                 ...obj,
                 id: obj._id.toString(),
-                userId: obj.userId.toString()
+                adminUserId: obj.adminUserId.toString()
             }
         }),
         { excludeExtraneousValues: true },

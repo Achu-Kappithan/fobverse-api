@@ -1,4 +1,3 @@
-import { UserDocument } from 'src/auth/schema/candidate.schema';
 import { IBaseRepository } from 'src/shared/interface/base-repository.interface';
 import { CandidateRepository } from '../candidate.repository';
 import { CandidateProfileDocument } from '../schema/candidate.profile.schema';

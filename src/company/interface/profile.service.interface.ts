@@ -1,11 +1,12 @@
 import { CreateProfileDto } from "../dtos/create.profile.dto";
 import { CompanyProfileResponseDto } from "../dtos/responce.allcompany";
 import { InternalUserDto, UpdateProfileDto } from "../dtos/update.profile.dtos";
+import { CompanyProfileDocument } from "../schema/company.profile.schema";
 import { comapnyResponceInterface } from "./responce.interface";
 
 
 export interface IComapnyService {
-    createProfile(dto:CreateProfileDto):Promise<void>
+    createProfile(dto:CreateProfileDto):Promise<CompanyProfileDocument>
 
     getPorfile(id:string):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>
 

@@ -19,7 +19,7 @@ export class CandidateProfileResponseDto {
   id: string;
 
   @Expose()
-  userId: string;
+  adminUserId: string;
 
   @Expose()
   name: string;

@@ -14,9 +14,9 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { AUTH_REPOSITORY } from './interfaces/IAuthRepository';
 import { AuthRepository } from './auth.repository';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './schema/candidate.schema';
 import { CompanyModule } from 'src/company/company.module';
 import { CandiateModule } from 'src/candiate/candidate.module';
+import { User, UserSchema } from './schema/user.schema';
 
 @Module({
   imports: [

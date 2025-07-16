@@ -1,18 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { UserRole as ComapnyTeamMemberRoleEnum } from 'src/auth/schema/user.schema';
 
-export enum UserRole {
-  HR = 'hr',
-  INTERVIEWER = 'interviewer',
-}
+
 
 @Schema({_id:false})
 export class TeamMember {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, enum: UserRole })
-  role: UserRole;
+  @Prop({ required: true, enum: ComapnyTeamMemberRoleEnum })
+  role: ComapnyTeamMemberRoleEnum;
 
   @Prop()
   image?: string;
@@ -21,34 +19,16 @@ export class TeamMember {
 export const TeamMemberSchema = SchemaFactory.createForClass(TeamMember)
 
 
-@Schema({_id:false})
-export class InternalUser {
-   @Prop({ required: true })
-  email: string;
-
-  @Prop({ required: true })
-  password: string;
-
-  @Prop({ required: true })
-  role: string;
-
-  @Prop({ required: true })
-  name: string;
-
-  @Prop()
-  profilePic?: string;
-}
-
-export const InternalUserSchema = SchemaFactory.createForClass(InternalUser);
-
 export type CompanyProfileDocument = HydratedDocument<CompanyProfile>
+
 
 @Schema({ timestamps: true })
 export class CompanyProfile {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true, index: true })
+  adminUserId: Types.ObjectId;
+
+  @Prop({ required: true,unique:true, index:true })
   name: string;
 
   @Prop()
@@ -65,9 +45,6 @@ export class CompanyProfile {
 
   @Prop({ type: [TeamMemberSchema], default: [] })
   teamMembers?: TeamMember[];
-
-  @Prop({ type: [InternalUserSchema], default: [] })
-  internalUsers?: InternalUser[];
 
   @Prop({type:[String], default:[]})
   benafits?:string[]

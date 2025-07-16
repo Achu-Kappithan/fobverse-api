@@ -9,6 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { InternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class CompanyService implements IComapnyService{
@@ -19,13 +20,18 @@ export class CompanyService implements IComapnyService{
     ){}
 
     //for updating bolock /unblock Status
-    async createProfile(dto: CreateProfileDto): Promise<void> {
+    async createProfile(dto: CreateProfileDto): Promise<CompanyProfileDocument> {
        this.logger.debug(`[CompanyService] creating new company profiel${dto.name}`)
-        const newProfile = await this._companyRepository.create(dto)
+       const updateDto = {
+             name:dto.name,
+             adminUserId : new Types.ObjectId(dto.adminUserId)
+           }
+        const newProfile = await this._companyRepository.create(updateDto)
         this.logger.debug(`[CompanyService] new profile created ${newProfile}`)
         if(!newProfile){
             throw new InternalServerErrorException(MESSAGES.AUTH.PROFILE_CREATION_FAIILD)
         }
+        return newProfile
     }
 
     // for fetching company profile
@@ -36,8 +42,6 @@ export class CompanyService implements IComapnyService{
             CompanyProfileResponseDto,
             {
                 ...profiledata?.toObject(),
-                _id: profiledata?._id.toString(),
-                userId: profiledata?.userId.toString()
             }
             ,{excludeExtraneousValues:true}
         )
@@ -55,9 +59,7 @@ export class CompanyService implements IComapnyService{
         const mappedData = plainToInstance(
         CompanyProfileResponseDto,
         {
-            ...updatedata?.toObject(),
-            _id: updatedata?._id.toString(),
-            userId: updatedata?.userId.toString()
+            ...updatedata?.toJSON(),
         },
         {excludeExtraneousValues : true}
         )
@@ -73,7 +75,11 @@ export class CompanyService implements IComapnyService{
        const data = await this._companyRepository.addInternalUser(id,dto)
        const mappedData = plainToInstance(
         CompanyProfileResponseDto,
-        data?.toJSON()
+        {
+            ...data?.toJSON()
+
+        },
+        {excludeExtraneousValues:true}
        )
        console.log('udpdated responce in service file',data)
        return {

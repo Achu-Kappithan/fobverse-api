@@ -41,7 +41,7 @@ export class CompanyProfileResponseDto {
   _id: string;
 
   @Exclude()
-  userId: string;
+  adminUserId: string;
 
   @Expose()
   name: string;

@@ -20,8 +20,8 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { setJwtCookie } from 'src/shared/utils/cookie.util';
-import { UserDocument } from './schema/candidate.schema';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
+import { UserDocument } from './schema/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -212,9 +212,44 @@ export class AuthController {
       id: data?._id.toString(),
       role: data?.role,
       email: data?.email,
-      is_verified: data?.isVerified,
       message:MESSAGES.AUTH.LOGIN_SUCCESS
     };
+  }
+
+
+  @Post('companyuserslogin')
+  async companyUsersLogin(
+    @Body()dto:LoginDto,
+    @Res({ passthrough: true }) res:Response
+  ){
+    const {data ,accessToken,refreshToken } = await this.authService.companyUserLogin(dto)
+    console.log("data back to controller",data,accessToken,refreshToken)
+    setJwtCookie(
+      res,
+      this.configService,
+      'access_token',
+      accessToken,
+      'JWT_ACCESS_EXPIRES_IN',
+      true,
+      7 * 24 * 60 * 60 * 1000,
+    );
+
+    console.log("jwt set")
+
+    setJwtCookie(
+      res,
+      this.configService,
+      'refresh_token',
+      refreshToken,
+      'JWT_REFRESH_EXPIRES_IN',
+      false,
+      7 * 24 * 60 * 60 * 1000,
+    );
+    console.log("refresh set")
+    return {
+      message:MESSAGES.AUTH.LOGIN_SUCCESS,
+      data:data
+    }
   }
 
   @Post('forgotpassword')

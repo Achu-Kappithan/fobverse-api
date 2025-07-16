@@ -5,7 +5,7 @@ export interface ICandidateService {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
   findById(id: string): Promise<CandidateProfileDocument | null>;
   findAllCandidate(): Promise<CandidateProfileDocument[] | null>;
-  createPorfile(dto: CreateCandidateProfileDto): Promise<void>;
+  createPorfile(dto: CreateCandidateProfileDto): Promise<CandidateProfileDocument>;
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';

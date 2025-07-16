@@ -1,9 +1,10 @@
-import { UserDocument } from '../schema/candidate.schema';
+import { ResponseRegisterDto } from "../dto/response.dto";
+import { UserDocument } from "../schema/user.schema";
 
 export interface LoginResponce {
   accessToken: string;
   refreshToken: string;
-  data: UserDocument | null;
+  data: ResponseRegisterDto | null;
 }
 
 export interface RegisterResponce {
