@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BaseRepository } from 'src/shared/repositories/base.repository';
-import { User, UserDocument } from './schema/candidate.schema';
 import { IAuthRepository } from './interfaces/IAuthRepository';
 import { Model } from 'mongoose';
+import { User, UserDocument } from './schema/user.schema';
 
 @Injectable()
 export class AuthRepository
@@ -29,7 +29,7 @@ export class AuthRepository
           $lookup: {
             from: 'candidateprofiles',
             localField: '_id',
-            foreignField: 'userId',
+            foreignField: 'adminUserId',
             as: 'profile'
           }
         },
@@ -51,7 +51,7 @@ export class AuthRepository
           $lookup: {
             from: 'companyprofiles',
             localField: '_id',
-            foreignField: 'userId',
+            foreignField: 'adminUserId',
             as: 'profile'
           }
         },
@@ -65,10 +65,10 @@ export class AuthRepository
   }
 
   async updateVerificationStatus(
-    userId: string,
+    adminUserId: string,
     status: boolean,
   ): Promise<UserDocument | null> {
-    return this.update({ _id: userId }, { isVerified: status });
+    return this.update({ _id: adminUserId }, { isVerified: status });
   }
 
   async UpdateGoogleId(

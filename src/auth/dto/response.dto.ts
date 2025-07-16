@@ -6,7 +6,7 @@ export class ResponseRegisterDto {
   _id: ObjectId;
 
   @Expose()
-  fullName: string;
+  name: string;
 
   @Expose()
   email: string;

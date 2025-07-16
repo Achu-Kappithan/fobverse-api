@@ -1,6 +1,5 @@
 import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
 import { ADMIN_SERVICE, IAdminService } from './interfaces/IAdminService';
-import { AdminService } from './admin.service';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('admin')

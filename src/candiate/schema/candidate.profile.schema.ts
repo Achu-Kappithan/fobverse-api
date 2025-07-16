@@ -23,7 +23,7 @@ export class ContactInfo {
 @Schema({ timestamps: true })
 export class CandidateProfile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  adminUserId: Types.ObjectId;
 
   @Prop({ required: true })
   name: string;

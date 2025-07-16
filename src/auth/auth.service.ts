@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -33,7 +34,6 @@ import {
 } from './dto/login.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
-import { UserDocument } from './schema/candidate.schema';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
 import {
   COMPANY_SERVICE,
@@ -41,13 +41,15 @@ import {
 } from 'src/company/interface/profile.service.interface';
 import { CreateProfileDto } from 'src/company/dtos/create.profile.dto';
 import {
-  CANDIDATE_REPOSITORY,
-  ICandidateRepository,
-} from 'src/candiate/interfaces/candidate-repository.interface';
-import {
   CANDIDATE_SERVICE,
   ICandidateService,
 } from 'src/candiate/interfaces/candidate-service.interface';
+import { MESSAGES } from 'src/shared/constants/constants.messages';
+import { UserDocument, UserRole } from './schema/user.schema';
+import { CompanyProfileDocument } from 'src/company/schema/company.profile.schema';
+import { plainToInstance } from 'class-transformer';
+import { ResponseRegisterDto } from './dto/response.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -100,44 +102,41 @@ export class AuthService implements IAuthService {
     this.logger.debug(`Attempting to validate user: ${email}`);
     let profileData;
 
-    if (role === 'candidate') {
-      profileData = await this.authRepository.findCandidateByEmail(email);
-    } else if (role === 'company') {
-      profileData = await this.authRepository.findCompanyByEmail(email);
-    }
+    profileData = await this.authRepository.findCandidateByEmail(email);
     profileData = profileData[0];
 
     if (!profileData) {
       this.logger.warn(`Login attempt for ${email}: User not found.`);
       throw new UnauthorizedException(
-        `Login attempt for ${email}: User not found.`,
+        MESSAGES.AUTH.USER_NOT_FOUD
       );
     }
 
     if (!profileData.password) {
       throw new BadRequestException(
-        'This account is linked with google  use google to signin',
+        MESSAGES.AUTH.ACCOUNT_LINKED_WITH_GOOGLE
       );
     }
 
     if (!(await bcrypt.compare(password, profileData.password!))) {
       this.logger.warn(`Login attempt for ${email}: Invalid password.`);
-      throw new UnauthorizedException(`Invalid Email or Password`);
+      throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
 
     if (profileData.role !== role) {
       this.logger.warn(`Mismath of User Role ${role}`);
-      throw new UnauthorizedException('Invaid User role');
+      throw new UnauthorizedException(MESSAGES.AUTH.INVALID_USER_ROLE);
     }
 
     if (!profileData.isVerified) {
       this.logger.warn(`Login attempt for ${email}: User not verified.`);
-      throw new UnauthorizedException('Please verify your email address.');
+      throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED)
     }
+    console.log(profileData)
 
     if (!profileData.profile.isActive) {
       throw new ForbiddenException(
-        ' You are currently blocked plz contact admin..!',
+        MESSAGES.AUTH.USER_BLOCKED
       );
     }
 
@@ -154,14 +153,14 @@ export class AuthService implements IAuthService {
       `[AuthService.login] Preparing payload for tokens for user: ${user.email}`,
     );
     const AccessPayload: JwtAccessPayload = {
-      userId: user._id,
+      UserId: user._id.toString(),
       email: user.email,
       role: user.role,
-      is_verified: user.isVerified,
+      profileId:user.companyId?.toString()
     };
 
     const RefreshPayload: JwtRefreshPayload = {
-      userId: user._id,
+      UserId: user._id.toString(),
       email: user.email,
     };
 
@@ -170,10 +169,15 @@ export class AuthService implements IAuthService {
     const RefreshToken =
       await this.jwtTokenService.generateRefreshToken(RefreshPayload);
 
+      const mappedData = plainToInstance(
+        ResponseRegisterDto,
+        user
+      )
+
     return {
       accessToken: AccessToken,
       refreshToken: RefreshToken,
-      data: user,
+      data: mappedData,
     };
   }
 
@@ -184,11 +188,11 @@ export class AuthService implements IAuthService {
   ): Promise<RegisterResponce> {
     const existingUser = await this.authRepository.findByEmail(dto.email);
     if (existingUser) {
-      throw new ConflictException('Email address already registered.');
+      throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
 
     const newUser = await this.createUser(
-      dto.fullName,
+      dto.name,
       dto.email,
       dto.password!,
       dto.role,
@@ -196,7 +200,7 @@ export class AuthService implements IAuthService {
     if (newUser) {
       this.logger.log(`New candidate registered: ${newUser.email}`);
       const verificationPayload: JwtVerificationPayload = {
-        userId: newUser._id.toString(),
+        UserId: newUser._id.toString(),
         email: newUser.email,
       };
 
@@ -215,7 +219,7 @@ export class AuthService implements IAuthService {
 
     return {
       message:
-        'Registration successful. Please use the generated token to verify your account',
+        MESSAGES.AUTH.REGISTRATION_SUCCESS,
       user: newUser!.toObject({
         getters: true,
         virtuals: false,
@@ -248,34 +252,34 @@ export class AuthService implements IAuthService {
     let payload: JwtVerificationPayload;
     try {
       if (!token) {
-        throw new BadRequestException('Verification token is missing.');
+        throw new BadRequestException(MESSAGES.AUTH.VERIFICATION_TOKEN_MISSING);
       }
 
       payload = await this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
       });
       this.logger.log(
-        `Verification token valid for user ID: ${payload.userId}`,
+        `Verification token valid for user ID: ${payload.UserId}`,
       );
     } catch (error) {
       this.logger.error(
         `Email verification failed: Invalid or expired token - ${error.message}`,
       );
-      throw new BadRequestException('Invalid or expired verification link.');
+      throw new BadRequestException(MESSAGES.AUTH.VERIFICATION_LINK_INVALID_OR_EXPIRED);
     }
 
-    const user = await this.authRepository.findById(payload.userId);
+    const user = await this.authRepository.findById(payload.UserId);
 
     if (!user) {
       this.logger.warn(
-        `Email verification attempt for non-existent user ID: ${payload.userId}`,
+        `Email verification attempt for non-existent user ID: ${payload.UserId}`,
       );
-      throw new BadRequestException('User not found.');
+      throw new BadRequestException(MESSAGES.AUTH.USER_NOT_FOUD);
     }
 
     if (user.isVerified) {
       this.logger.log(`User ${user.email} is already verified.`);
-      throw new BadRequestException('Email already verified.');
+      throw new BadRequestException(MESSAGES.AUTH.EMAIL_ALREADY_VERIFIED);
     }
 
     const verifieduser = await this.authRepository.updateVerificationStatus(
@@ -283,25 +287,31 @@ export class AuthService implements IAuthService {
       true,
     );
 
-    const profiledata: CreateProfileDto = {
-      userId: verifieduser!._id,
+    const profiledataDto: CreateProfileDto = {
+      adminUserId: verifieduser!._id.toString(),
       name: verifieduser!.name,
     };
+
+    let newProfile
 
     this.logger.log(`User ${verifieduser} successfully verified.`);
 
     try {
-      if (user.role == 'candidate') {
-        this._candidateService.createPorfile(profiledata);
-      } else if (user.role === 'company') {
-        this._companyService.createProfile(profiledata);
+      if (user.role == UserRole.CANDIDATE) {
+       newProfile = await this._candidateService.createPorfile(profiledataDto);
+      } else if (user.role === UserRole.COMPANY_ADMIN) {
+        newProfile = await  this._companyService.createProfile(profiledataDto);
+          if(newProfile){
+            const finaldata = await this.authRepository.update({_id:newProfile.adminUserId},{$set:{companyId:newProfile._id}})
+            this.logger.debug(`[AuthService], completed company profile${finaldata}`)
+          }
       }
     } catch (error) {
       throw error;
     }
 
     return {
-      message: 'Email successfully verified. You can now log in.',
+      message: MESSAGES.AUTH.EMAIL_VERIFIED,
       user: verifieduser!,
     };
   }
@@ -310,17 +320,17 @@ export class AuthService implements IAuthService {
 
   async regenerateAccessToken(paylod: UserDocument): Promise<tokenresponce> {
     const tokenPaylod: JwtAccessPayload = {
-      userId: paylod._id,
+      UserId: paylod._id.toString(),
       email: paylod.email,
       role: paylod.role,
-      is_verified: paylod.isVerified,
+      profileId: paylod?.companyId?.toString()
     };
 
     const newAccessToken =
       await this.jwtTokenService.generateAccessToken(tokenPaylod);
 
     return {
-      message: 'Access token refreshed successfully',
+      message: MESSAGES.AUTH.ACCESS_TOKEN_REFRESHED,
       newAccess: newAccessToken,
     };
   }
@@ -343,7 +353,7 @@ export class AuthService implements IAuthService {
     );
 
     if (!payload) {
-      throw new UnauthorizedException('Invalid Google Token Payload');
+      throw new UnauthorizedException(MESSAGES.AUTH.INVALID_GOOGLE_TOKEN);
     }
 
     const googleId = payload.sub;
@@ -353,20 +363,15 @@ export class AuthService implements IAuthService {
 
     if (!email) {
       throw new UnauthorizedException(
-        'Google ID Token did not cotain User Email',
+        MESSAGES.AUTH.INVALID_GOOGLE_TOKEN,
       );
     }
 
-    let user;
-    if (role === 'candidate') {
-      user = await this.authRepository.findCandidateByEmail(email);
-    } else if (role === 'company') {
-      user = await this.authRepository.findCompanyByEmail(email);
-    }
+    let user = await this.authRepository.findCandidateByEmail(email);
 
     user = user[0]
     if (user && user.role !== role) {
-      throw new ConflictException(' User alredy Exist Try with another email');
+      throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
 
     if (!user) {
@@ -380,28 +385,24 @@ export class AuthService implements IAuthService {
 
       if (!user) {
         throw new UnauthorizedException(
-          'Faild to create new user during the Login',
+          MESSAGES.AUTH.PROFILE_CREATION_FAIILD,
         );
       }
 
       const profiledata: CreateProfileDto = {
-        userId: user!._id,
+        adminUserId: user!._id,
         name: user!.name,
       };
 
       try {
-        if (user.role == 'candidate') {
           this._candidateService.createPorfile(profiledata);
-        } else if (user.role === 'company') {
-          this._companyService.createProfile(profiledata);
-        }
       } catch (error) {
         throw error;
       }
     } else {
       if (!user.profile.isActive) {
         throw new ForbiddenException(
-          ' You are currently blocked plz contact admin..!',
+          MESSAGES.AUTH.USER_BLOCKED,
         );
       }
 
@@ -416,21 +417,21 @@ export class AuthService implements IAuthService {
       );
       if (!user) {
         throw new UnauthorizedException(
-          'Faild to link google a/c to the existing user',
+          MESSAGES.AUTH.EMAIL_ALREADY_EXISTS,
         );
       }
       this.logger.log(`existing user logged in  view  googleId`);
     }
 
     const AccessPayload: JwtAccessPayload = {
-      userId: user._id,
+      UserId: user._id.toString(),
       email: user.email,
       role: user.role,
-      is_verified: user.isVerified,
+      profileId: user?.companyId?.toString()
     };
 
     const RefreshPayload: JwtRefreshPayload = {
-      userId: user.id,
+      UserId: user.id.toString(),
       email: user.email,
     };
 
@@ -438,7 +439,6 @@ export class AuthService implements IAuthService {
     const refreshToken = this.jwtTokenService.generateRefreshToken(RefreshPayload);
 
     const { profile, ...cleanedProfile } = user.toObject()
-    console.log(cleanedProfile)
 
     return {
       accessToken: accessToken,
@@ -466,23 +466,17 @@ export class AuthService implements IAuthService {
 
     if (!user) {
       this.logger.warn(`Login attempt for ${dto.email}: User not found.`);
-      throw new UnauthorizedException(`Invalid User or User not found`);
-    }
-
-    if (!user.isGlobalAdmin) {
-      throw new UnauthorizedException(
-        'You are not authorized to access the admin panel.',
-      );
+      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUD);
     }
 
     if (!user.isVerified) {
       this.logger.warn(`Login attempt for ${dto.email}: User not verified.`);
-      throw new UnauthorizedException('Please verify your email address.');
+      throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
     }
 
     if (!(await bcrypt.compare(dto.password, user.password!))) {
       this.logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
-      throw new UnauthorizedException(`Invalid Email or Passwrod`);
+      throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
 
     this.logger.log(`User ${dto.email} successfully validated.`);
@@ -507,17 +501,17 @@ export class AuthService implements IAuthService {
     );
 
     if (!user) {
-      throw new UnauthorizedException('Invalid User Try with another Email');
+      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUD);
     }
 
     if (!user.isVerified) {
       throw new UnauthorizedException(
-        'Unverified User. Please verify your account.',
+        MESSAGES.AUTH.UNVERIFIED_USER,
       );
     }
 
     const Tokenpayload: passwordResetPayload = {
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       role: user.role,
     };
@@ -532,7 +526,7 @@ export class AuthService implements IAuthService {
 
     return {
       message:
-        'Password reset link sent. Please check your email to update your password.',
+        MESSAGES.AUTH.PASSWORD_RESET_LINK_SENT,
     };
   }
 
@@ -544,7 +538,7 @@ export class AuthService implements IAuthService {
 
     try {
       if (!token) {
-        throw new BadRequestException('Verification token is missing.');
+        throw new BadRequestException(MESSAGES.AUTH.VERIFICATION_TOKEN_MISSING);
       }
 
       payload = await this.jwtService.verify(token, {
@@ -555,7 +549,7 @@ export class AuthService implements IAuthService {
       this.logger.error(
         `Email verification failed: Invalid or expired token - ${error.message}`,
       );
-      throw new BadRequestException('Invalid or expired verification link.');
+      throw new BadRequestException(MESSAGES.AUTH.VERIFICATION_LINK_INVALID_OR_EXPIRED);
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -566,12 +560,76 @@ export class AuthService implements IAuthService {
     );
 
     if (!updatedUser) {
-      throw new BadRequestException("Can'Update Password Try again");
+      throw new BadRequestException(MESSAGES.AUTH.CANNOT_UPDATE_PASSWORD);
     }
 
     return {
       message:
-        "You've successfully reset your password. Please log in to continue.",
+        MESSAGES.AUTH.PASSWORD_RESET_SUCCESS,
     };
   }
+
+
+  async companyUserLogin(dto: LoginDto): Promise<LoginResponce> {
+    this.logger.log(`[AuthSevice] ComapnyUsers${dto.role}try to login`)
+
+    let  user = await this.authRepository.findCompanyByEmail(dto.email)
+    user= user[0]
+
+    console.log(user)
+
+    if(!user){
+      throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUD)
+    }
+
+    console.log(dto.password,"*****",user.password)
+    if (!(await bcrypt.compare(dto.password, user.password!))) {
+      this.logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
+      throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
+    }
+
+    if (user.role !== dto.role) {
+      this.logger.warn(`Mismath of User Role ${dto.role}`);
+      throw new UnauthorizedException(MESSAGES.AUTH.INVALID_USER_ROLE);
+    }
+
+    if (!user.isVerified) {
+      this.logger.warn(`Login attempt for ${dto.email}: User not verified.`);
+      throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED)
+    }
+    console.log(user)
+
+    if (!user.profile.isActive) {
+      throw new ForbiddenException(
+        MESSAGES.AUTH.USER_BLOCKED
+      );
+    }
+
+    const jwtAccessPayload: JwtAccessPayload = {
+      UserId: user._id,
+      email: user.email,
+      role: user.role,
+      profileId:user.companyId
+    }
+
+    const RefreshPayload :JwtRefreshPayload = {
+      email:user.email,
+      UserId:user._id
+    }
+
+    const accessToken = await this.jwtTokenService.generateAccessToken(jwtAccessPayload)
+    const refreshToken = await  this.jwtTokenService.generateRefreshToken(RefreshPayload)
+
+    const mappedData = plainToInstance(
+      ResponseRegisterDto,
+      user
+    )
+    return {
+      accessToken:accessToken,
+      refreshToken:refreshToken,
+      data:mappedData
+    }
+
+  }
+
 }

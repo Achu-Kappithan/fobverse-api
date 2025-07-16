@@ -7,6 +7,7 @@ import {
 import { IcompanyRepository } from './interface/profile.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateResult } from 'mongoose';
+import { InternalUserDto } from './dtos/update.profile.dtos';
 
 @Injectable()
 export class CompanyRepository
@@ -28,5 +29,13 @@ export class CompanyRepository
         },
       },
     ]);
+  }
+
+  async addInternalUser(id: string, dto: InternalUserDto): Promise<CompanyProfileDocument | null> {
+    return await this.profileModel.findOneAndUpdate(
+      {userId:id},
+      {$addToSet:{internalUsers:dto}},
+      {new:true}
+    )
   }
 }

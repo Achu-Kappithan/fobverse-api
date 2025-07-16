@@ -1,18 +1,20 @@
+import { ObjectId } from "mongoose";
+
 export interface JwtAccessPayload {
-  userId: string;
+  UserId: string;
   email: string;
-  is_verified: boolean;
   role: string;
+  profileId?:string
 }
 
 export interface JwtRefreshPayload {
-  userId: string;
+  UserId: string;
   email: string;
 }
 
 export interface JwtVerificationPayload {
   email: string;
-  userId: string;
+  UserId: string;
 }
 
 export interface passwordResetPayload {

@@ -3,7 +3,7 @@ import { CreateProfileDto } from './create.profile.dto';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 
-export class TeamMember {
+export class TeamMemberDto {
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -17,7 +17,7 @@ export class TeamMember {
 
 
 
-export class InternalUser {
+export class InternalUserDto {
   @IsNotEmpty()
   email: string;
 
@@ -30,6 +30,7 @@ export class InternalUser {
   @IsNotEmpty()
   name: string;
 
+  @IsOptional()
   profilePic?: string;
 }
 
@@ -50,10 +51,10 @@ export class UpdateProfileDto extends PartialType(CreateProfileDto) {
   imageGallery?:string[]
 
   @IsOptional()
-  teamMembers?: TeamMember[];
+  teamMembers?: TeamMemberDto[];
 
   @IsOptional()
-  internalUsers?: InternalUser[];
+  internalUsers?: InternalUserDto[];
 
   @IsOptional()
   benafits?:string[]

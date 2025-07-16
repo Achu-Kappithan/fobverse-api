@@ -1,11 +1,11 @@
-import { UserDocument } from 'src/auth/schema/candidate.schema';
 import { IBaseRepository } from 'src/shared/interface/base-repository.interface';
+import { UserDocument } from '../schema/user.schema';
 
 export interface IAuthRepository extends IBaseRepository<UserDocument> {
   findByEmail(email: string): Promise<UserDocument | null>;
 
   updateVerificationStatus(
-    userId: string,
+    adminUserId: string,
     status: boolean,
   ): Promise<UserDocument | null>;
 

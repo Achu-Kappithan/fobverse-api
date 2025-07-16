@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude } from 'class-transformer';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export enum UserRole {
-  CANDIDATE = 'candidate',
-  COMPANY = 'company',
-  ADMIN = 'admin',
+  CANDIDATE = 'candidate',    
+  SUPER_ADMIN = 'super_admin',  
+  COMPANY_ADMIN = 'company_admin',
+  HR_USER = 'hr_user',            
+  INTERVIEWER_USER = 'interviewer_user',
 }
 
 export type UserDocument = HydratedDocument<User>;
@@ -24,9 +25,6 @@ export class User {
   @Prop({ default: false })
   isVerified: boolean;
 
-  @Prop({ default: false })
-  isGlobalAdmin: boolean;
-
   @Prop({ required: false })
   googleId?: string;
 
@@ -37,7 +35,9 @@ export class User {
   })
   role: UserRole;
 
-  _id?: string;
+  @Prop({ type: Types.ObjectId, ref: 'CompanyProfile', index: true })
+  companyId?: Types.ObjectId;
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

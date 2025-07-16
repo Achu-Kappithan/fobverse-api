@@ -1,6 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 
-class InternalUserDto {
+class InternalResponceUserDto {
   @Expose()
   name: string;
 
@@ -17,7 +17,7 @@ class InternalUserDto {
   password: string;
 }
 
-class TeamMemberDto {
+class TeamMemberResponceDto {
   @Expose()
   name: string;
 
@@ -37,11 +37,11 @@ export class ContactInfoItem {
 }
 
 export class CompanyProfileResponseDto {
-  @Expose()
+  @Exclude()
   _id: string;
 
-  @Expose()
-  userId: string;
+  @Exclude()
+  adminUserId: string;
 
   @Expose()
   name: string;
@@ -50,7 +50,7 @@ export class CompanyProfileResponseDto {
   industry?: string;
 
   @Expose()
-  contactInfo?: ContactInfoItem[];  @Expose()
+  contactInfo?: ContactInfoItem[];
 
   @Expose()
   officeLocation?: string[];
@@ -80,10 +80,10 @@ export class CompanyProfileResponseDto {
   updatedAt: Date;
 
   @Expose()
-  @Type(() => TeamMemberDto)
-  teamMembers?: TeamMemberDto[];
+  @Type(() => TeamMemberResponceDto)
+  teamMembers?: TeamMemberResponceDto[];
 
   @Expose()
-  @Type(() => InternalUserDto)
-  internalUsers?: InternalUserDto[];
+  @Type(() => InternalResponceUserDto)
+  internalUsers?: InternalResponceUserDto[];
 }
