@@ -1,21 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
+import { ObjectId } from 'mongoose';
 
-class InternalResponceUserDto {
-  @Expose()
-  name: string;
-
-  @Expose()
-  email: string;
-
-  @Expose()
-  role: string;
-
-  @Expose()
-  profilePic?: string;
-
-  @Exclude()
-  password: string;
-}
 
 class TeamMemberResponceDto {
   @Expose()
@@ -83,7 +68,28 @@ export class CompanyProfileResponseDto {
   @Type(() => TeamMemberResponceDto)
   teamMembers?: TeamMemberResponceDto[];
 
-  @Expose()
-  @Type(() => InternalResponceUserDto)
-  internalUsers?: InternalResponceUserDto[];
+}
+
+
+export class InteranalUserResponceDto {
+    @Expose()
+    _id: ObjectId;
+  
+    @Expose()
+    name: string;
+  
+    @Expose()
+    email: string;
+  
+    @Expose()
+    role: string;
+  
+    @Exclude()
+    password: string;
+  
+    @Exclude()
+    googleId: string;
+  
+    @Exclude()
+    __v: string;
 }

@@ -18,7 +18,7 @@ export class CompanyController {
         @Request() req:any 
     ):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
         const user = req.user
-        return this._companyService.getPorfile(user._id)
+        return this._companyService.getPorfile(user.companyId)
     }
 
     @Patch('updateprofile')
@@ -28,7 +28,7 @@ export class CompanyController {
         @Body() dto:UpdateProfileDto
     ){
         const user = req.user
-        return this._companyService.updatePorfile(user._id,dto)
+        return this._companyService.updatePorfile(user.companyId,dto)
     }
 
     @Post('createuser')
@@ -38,6 +38,6 @@ export class CompanyController {
         @Body() dto:InternalUserDto
     ){
         const user = req.user
-        return await this._companyService.createUser(user._id,dto)
+        return await this._companyService.createUser(user.companyId,dto)
     }
 }

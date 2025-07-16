@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -30,7 +30,7 @@ import { User, UserSchema } from './schema/user.schema';
     ConfigModule,
     CandiateModule,
     EmailModule,
-    CompanyModule
+    forwardRef(()=>CompanyModule)
   ],
   providers: [
     {
@@ -47,6 +47,6 @@ import { User, UserSchema } from './schema/user.schema';
     JwtTokenService,
   ],
   controllers: [AuthController],
-  exports: [AUTH_SERVICE],
+  exports: [AUTH_SERVICE,AUTH_REPOSITORY],
 })
 export class AuthModule {}

@@ -50,8 +50,8 @@ export class AuthRepository
         {
           $lookup: {
             from: 'companyprofiles',
-            localField: '_id',
-            foreignField: 'adminUserId',
+            localField: 'companyId',
+            foreignField: '_id',
             as: 'profile'
           }
         },

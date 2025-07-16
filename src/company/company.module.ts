@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CompanyController } from './company.controller';
 import { CompanyService } from './company.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -6,10 +6,12 @@ import { CompanyProfile, CompanyProfileSchema } from './schema/company.profile.s
 import { CompanyRepository } from './comapny.repository';
 import { COMAPNY_REPOSITORY } from './interface/profile.repository.interface';
 import { COMPANY_SERVICE } from './interface/profile.service.interface';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports:[
-        MongooseModule.forFeature([{name:CompanyProfile.name, schema:CompanyProfileSchema}])
+    MongooseModule.forFeature([{name:CompanyProfile.name, schema:CompanyProfileSchema}]),
+    forwardRef(()=>AuthModule)
   ],
   controllers: [CompanyController],
   providers: [

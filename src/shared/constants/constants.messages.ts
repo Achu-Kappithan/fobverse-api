@@ -43,6 +43,7 @@ export const  MESSAGES ={
     COMPANY:{
         PROFILE_UPDATE_SUCCESS: 'Profile data updated successfully.',
         PROFILE_FETCH_SUCCESS: 'Company profile fetched successfully.',
+        ALREADY_EXIST:'Email alredy exists'
     },
     CANDIDATE:{
 

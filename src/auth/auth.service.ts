@@ -46,10 +46,8 @@ import {
 } from 'src/candiate/interfaces/candidate-service.interface';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { UserDocument, UserRole } from './schema/user.schema';
-import { CompanyProfileDocument } from 'src/company/schema/company.profile.schema';
 import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -576,13 +574,10 @@ export class AuthService implements IAuthService {
     let  user = await this.authRepository.findCompanyByEmail(dto.email)
     user= user[0]
 
-    console.log(user)
-
     if(!user){
       throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUD)
     }
 
-    console.log(dto.password,"*****",user.password)
     if (!(await bcrypt.compare(dto.password, user.password!))) {
       this.logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
