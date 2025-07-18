@@ -8,6 +8,7 @@ import { IcompanyRepository } from './interface/profile.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateResult } from 'mongoose';
 import { InternalUserDto } from './dtos/update.profile.dtos';
+import { UserDocument } from 'src/auth/schema/user.schema';
 
 @Injectable()
 export class CompanyRepository
@@ -38,4 +39,5 @@ export class CompanyRepository
       {new:true}
     )
   }
+
 }

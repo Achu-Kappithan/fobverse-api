@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   Logger,
@@ -48,6 +49,9 @@ import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { UserDocument, UserRole } from './schema/user.schema';
 import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
+import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
+import { Types } from 'mongoose';
+import { InternalUserDto } from 'src/company/dtos/update.profile.dtos';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -57,7 +61,7 @@ export class AuthService implements IAuthService {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
-    @Inject(COMPANY_SERVICE)
+    @Inject( forwardRef(()=>COMPANY_SERVICE))
     private readonly _companyService: IComapnyService,
     @Inject(CANDIDATE_SERVICE)
     private readonly _candidateService: ICandidateService,
@@ -625,6 +629,58 @@ export class AuthService implements IAuthService {
       data:mappedData
     }
 
+  }
+
+  async createInternalUser(id:string, dto: InternalUserDto): Promise<InternalUserResponceDto> {
+      const existinguser = await this.authRepository.findByEmail(dto.email)
+
+      if(existinguser){
+      this.logger.log(`[AuthService] Email alredy Exist${dto.email}`)
+      throw new ConflictException(MESSAGES.COMPANY.ALREADY_EXIST)
+      }
+
+      const hashedPassword = await bcrypt.hash(dto.password,10)
+
+      console.log("before creatin ",id)
+
+      const newUser = {
+      name: dto.name,
+      email: dto.email,
+      role: dto.role,
+      password: hashedPassword,
+      isVerified: true,
+      companyId: new Types.ObjectId(id)
+      }
+
+      console.log("after createion",newUser.companyId)
+
+      const data = await this.authRepository.create(newUser)
+      this.logger.log(`[comapnyService] new company member is added${data.toJSON()}`)
+
+      const mappedData = plainToInstance(
+      InternalUserResponceDto,
+      {
+          ...data?.toJSON()
+      },
+      {excludeExtraneousValues:true}
+      )
+      console.log('udpdated responce in service file',mappedData)
+      return mappedData
+  }
+
+  // getUsers
+  async getUsers(id: string): Promise<InternalUserResponceDto[]> {
+    this.logger.log(`[AuthService] comapny id for get internal users :${id}`)
+    const companyId = new Types.ObjectId(id)
+    const  users = await this.authRepository.findInternalUsers(companyId)
+    const plaindata = users.map((val)=>val.toJSON())
+
+      const mappedData = plainToInstance(
+        InternalUserResponceDto,
+        users
+      )
+      console.log("mapped daata",mappedData)
+    return mappedData
   }
 
 }

@@ -26,7 +26,7 @@ export class CompanyController {
     async updateProfile(
         @Request()req:any,
         @Body() dto:UpdateProfileDto
-    ){
+    ):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
         const user = req.user
         return this._companyService.updatePorfile(user.companyId,dto)
     }
@@ -39,5 +39,15 @@ export class CompanyController {
     ){
         const user = req.user
         return await this._companyService.createUser(user.companyId,dto)
+    }
+
+    @Get('internalusers')
+    @UseGuards(AuthGuard('access_token'))
+    async getInternalUsers(
+        @Request()req:any,
+    ){
+        const user = req.user
+        console.log(user)
+        return this._companyService.getInternalUsers(user.companyId.toString())
     }
 }

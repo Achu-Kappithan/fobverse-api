@@ -38,6 +38,9 @@ export class User {
   @Prop({ type: Types.ObjectId, ref: 'CompanyProfile', index: true })
   companyId?: Types.ObjectId;
 
+  @Prop({type:String})
+  profileImg?:string
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

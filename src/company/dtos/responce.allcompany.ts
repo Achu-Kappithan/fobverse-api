@@ -1,5 +1,5 @@
-import { Exclude, Expose, Type } from 'class-transformer';
-import { ObjectId } from 'mongoose';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { ObjectId, Types } from 'mongoose';
 
 
 class TeamMemberResponceDto {
@@ -71,25 +71,32 @@ export class CompanyProfileResponseDto {
 }
 
 
-export class InteranalUserResponceDto {
-    @Expose()
-    _id: ObjectId;
-  
-    @Expose()
-    name: string;
-  
-    @Expose()
-    email: string;
-  
-    @Expose()
-    role: string;
-  
-    @Exclude()
-    password: string;
-  
-    @Exclude()
-    googleId: string;
-  
-    @Exclude()
-    __v: string;
+
+export class InternalUserResponceDto {
+  @Expose({ name: 'id' }) 
+  @Transform(({ value }) => {
+    if (value instanceof Types.ObjectId) {
+      return value.toString();
+    }
+    return value; 
+  }, { toPlainOnly: true }) 
+  _id: string; 
+
+  @Expose()
+  name: string;
+
+  @Expose()
+  email: string;
+
+  @Expose()
+  role: string;
+
+  @Exclude()
+  password: string;
+
+  @Exclude()
+  googleId: string;
+
+  @Exclude()
+  __v: number; // Mongoose __v is typically a number, not a string
 }
