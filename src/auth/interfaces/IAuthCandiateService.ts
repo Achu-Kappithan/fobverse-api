@@ -8,7 +8,7 @@ import {
 } from './api-response.interface';
 import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from '../dto/login.dto';
 import { UserDocument } from '../schema/user.schema';
-import { InternalUserDto } from 'src/company/dtos/update.profile.dtos';
+import { InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
 import { comapnyResponceInterface } from 'src/company/interface/responce.interface';
 import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
 
@@ -33,6 +33,8 @@ export interface IAuthService {
   companyUserLogin(dot:LoginDto): Promise<LoginResponce>
   getUsers(id:string):Promise<InternalUserResponceDto[]>
   createInternalUser(id:string, dto: InternalUserDto): Promise<InternalUserResponceDto>
+  getUserProfile(id:string):Promise<InternalUserResponceDto>
+  updateUserProfile(id:string,dto:UpdateInternalUserDto):Promise<InternalUserResponceDto>
 }
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';

@@ -1,12 +1,11 @@
-import { ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException, Logger, Req, Request } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import { IComapnyService } from './interface/profile.service.interface';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from './interface/profile.repository.interface';
-import { CompanyRepository } from './comapny.repository';
-import { CoamapnyUserDto, CreateProfileDto } from './dtos/create.profile.dto';
+import { CreateProfileDto } from './dtos/create.profile.dto';
 import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { plainToInstance } from 'class-transformer';
-import { InternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import { Types } from 'mongoose';
@@ -82,6 +81,7 @@ export class CompanyService implements IComapnyService{
         }
     }
 
+    // get all Internal users
 
     async getInternalUsers(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto[]>>{
         this.logger.log(`[ComapanyService] id get in Comapny service :${id}`)
@@ -93,5 +93,26 @@ export class CompanyService implements IComapnyService{
         }
     }
 
+    //getUserProfile
+
+    async getUserProfile(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+        this.logger.log(`[ComapayService] try to getUser Profile ${id}`)
+        const userProfile = await this._AuthService.getUserProfile(id)
+        return {
+            message:MESSAGES.COMPANY.USER_PROFILE_GET,
+            data:userProfile
+        }
+    }
+
+
+    //updateUserProfile
+
+    async upateUserProfile(id: string, dto: UpdateInternalUserDto): Promise<comapnyResponceInterface<InternalUserResponceDto>> {
+        const data =await this._AuthService.updateUserProfile(id,dto)
+        return{
+            message:MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
+            data:data
+        }
+    }
 
 }

@@ -32,7 +32,19 @@ export class InternalUserDto {
   name: string;
 
   @IsOptional()
-  profilePic?: string;
+  profileImg?: string;
+}
+
+export class UpdateInternalUserDto {
+  @IsNotEmpty()
+  email:string
+
+  @IsNotEmpty()
+  name:string
+
+  @IsOptional()
+  @IsNotEmpty()
+  profileImg:string
 }
 
 

@@ -45,7 +45,8 @@ export const  MESSAGES ={
         PROFILE_FETCH_SUCCESS: 'Company profile fetched successfully.',
         ALREADY_EXIST:'Email alredy exists',
         USERS_GET_SUCCESS: 'Internal Users get Successfully',
-        USER_REG_SUCCESS: 'User registration  completed'
+        USER_REG_SUCCESS: 'User registration  completed',
+        USER_PROFILE_GET: 'User profile get Successfully'
     },
     CANDIDATE:{
 

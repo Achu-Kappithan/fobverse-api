@@ -1,6 +1,6 @@
 import { CreateProfileDto } from "../dtos/create.profile.dto";
 import { CompanyProfileResponseDto, InternalUserResponceDto } from "../dtos/responce.allcompany";
-import { InternalUserDto, UpdateProfileDto } from "../dtos/update.profile.dtos";
+import { InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from "../dtos/update.profile.dtos";
 import { CompanyProfileDocument } from "../schema/company.profile.schema";
 import { comapnyResponceInterface } from "./responce.interface";
 
@@ -15,6 +15,12 @@ export interface IComapnyService {
     createUser(id:string,dto:InternalUserDto):Promise<comapnyResponceInterface<InternalUserResponceDto>>
 
     getInternalUsers(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto[]>>
+
+    getUserProfile(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto>>
+
+    upateUserProfile(id:string,dto:UpdateInternalUserDto):Promise<comapnyResponceInterface<InternalUserResponceDto>>
+
+
 
 }
 

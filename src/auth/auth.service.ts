@@ -51,7 +51,7 @@ import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
 import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
 import { Types } from 'mongoose';
-import { InternalUserDto } from 'src/company/dtos/update.profile.dtos';
+import { InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -631,6 +631,8 @@ export class AuthService implements IAuthService {
 
   }
 
+  //create InternalUsers
+
   async createInternalUser(id:string, dto: InternalUserDto): Promise<InternalUserResponceDto> {
       const existinguser = await this.authRepository.findByEmail(dto.email)
 
@@ -680,6 +682,32 @@ export class AuthService implements IAuthService {
         users
       )
       console.log("mapped daata",mappedData)
+    return mappedData
+  }
+
+  //get UserProfile
+
+  async getUserProfile(id:string):Promise<InternalUserResponceDto>{
+    this.logger.log('[AuthService] geting Company active userprofile',id)
+    const data = await this.authRepository.findById(id)
+    const  mappedData = plainToInstance(
+      InternalUserResponceDto,
+      data?.toJSON()
+    )
+    this.logger.debug(`[AuthService] profile details gets${mappedData}`)
+    return mappedData
+  }
+
+  // update User Profile
+
+  async updateUserProfile(id: string, dto:UpdateInternalUserDto): Promise<InternalUserResponceDto> {
+    console.log(dto)
+    const data = await this.authRepository.update({_id:id},{$set:dto})
+    const mappedData = plainToInstance(
+      InternalUserResponceDto,
+      data?.toJSON()
+    )
+    console.log(mappedData)
     return mappedData
   }
 

@@ -2,8 +2,8 @@ import { Body, Controller, Get, Inject, Patch, Post, Query, Request, UseGuards }
 import { COMPANY_SERVICE, IComapnyService } from './interface/profile.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { comapnyResponceInterface } from './interface/responce.interface';
-import { CompanyProfileResponseDto } from './dtos/responce.allcompany';
-import { InternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
+import { InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 
 @Controller('company')
 export class CompanyController {
@@ -47,7 +47,25 @@ export class CompanyController {
         @Request()req:any,
     ){
         const user = req.user
-        console.log(user)
         return this._companyService.getInternalUsers(user.companyId.toString())
+    }
+
+    @Get('userprofile')
+    @UseGuards(AuthGuard('access_token'))
+    async getUserProfile(
+        @Request() req:any
+    ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+        const user = req.user
+        return this._companyService.getUserProfile(user._id.toString())
+    }
+
+    @Post('updateuserprofile')
+    @UseGuards(AuthGuard('access_token'))
+    async updateUserProfile(
+        @Body() dto:UpdateInternalUserDto,
+        @Request() req:any
+    ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+        const user = req.user
+        return this._companyService.upateUserProfile(user._id.toString(),dto)
     }
 }
