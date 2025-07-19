@@ -13,7 +13,8 @@ export const  MESSAGES ={
         EMAIL_ALREADY_VERIFIED: 'Email already verified.',
         EMAIL_ALREADY_EXISTS: 'User already exists. Try with another email.',
         CANNOT_UPDATE_PASSWORD: "Can't update password. Try again.",
-
+        PASSWORD_MISMATCH_ERROR :'The current password you entered is incorrect. Please try again.',
+        
         // Unauthorized
         INVALID_GOOGLE_TOKEN: 'Invalid Google Token',
         FAILED_USER_CREATION_DURING_LOGIN: 'Failed to create new user during the login',

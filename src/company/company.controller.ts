@@ -3,7 +3,8 @@ import { COMPANY_SERVICE, IComapnyService } from './interface/profile.service.in
 import { AuthGuard } from '@nestjs/passport';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
-import { InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { generalResponce } from 'src/auth/interfaces/api-response.interface';
 
 @Controller('company')
 export class CompanyController {
@@ -67,5 +68,14 @@ export class CompanyController {
     ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
         const user = req.user
         return this._companyService.upateUserProfile(user._id.toString(),dto)
+    }
+
+    @Post('updatepassword')
+    @UseGuards(AuthGuard('access_token'))
+    async UpdatePassword(
+        @Body() dto:changePassDto,
+        @Request() req:any
+    ):Promise<generalResponce>{
+        return await this._companyService.UpdatePassword(req.user._id.toString(),dto)
     }
 }

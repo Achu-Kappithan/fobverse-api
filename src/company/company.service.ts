@@ -5,11 +5,13 @@ import { CreateProfileDto } from './dtos/create.profile.dto';
 import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { plainToInstance } from 'class-transformer';
-import { InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import { Types } from 'mongoose';
 import { AUTH_SERVICE, IAuthService } from 'src/auth/interfaces/IAuthCandiateService';
+import { generalResponce } from 'src/auth/interfaces/api-response.interface';
+import { dot } from 'node:test/reporters';
 
 @Injectable()
 export class CompanyService implements IComapnyService{
@@ -113,6 +115,12 @@ export class CompanyService implements IComapnyService{
             message:MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
             data:data
         }
+    }
+
+    // update Password
+
+    async UpdatePassword(id:string,dto:changePassDto):Promise<generalResponce>{
+        return await this._AuthService.changePassword(id,dto)
     }
 
 }

@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateProfileDto } from './create.profile.dto';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { isNotEmpty, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { UserRole } from 'src/auth/schema/user.schema';
 
 
@@ -81,6 +81,18 @@ export class UpdateProfileDto extends PartialType(CreateProfileDto) {
   @IsOptional()
   contactInfo?: { type: string; value: string }[];
 
+}
+
+
+export class changePassDto {
+
+  @IsNotEmpty()
+  @IsString()
+  currPass:string
+
+  @IsNotEmpty()
+  @IsString()
+  newPass:string
 }
 
 

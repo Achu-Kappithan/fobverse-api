@@ -33,7 +33,7 @@ import {
   LoginDto,
   UpdatePasswordDto,
 } from './dto/login.dto';
-import { OAuth2Client } from 'google-auth-library';
+import { AwsClient, OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
 import {
@@ -51,7 +51,9 @@ import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
 import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
 import { Types } from 'mongoose';
-import { InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
+import { map } from 'rxjs';
+import { PassThrough } from 'stream';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -701,14 +703,36 @@ export class AuthService implements IAuthService {
   // update User Profile
 
   async updateUserProfile(id: string, dto:UpdateInternalUserDto): Promise<InternalUserResponceDto> {
-    console.log(dto)
     const data = await this.authRepository.update({_id:id},{$set:dto})
     const mappedData = plainToInstance(
       InternalUserResponceDto,
       data?.toJSON()
     )
-    console.log(mappedData)
+    this.logger.debug(`[AuthService] User profile updated ${mappedData}`)
     return mappedData
+  }
+
+  //Update Password
+
+  async changePassword(id:string,dto:changePassDto):Promise<generalResponce>{
+    this.logger.log(`[AuthsService] Try to Update password id: ${id} newPass : ${dto.newPass}`)
+    const User = await this.authRepository.findById(id);
+    
+    if(!User){
+      throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUD)
+    }
+    console.log(User)
+    const matchExistingPass = await  bcrypt.compare(dto.currPass, User.password!)
+    this.logger.log(`[AuthService] Password mathing for updating password is: ${matchExistingPass}`)
+    if(!matchExistingPass){
+      throw new ForbiddenException(MESSAGES.AUTH.PASSWORD_MISMATCH_ERROR)
+    }
+    const newHashedPassword = await bcrypt.hash(dto.newPass,10)
+    await this.authRepository.update({_id:id},{$set:{password:newHashedPassword}})
+
+    return {
+      message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS
+    }
   }
 
 }
