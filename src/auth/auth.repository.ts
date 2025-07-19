@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BaseRepository } from 'src/shared/repositories/base.repository';
 import { IAuthRepository } from './interfaces/IAuthRepository';
-import { Model } from 'mongoose';
-import { User, UserDocument } from './schema/user.schema';
+import { Model, ObjectId, Types } from 'mongoose';
+import { User, UserDocument, UserRole } from './schema/user.schema';
 
 @Injectable()
 export class AuthRepository
@@ -87,5 +87,11 @@ export class AuthRepository
     role: string,
   ): Promise<UserDocument | null> {
     return this.userModel.findOne({ email: emai, role: role });
+  }
+
+  async findInternalUsers(companyId:Types.ObjectId): Promise<UserDocument[]> {
+    return this.userModel.find(
+      {companyId:companyId,role:{$ne:UserRole.COMPANY_ADMIN}}
+    )
   }
 }

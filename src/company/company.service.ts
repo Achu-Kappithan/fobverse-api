@@ -1,20 +1,17 @@
-import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, Req, Request } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import { IComapnyService } from './interface/profile.service.interface';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from './interface/profile.repository.interface';
-import { CompanyRepository } from './comapny.repository';
-import { CoamapnyUserDto, CreateProfileDto } from './dtos/create.profile.dto';
-import { CompanyProfileResponseDto, InteranalUserResponceDto } from './dtos/responce.allcompany';
+import { CreateProfileDto } from './dtos/create.profile.dto';
+import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { plainToInstance } from 'class-transformer';
-import { InternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import { Types } from 'mongoose';
-import { AUTH_REPOSITORY, IAuthRepository } from 'src/auth/interfaces/IAuthRepository';
-import { AuthService } from 'src/auth/auth.service';
-import  * as bcrypt from 'bcrypt'
-import { UserDocument } from 'src/auth/schema/user.schema';
-import { RegisterCandidateDto } from 'src/auth/dto/register-candidate.dto';
+import { AUTH_SERVICE, IAuthService } from 'src/auth/interfaces/IAuthCandiateService';
+import { generalResponce } from 'src/auth/interfaces/api-response.interface';
+import { dot } from 'node:test/reporters';
 
 @Injectable()
 export class CompanyService implements IComapnyService{
@@ -22,8 +19,8 @@ export class CompanyService implements IComapnyService{
     constructor(
         @Inject(COMAPNY_REPOSITORY)
         private readonly _companyRepository : IcompanyRepository,
-        @Inject(AUTH_REPOSITORY)
-        private readonly _AuthRepository: IAuthRepository
+        @Inject( forwardRef(()=>AUTH_SERVICE))
+        private readonly _AuthService: IAuthService
     ){}
 
     //for updating bolock /unblock Status
@@ -78,45 +75,52 @@ export class CompanyService implements IComapnyService{
 
     //add internal users to the company
 
-    async createUser(id:string, dto: InternalUserDto): Promise<comapnyResponceInterface<InteranalUserResponceDto>> {
-       const existinguser = await this._AuthRepository.findByEmail(dto.email)
-
-       if(existinguser){
-        this.logger.log(`[AuthService] Email alredy Exist${dto.email}`)
-        throw new ConflictException(MESSAGES.COMPANY.ALREADY_EXIST)
-       }
-
-       const hashedPassword = await bcrypt.hash(dto.password,10)
-
-       console.log("before creatin ",id)
-
-       const newUser = {
-        name: dto.name,
-        email: dto.email,
-        role: dto.role,
-        password: hashedPassword,
-        isVerified: true,
-        companyId: new Types.ObjectId(id)
-       }
-
-       console.log("after createion",newUser.companyId)
-
-       const data = await this._AuthRepository.create(newUser)
-       this.logger.log(`[comapnyService] new company member is added${data.toJSON()}`)
-
-        const mappedData = plainToInstance(
-        InteranalUserResponceDto,
-        {
-            ...data?.toJSON()
-        },
-        {excludeExtraneousValues:true}
-       )
-       console.log('udpdated responce in service file',mappedData)
-       return {
-        message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
-        data : mappedData
-       }
+    async createUser(id:string, dto: InternalUserDto): Promise<comapnyResponceInterface<InternalUserResponceDto>> {
+        const data = await this._AuthService.createInternalUser(id,dto)
+        return  {
+            message:MESSAGES.COMPANY.USER_REG_SUCCESS,
+            data:data
+        }
     }
 
+    // get all Internal users
+
+    async getInternalUsers(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto[]>>{
+        this.logger.log(`[ComapanyService] id get in Comapny service :${id}`)
+        const internalUsers = await this._AuthService.getUsers(id)
+        this.logger.log(`[comapnyService] getall internal users ${internalUsers}`)
+        return {
+            message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
+            data:internalUsers
+        }
+    }
+
+    //getUserProfile
+
+    async getUserProfile(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+        this.logger.log(`[ComapayService] try to getUser Profile ${id}`)
+        const userProfile = await this._AuthService.getUserProfile(id)
+        return {
+            message:MESSAGES.COMPANY.USER_PROFILE_GET,
+            data:userProfile
+        }
+    }
+
+
+    //updateUserProfile
+
+    async upateUserProfile(id: string, dto: UpdateInternalUserDto): Promise<comapnyResponceInterface<InternalUserResponceDto>> {
+        const data =await this._AuthService.updateUserProfile(id,dto)
+        return{
+            message:MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
+            data:data
+        }
+    }
+
+    // update Password
+
+    async UpdatePassword(id:string,dto:changePassDto):Promise<generalResponce>{
+        return await this._AuthService.changePassword(id,dto)
+    }
 
 }

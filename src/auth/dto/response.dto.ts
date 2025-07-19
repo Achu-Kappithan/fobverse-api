@@ -20,6 +20,9 @@ export class ResponseRegisterDto {
   @Exclude()
   googleId: string;
 
+  @Expose()
+  profileImg?:string
+
   @Exclude()
   __v: string;
 

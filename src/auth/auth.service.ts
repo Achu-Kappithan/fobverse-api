@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   Logger,
@@ -32,7 +33,7 @@ import {
   LoginDto,
   UpdatePasswordDto,
 } from './dto/login.dto';
-import { OAuth2Client } from 'google-auth-library';
+import { AwsClient, OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
 import {
@@ -48,6 +49,11 @@ import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { UserDocument, UserRole } from './schema/user.schema';
 import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
+import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
+import { Types } from 'mongoose';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
+import { map } from 'rxjs';
+import { PassThrough } from 'stream';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -57,7 +63,7 @@ export class AuthService implements IAuthService {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
-    @Inject(COMPANY_SERVICE)
+    @Inject( forwardRef(()=>COMPANY_SERVICE))
     private readonly _companyService: IComapnyService,
     @Inject(CANDIDATE_SERVICE)
     private readonly _candidateService: ICandidateService,
@@ -625,6 +631,108 @@ export class AuthService implements IAuthService {
       data:mappedData
     }
 
+  }
+
+  //create InternalUsers
+
+  async createInternalUser(id:string, dto: InternalUserDto): Promise<InternalUserResponceDto> {
+      const existinguser = await this.authRepository.findByEmail(dto.email)
+
+      if(existinguser){
+      this.logger.log(`[AuthService] Email alredy Exist${dto.email}`)
+      throw new ConflictException(MESSAGES.COMPANY.ALREADY_EXIST)
+      }
+
+      const hashedPassword = await bcrypt.hash(dto.password,10)
+
+      console.log("before creatin ",id)
+
+      const newUser = {
+      name: dto.name,
+      email: dto.email,
+      role: dto.role,
+      password: hashedPassword,
+      isVerified: true,
+      companyId: new Types.ObjectId(id)
+      }
+
+      console.log("after createion",newUser.companyId)
+
+      const data = await this.authRepository.create(newUser)
+      this.logger.log(`[comapnyService] new company member is added${data.toJSON()}`)
+
+      const mappedData = plainToInstance(
+      InternalUserResponceDto,
+      {
+          ...data?.toJSON()
+      },
+      {excludeExtraneousValues:true}
+      )
+      console.log('udpdated responce in service file',mappedData)
+      return mappedData
+  }
+
+  // getUsers
+  async getUsers(id: string): Promise<InternalUserResponceDto[]> {
+    this.logger.log(`[AuthService] comapny id for get internal users :${id}`)
+    const companyId = new Types.ObjectId(id)
+    const  users = await this.authRepository.findInternalUsers(companyId)
+    const plaindata = users.map((val)=>val.toJSON())
+
+      const mappedData = plainToInstance(
+        InternalUserResponceDto,
+        users
+      )
+      console.log("mapped daata",mappedData)
+    return mappedData
+  }
+
+  //get UserProfile
+
+  async getUserProfile(id:string):Promise<InternalUserResponceDto>{
+    this.logger.log('[AuthService] geting Company active userprofile',id)
+    const data = await this.authRepository.findById(id)
+    const  mappedData = plainToInstance(
+      InternalUserResponceDto,
+      data?.toJSON()
+    )
+    this.logger.debug(`[AuthService] profile details gets${mappedData}`)
+    return mappedData
+  }
+
+  // update User Profile
+
+  async updateUserProfile(id: string, dto:UpdateInternalUserDto): Promise<InternalUserResponceDto> {
+    const data = await this.authRepository.update({_id:id},{$set:dto})
+    const mappedData = plainToInstance(
+      InternalUserResponceDto,
+      data?.toJSON()
+    )
+    this.logger.debug(`[AuthService] User profile updated ${mappedData}`)
+    return mappedData
+  }
+
+  //Update Password
+
+  async changePassword(id:string,dto:changePassDto):Promise<generalResponce>{
+    this.logger.log(`[AuthsService] Try to Update password id: ${id} newPass : ${dto.newPass}`)
+    const User = await this.authRepository.findById(id);
+    
+    if(!User){
+      throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUD)
+    }
+    console.log(User)
+    const matchExistingPass = await  bcrypt.compare(dto.currPass, User.password!)
+    this.logger.log(`[AuthService] Password mathing for updating password is: ${matchExistingPass}`)
+    if(!matchExistingPass){
+      throw new ForbiddenException(MESSAGES.AUTH.PASSWORD_MISMATCH_ERROR)
+    }
+    const newHashedPassword = await bcrypt.hash(dto.newPass,10)
+    await this.authRepository.update({_id:id},{$set:{password:newHashedPassword}})
+
+    return {
+      message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS
+    }
   }
 
 }

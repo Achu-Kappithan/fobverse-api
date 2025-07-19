@@ -2,8 +2,9 @@ import { Body, Controller, Get, Inject, Patch, Post, Query, Request, UseGuards }
 import { COMPANY_SERVICE, IComapnyService } from './interface/profile.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { comapnyResponceInterface } from './interface/responce.interface';
-import { CompanyProfileResponseDto } from './dtos/responce.allcompany';
-import { InternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { generalResponce } from 'src/auth/interfaces/api-response.interface';
 
 @Controller('company')
 export class CompanyController {
@@ -26,7 +27,7 @@ export class CompanyController {
     async updateProfile(
         @Request()req:any,
         @Body() dto:UpdateProfileDto
-    ){
+    ):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
         const user = req.user
         return this._companyService.updatePorfile(user.companyId,dto)
     }
@@ -39,5 +40,42 @@ export class CompanyController {
     ){
         const user = req.user
         return await this._companyService.createUser(user.companyId,dto)
+    }
+
+    @Get('internalusers')
+    @UseGuards(AuthGuard('access_token'))
+    async getInternalUsers(
+        @Request()req:any,
+    ){
+        const user = req.user
+        return this._companyService.getInternalUsers(user.companyId.toString())
+    }
+
+    @Get('userprofile')
+    @UseGuards(AuthGuard('access_token'))
+    async getUserProfile(
+        @Request() req:any
+    ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+        const user = req.user
+        return this._companyService.getUserProfile(user._id.toString())
+    }
+
+    @Post('updateuserprofile')
+    @UseGuards(AuthGuard('access_token'))
+    async updateUserProfile(
+        @Body() dto:UpdateInternalUserDto,
+        @Request() req:any
+    ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+        const user = req.user
+        return this._companyService.upateUserProfile(user._id.toString(),dto)
+    }
+
+    @Post('updatepassword')
+    @UseGuards(AuthGuard('access_token'))
+    async UpdatePassword(
+        @Body() dto:changePassDto,
+        @Request() req:any
+    ):Promise<generalResponce>{
+        return await this._companyService.UpdatePassword(req.user._id.toString(),dto)
     }
 }

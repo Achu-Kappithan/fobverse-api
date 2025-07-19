@@ -110,6 +110,7 @@ export class AuthController {
       role: user.role,
       email: user.email,
       is_verified: user.isVerified,
+      profileImg:user.profileImg,
       message: 'completed',
     };
   }
