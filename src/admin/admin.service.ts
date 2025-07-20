@@ -1,13 +1,16 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from 'src/company/interface/profile.repository.interface';
-import { GetAllcompanyResponce, PlainResponse } from './interfaces/responce.interface';
+import { GetAllcompanyResponce, PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
 import { plainToInstance } from 'class-transformer';
 import { CompanyProfileResponseDto } from 'src/company/dtos/responce.allcompany';
 import { CandidateProfileResponseDto } from 'src/candiate/dtos/candidate-responce.dto';
 import { GetAllcandidatesResponce } from 'src/candiate/interfaces/responce.interface';
 import { CANDIDATE_REPOSITORY, ICandidateRepository } from 'src/candiate/interfaces/candidate-repository.interface';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
+import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { FilterQuery } from 'mongoose';
+import { CompanyProfile } from 'src/company/schema/company.profile.schema';
 
 @Injectable()
 export class AdminService implements IAdminService {
@@ -19,26 +22,46 @@ export class AdminService implements IAdminService {
         private readonly _candidateRepository:ICandidateRepository
     ) {}
 
-    //for featching all companyes
 
-    async getAllCompnys():Promise<GetAllcompanyResponce<CompanyProfileResponseDto>>{
-        const data = await this._companyRepository.findAll()
-        this.logger.debug(`[Adminservice] All company details fetch ${data}`)
-        const mapdeData = plainToInstance(
-            CompanyProfileResponseDto,
+    async getAllCompnys(dto: PaginationDto): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
+        const { page= 1, limit= 6, search } = dto
+        const filter:FilterQuery<CompanyProfile> = {}
+        if (search) {
+            filter.$or = [
+                { name: { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        const skip = (page-1)* limit
+        this.logger.debug(`[AdminService] Fetching companies with: Page ${page}, Limit ${limit}, Search "${search || 'N/A'}"`);
+
+        const { data, total } = await this._companyRepository.findManyWithPagination(filter, {
+            limit,
+            skip,
+        });
+
+        this.logger.debug(`[AdminService] Found ${data.length} companies on page, Total ${total}`);
+        const mappedData = plainToInstance(
+        CompanyProfileResponseDto,
             data.map(doc => {
-                const obj = doc.toObject();
+                const obj = doc.toObject({ getters: true, virtuals: false });
                 return {
                 ...obj,
                 _id: obj._id.toString(),
-                adminUserId: obj.adminUserId.toString(),
+                adminUserId: obj.adminUserId ? obj.adminUserId.toString() : undefined,
                 };
             }),
             { excludeExtraneousValues: true }
-            );
+        );
+
+        const totalPages = Math.ceil(total / limit);
         return {
-            message:MESSAGES.ADMIN.DATA_RETRIEVED,
-            data: mapdeData
+            message: MESSAGES.ADMIN.DATA_RETRIEVED,
+            data:mappedData,
+            currentPage:page,
+            totalItems:total,
+            totalPages:totalPages,
+            itemsPerPage:limit
         }
     }
 

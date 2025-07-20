@@ -1,6 +1,7 @@
 import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
 import { ADMIN_SERVICE, IAdminService } from './interfaces/IAdminService';
 import { AuthGuard } from '@nestjs/passport';
+import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -11,8 +12,12 @@ export class AdminController {
 
   @Get('getallcompany')
   @UseGuards(AuthGuard('access_token'))
-  async getAllcompany(){
-    return this._adminService.getAllCompnys()
+  async getAllcompany(
+    @Query() dto:PaginationDto
+  ){
+    const data = await this._adminService.getAllCompnys(dto)
+    console.log(data)
+    return data
   }
 
   @Get('getAllcandidates')

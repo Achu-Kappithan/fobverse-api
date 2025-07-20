@@ -17,3 +17,10 @@ export interface ErrorApiResponse extends BaseApiResponse {
   error: string;
   details?: any;
 }
+
+export interface PaginationMeta {
+  totalItems: number;
+  currentPage: number;
+  itemsPerPage: number;
+  totalPages: number;
+}
