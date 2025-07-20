@@ -1,4 +1,3 @@
-// src/common/interceptors/response.interceptor.ts
 import {
   CallHandler,
   ExecutionContext,
@@ -8,8 +7,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SuccessApiResponse } from '../responses/api.response'; // Your response interface
-import { classToPlain } from 'class-transformer'; // <<< IMPORT THIS!
+import { SuccessApiResponse, PaginationMeta } from '../responses/api.response'; // Ensure PaginationMeta is imported
 
 interface ServiceResponsePayload<T> {
   message?: string;
@@ -17,10 +15,19 @@ interface ServiceResponsePayload<T> {
   [key: string]: any;
 }
 
+interface PaginatedServiceResult<T> {
+    message?: string;
+    data: T[];
+    totalItems: number;
+    currentPage: number;
+    itemsPerPage: number;
+    totalPages: number;
+}
+
 @Injectable()
 export class ResponseInterceptor<T>
   implements
-    NestInterceptor<T | ServiceResponsePayload<T>, SuccessApiResponse<T>>
+    NestInterceptor<T | ServiceResponsePayload<T> | PaginatedServiceResult<T>, SuccessApiResponse<T>>
 {
   intercept(
     context: ExecutionContext,
@@ -32,43 +39,52 @@ export class ResponseInterceptor<T>
 
     return next.handle().pipe(
       map((responseBody) => {
-        let dataToTransform: any; // Use 'any' here as it could be T or ServiceResponsePayload<T>
         let finalMessage: string;
+        let finalData: any;
+        let finalMeta: PaginationMeta | undefined = undefined; 
+
         const statusCode = response.statusCode || HttpStatus.OK;
 
-        // Determine what part of the response needs to be transformed by classToPlain
-        if (
+        const isPaginatedResponse =
           responseBody &&
           typeof responseBody === 'object' &&
-          !Array.isArray(responseBody) &&
-          (responseBody as ServiceResponsePayload<T>).message !== undefined
-        ) {
-          // This path handles your `comapnyResponceInterface` structure from services
-          const servicePayload = responseBody as ServiceResponsePayload<T>;
-          finalMessage = servicePayload.message!; // Use ! as we've checked for undefined above
-          dataToTransform = servicePayload.data || servicePayload; // Take 'data' if present, otherwise the whole payload (excluding 'message')
-        } else {
-          // This path handles direct returns of DTOs or arrays of DTOs from controllers
-          finalMessage = 'Operation successful';
-          dataToTransform = responseBody;
-        }
+          'data' in responseBody &&
+          Array.isArray(responseBody.data) && 
+          'totalItems' in responseBody &&
+          'currentPage' in responseBody &&
+          'itemsPerPage' in responseBody &&
+          'totalPages' in responseBody;
 
-        // <<< THE CRITICAL STEP: APPLY classToPlain HERE >>>
-        // This will take the DTO instance(s) and apply @Expose, @Exclude
-        const transformedData = classToPlain(dataToTransform, {
-            // Optional: You can add options here.
-            // `excludeExtraneousValues: true` is often useful if your DTO classes
-            // are decorated with `@Exclude()` on the class level, or if you want
-            // to ensure only `@Expose()` properties are ever included.
-            // If you have `@Exclude()` on individual properties, this isn't strictly necessary.
-            // excludeExtraneousValues: true,
-        });
+        if (isPaginatedResponse) {
+          const paginatedPayload = responseBody as PaginatedServiceResult<T>;
+          finalMessage = paginatedPayload.message || 'Operation successful';
+          finalData = paginatedPayload.data; 
+          finalMeta = {
+            totalItems: paginatedPayload.totalItems,
+            currentPage: paginatedPayload.currentPage,
+            itemsPerPage: paginatedPayload.itemsPerPage,
+            totalPages: paginatedPayload.totalPages,
+          };
+        } else if (
+          responseBody &&
+          typeof responseBody === 'object' &&
+          !Array.isArray(responseBody) && 
+          (responseBody as ServiceResponsePayload<T>).message !== undefined 
+        ) {
+          const servicePayload = responseBody as ServiceResponsePayload<T>;
+          finalMessage = servicePayload.message!;
+          finalData = servicePayload.data !== undefined ? servicePayload.data : servicePayload;
+        } else {
+          finalMessage = 'Operation successful';
+          finalData = responseBody;
+        }
 
         return {
           success: true,
           statusCode: statusCode,
           message: finalMessage,
-          data: transformedData as T, // Cast back to T for type safety, after transformation
+          data: finalData,
+          meta: finalMeta, 
           timestamp: new Date().toISOString(),
           path: request.url,
           method: request.method,

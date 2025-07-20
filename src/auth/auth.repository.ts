@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BaseRepository } from 'src/shared/repositories/base.repository';
 import { IAuthRepository } from './interfaces/IAuthRepository';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument, UserRole } from './schema/user.schema';
 
 @Injectable()
