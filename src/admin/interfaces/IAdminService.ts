@@ -7,7 +7,7 @@ import { PaginationDto } from "src/shared/dtos/pagination.dto"
 
 export  interface IAdminService {
     getAllCompnys(dto:PaginationDto):Promise<PaginatedResponse<CompanyProfileResponseDto[]>>
-    getAllCandidates():Promise<GetAllcandidatesResponce<CandidateProfileResponseDto>>
+    getAllCandidates(dto:PaginationDto):Promise<PaginatedResponse<CandidateProfileResponseDto[]>>
     updateCompanyStatus(id:string):Promise<PlainResponse>
     updateCandidateStatus(id:string):Promise<PlainResponse>
 }

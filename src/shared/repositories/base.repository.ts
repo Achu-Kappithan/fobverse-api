@@ -1,6 +1,5 @@
 import { Model, Document, FilterQuery, UpdateQuery } from 'mongoose';
 import { IBaseRepository } from '../interface/base-repository.interface';
-import { query } from 'winston';
 
 export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   constructor(private readonly model: Model<T>) {}
@@ -38,7 +37,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     options?: {
       limit?: number;
       skip?: number;
-      sort?: Record<string, 1 | -1>; 
+      sort?: Record<string, -1 | 1>; 
       projection?: any;
     }
   ): Promise<{ data: T[]; total: number }> {
