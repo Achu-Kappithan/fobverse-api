@@ -15,15 +15,15 @@ export class AdminController {
   async getAllcompany(
     @Query() dto:PaginationDto
   ){
-    const data = await this._adminService.getAllCompnys(dto)
-    console.log(data)
-    return data
+    return await this._adminService.getAllCompnys(dto)
   }
 
   @Get('getAllcandidates')
   @UseGuards(AuthGuard('access_token'))
-  async getAllCandidates(){
-    return this._adminService.getAllCandidates()
+  async getAllCandidates(
+    @Query() dto:PaginationDto
+  ){
+    return this._adminService.getAllCandidates(dto)
   }
 
   @Get('company/updatestatus')

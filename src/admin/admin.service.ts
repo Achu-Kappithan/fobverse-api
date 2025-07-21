@@ -11,6 +11,7 @@ import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { FilterQuery } from 'mongoose';
 import { CompanyProfile } from 'src/company/schema/company.profile.schema';
+import { CandidateProfile } from 'src/candiate/schema/candidate.profile.schema';
 
 @Injectable()
 export class AdminService implements IAdminService {
@@ -66,13 +67,25 @@ export class AdminService implements IAdminService {
     }
 
     // for  fetching all Candidates
-   async getAllCandidates(): Promise<GetAllcandidatesResponce<CandidateProfileResponseDto>>{
-    const data  = await this._candidateRepository.findAll()
+   async getAllCandidates(dto:PaginationDto): Promise<PaginatedResponse<CandidateProfileResponseDto[]>>{
+    const{ page=1 ,limit=6 , search}= dto
+
+    const filter:FilterQuery<CandidateProfile> = {}
+
+    if(search){
+        filter.name = {$regex:search,$options:'i'}
+    }
+    
+    const skip = (page -1)* limit
+    this.logger.debug(`[AdminService] Fetching companies with: Page ${page}, Limit ${limit}, Search "${search || 'N/A'}"`);
+
+    const {data, total}  = await this._candidateRepository.findManyWithPagination(filter,{limit, skip})
+
     this.logger.debug(`[adminService] fetch all candidate data ${data}`)
     const mapdeData = plainToInstance(
         CandidateProfileResponseDto,
         data.map(doc=>{
-            const obj = doc.toObject()
+            const obj = doc.toObject({getters:true, virtuals: true})
             return {
                 ...obj,
                 id: obj._id.toString(),
@@ -81,10 +94,15 @@ export class AdminService implements IAdminService {
         }),
         { excludeExtraneousValues: true },
         );
+        const totalpages = Math.ceil(total/limit)
         this.logger.log(`[AdminService] mapped data of company for fetching ${mapdeData}`)
         return {
             message:MESSAGES.ADMIN.DATA_RETRIEVED,
-            data:mapdeData
+            data:mapdeData,
+            currentPage : page,
+            totalItems : total,
+            totalPages: totalpages,
+            itemsPerPage: limit
         }
     }
 
