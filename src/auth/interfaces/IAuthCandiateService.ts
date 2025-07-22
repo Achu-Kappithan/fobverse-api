@@ -11,6 +11,8 @@ import { UserDocument } from '../schema/user.schema';
 import { changePassDto, InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
 import { comapnyResponceInterface } from 'src/company/interface/responce.interface';
 import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
+import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
 
 export interface IAuthService {
   validateUser(
@@ -31,7 +33,7 @@ export interface IAuthService {
   validateEmailAndRoleExistence(dto:forgotPasswordDto):Promise<generalResponce>
   UpdateNewPassword(dto:UpdatePasswordDto):Promise<generalResponce>
   companyUserLogin(dot:LoginDto): Promise<LoginResponce>
-  getUsers(id:string):Promise<InternalUserResponceDto[]>
+  getAllUsers(id:string,pagination:PaginationDto):Promise<PaginatedResponse<InternalUserResponceDto[]>>
   createInternalUser(id:string, dto: InternalUserDto): Promise<InternalUserResponceDto>
   getUserProfile(id:string):Promise<InternalUserResponceDto>
   updateUserProfile(id:string,dto:UpdateInternalUserDto):Promise<InternalUserResponceDto>

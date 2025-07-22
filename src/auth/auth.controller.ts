@@ -224,7 +224,6 @@ export class AuthController {
     @Res({ passthrough: true }) res:Response
   ){
     const {data ,accessToken,refreshToken } = await this.authService.companyUserLogin(dto)
-    console.log("data back to controller",data,accessToken,refreshToken)
     setJwtCookie(
       res,
       this.configService,
@@ -235,7 +234,6 @@ export class AuthController {
       7 * 24 * 60 * 60 * 1000,
     );
 
-    console.log("jwt set")
 
     setJwtCookie(
       res,
@@ -246,7 +244,6 @@ export class AuthController {
       false,
       7 * 24 * 60 * 60 * 1000,
     );
-    console.log("refresh set")
     return {
       message:MESSAGES.AUTH.LOGIN_SUCCESS,
       data:data
