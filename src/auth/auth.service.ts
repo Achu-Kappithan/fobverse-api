@@ -50,10 +50,12 @@ import { UserDocument, UserRole } from './schema/user.schema';
 import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
 import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { changePassDto, InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
 import { map } from 'rxjs';
 import { PassThrough } from 'stream';
+import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -136,7 +138,6 @@ export class AuthService implements IAuthService {
       this.logger.warn(`Login attempt for ${email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED)
     }
-    console.log(profileData)
 
     if (!profileData.profile.isActive) {
       throw new ForbiddenException(
@@ -598,7 +599,6 @@ export class AuthService implements IAuthService {
       this.logger.warn(`Login attempt for ${dto.email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED)
     }
-    console.log(user)
 
     if (!user.profile.isActive) {
       throw new ForbiddenException(
@@ -645,8 +645,6 @@ export class AuthService implements IAuthService {
 
       const hashedPassword = await bcrypt.hash(dto.password,10)
 
-      console.log("before creatin ",id)
-
       const newUser = {
       name: dto.name,
       email: dto.email,
@@ -656,7 +654,6 @@ export class AuthService implements IAuthService {
       companyId: new Types.ObjectId(id)
       }
 
-      console.log("after createion",newUser.companyId)
 
       const data = await this.authRepository.create(newUser)
       this.logger.log(`[comapnyService] new company member is added${data.toJSON()}`)
@@ -668,23 +665,42 @@ export class AuthService implements IAuthService {
       },
       {excludeExtraneousValues:true}
       )
-      console.log('udpdated responce in service file',mappedData)
       return mappedData
   }
 
   // getUsers
-  async getUsers(id: string): Promise<InternalUserResponceDto[]> {
-    this.logger.log(`[AuthService] comapny id for get internal users :${id}`)
+  async getAllUsers(id:string,pagination:PaginationDto): Promise<PaginatedResponse<InternalUserResponceDto[]>> {
+    const { search, page=1,limit = 6 } = pagination
+    const filter:FilterQuery<UserDocument> ={}
+
+    if (search) {
+      filter.name = { $regex: `^${search}`, $options: 'i' };
+    }
     const companyId = new Types.ObjectId(id)
-    const  users = await this.authRepository.findInternalUsers(companyId)
-    const plaindata = users.map((val)=>val.toJSON())
+    filter.companyId= companyId
+
+    this.logger.log(`[AuthService] comapny id for get internal users :${id} and query ${filter}`)
+    const skip = (page-1)* limit
+
+    const {data,total} = await this.authRepository.findManyWithPagination(filter,{
+      skip,
+      limit
+    })
+    const plaindata = data.map((val)=>val.toJSON())
 
       const mappedData = plainToInstance(
         InternalUserResponceDto,
-        users
+        data
       )
-      console.log("mapped daata",mappedData)
-    return mappedData
+      const totalPages = Math.ceil(total/limit)
+    return {
+      data:mappedData,
+      message:MESSAGES.COMPANY.USERS_GET_SUCCESS,
+      currentPage:page,
+      totalItems:total,
+      totalPages:totalPages,
+      itemsPerPage:limit
+    }
   }
 
   //get UserProfile
@@ -721,7 +737,6 @@ export class AuthService implements IAuthService {
     if(!User){
       throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUD)
     }
-    console.log(User)
     const matchExistingPass = await  bcrypt.compare(dto.currPass, User.password!)
     this.logger.log(`[AuthService] Password mathing for updating password is: ${matchExistingPass}`)
     if(!matchExistingPass){

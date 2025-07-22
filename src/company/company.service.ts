@@ -12,6 +12,7 @@ import { Types } from 'mongoose';
 import { AUTH_SERVICE, IAuthService } from 'src/auth/interfaces/IAuthCandiateService';
 import { generalResponce } from 'src/auth/interfaces/api-response.interface';
 import { dot } from 'node:test/reporters';
+import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 
 @Injectable()
 export class CompanyService implements IComapnyService{
@@ -85,14 +86,9 @@ export class CompanyService implements IComapnyService{
 
     // get all Internal users
 
-    async getInternalUsers(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto[]>>{
+    async getInternalUsers(id:string,pagination:PaginationDto):Promise<comapnyResponceInterface<InternalUserResponceDto[]>>{
         this.logger.log(`[ComapanyService] id get in Comapny service :${id}`)
-        const internalUsers = await this._AuthService.getUsers(id)
-        this.logger.log(`[comapnyService] getall internal users ${internalUsers}`)
-        return {
-            message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
-            data:internalUsers
-        }
+        return await this._AuthService.getAllUsers(id,pagination)
     }
 
     //getUserProfile

@@ -5,6 +5,7 @@ import { comapnyResponceInterface } from './interface/responce.interface';
 import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
 import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { generalResponce } from 'src/auth/interfaces/api-response.interface';
+import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 
 @Controller('company')
 export class CompanyController {
@@ -46,9 +47,10 @@ export class CompanyController {
     @UseGuards(AuthGuard('access_token'))
     async getInternalUsers(
         @Request()req:any,
+        @Query() parms:PaginationDto
     ){
         const user = req.user
-        return this._companyService.getInternalUsers(user.companyId.toString())
+        return this._companyService.getInternalUsers(user.companyId.toString(),parms)
     }
 
     @Get('userprofile')
