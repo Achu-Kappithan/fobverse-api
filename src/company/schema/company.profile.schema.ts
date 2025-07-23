@@ -9,8 +9,8 @@ export class TeamMember {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, enum: ComapnyTeamMemberRoleEnum })
-  role: ComapnyTeamMemberRoleEnum;
+  @Prop({ required: true })
+  role: string;
 
   @Prop()
   image?: string;

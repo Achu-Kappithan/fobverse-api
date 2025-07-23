@@ -3,7 +3,7 @@ import { COMPANY_SERVICE, IComapnyService } from './interface/profile.service.in
 import { AuthGuard } from '@nestjs/passport';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
-import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { generalResponce } from 'src/auth/interfaces/api-response.interface';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 
@@ -79,5 +79,16 @@ export class CompanyController {
         @Request() req:any
     ):Promise<generalResponce>{
         return await this._companyService.UpdatePassword(req.user._id.toString(),dto)
+    }
+
+    @Post('addteammember')
+    @UseGuards(AuthGuard('access_token'))
+    async AddTeamMembers(
+        @Request() req:any,
+        @Body() dto:TeamMemberDto
+    ):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
+        console.log(dto)
+        const user = req.user
+        return this._companyService.AddTeamMembers(user.companyId.toString(),dto)
     }
 }

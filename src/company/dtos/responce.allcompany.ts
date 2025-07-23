@@ -2,7 +2,7 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { ObjectId, Types } from 'mongoose';
 
 
-class TeamMemberResponceDto {
+export class TeamMemberResponceDto {
   @Expose()
   name: string;
 
