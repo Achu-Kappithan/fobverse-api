@@ -1,7 +1,7 @@
 import { generalResponce } from "src/auth/interfaces/api-response.interface";
 import { CreateProfileDto } from "../dtos/create.profile.dto";
-import { CompanyProfileResponseDto, InternalUserResponceDto } from "../dtos/responce.allcompany";
-import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from "../dtos/update.profile.dtos";
+import { CompanyProfileResponseDto, InternalUserResponceDto, TeamMemberResponceDto } from "../dtos/responce.allcompany";
+import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from "../dtos/update.profile.dtos";
 import { CompanyProfileDocument } from "../schema/company.profile.schema";
 import { comapnyResponceInterface } from "./responce.interface";
 import { PaginationDto } from "src/shared/dtos/pagination.dto";
@@ -23,6 +23,8 @@ export interface IComapnyService {
     upateUserProfile(id:string,dto:UpdateInternalUserDto):Promise<comapnyResponceInterface<InternalUserResponceDto>>
 
     UpdatePassword(id:string,dto:changePassDto):Promise<generalResponce>
+
+    AddTeamMembers(id:string,dto:TeamMemberDto):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>
 
 
 

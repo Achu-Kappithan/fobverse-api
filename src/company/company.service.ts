@@ -2,10 +2,10 @@ import { forwardRef, Inject, Injectable, InternalServerErrorException, Logger} f
 import { IComapnyService } from './interface/profile.service.interface';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from './interface/profile.repository.interface';
 import { CreateProfileDto } from './dtos/create.profile.dto';
-import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
+import { CompanyProfileResponseDto, InternalUserResponceDto, TeamMemberResponceDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { plainToInstance } from 'class-transformer';
-import { changePassDto, InternalUserDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
+import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import { Types } from 'mongoose';
@@ -102,7 +102,6 @@ export class CompanyService implements IComapnyService{
         }
     }
 
-
     //updateUserProfile
 
     async upateUserProfile(id: string, dto: UpdateInternalUserDto): Promise<comapnyResponceInterface<InternalUserResponceDto>> {
@@ -119,4 +118,21 @@ export class CompanyService implements IComapnyService{
         return await this._AuthService.changePassword(id,dto)
     }
 
+    //addTeamMembers
+
+    async AddTeamMembers(id:string, dto: TeamMemberDto): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+        const data =  await this._companyRepository.addTeamMembers(id,dto)
+
+        const mappedData = plainToInstance(
+        CompanyProfileResponseDto,
+        {
+            ...data?.toJSON(),
+        },
+        {excludeExtraneousValues : true}
+        )
+        return {
+            message:MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
+            data:mappedData
+        }
+    }
 }

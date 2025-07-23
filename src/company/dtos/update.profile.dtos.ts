@@ -13,6 +13,7 @@ export class TeamMemberDto {
   @IsString()
   role: string;
 
+  @IsOptional()
   image?: string;
 }
 

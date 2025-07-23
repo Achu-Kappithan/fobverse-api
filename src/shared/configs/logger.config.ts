@@ -55,4 +55,3 @@ export const loggerConfig = (env: string): WinstonModuleOptions => {
   };
 };
 
-let ab = 5;
