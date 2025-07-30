@@ -50,6 +50,7 @@ export const  MESSAGES ={
         USER_PROFILE_GET: 'User profile get Successfully'
     },
     CANDIDATE:{
+       PROFILE_FETCH_SUCCESS: 'Candidate profile fetched successfully.', 
 
     },
     ADMIN:{

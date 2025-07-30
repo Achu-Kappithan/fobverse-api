@@ -19,7 +19,7 @@ export class CandidateProfileResponseDto {
   id: string;
 
   @Expose()
-  adminUserId: string;
+  UserId: string;
 
   @Expose()
   name: string;
@@ -29,6 +29,9 @@ export class CandidateProfileResponseDto {
 
   @Expose()
   profileUrl?: string;
+
+  @Expose()
+  coverUrl?:string;
 
   @Expose()
   @Type(() => ContactInfoResponseDto)

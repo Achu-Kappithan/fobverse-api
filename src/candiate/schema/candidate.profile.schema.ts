@@ -23,7 +23,7 @@ export class ContactInfo {
 @Schema({ timestamps: true })
 export class CandidateProfile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  adminUserId: Types.ObjectId;
+  UserId: Types.ObjectId;
 
   @Prop({ required: true })
   name: string;
@@ -33,6 +33,9 @@ export class CandidateProfile {
 
   @Prop()
   profileUrl?: string;
+
+  @Prop()
+  coverUrl?: string;
 
   @Prop({ type: ContactInfo, default: {} })
   contactInfo?: ContactInfo;

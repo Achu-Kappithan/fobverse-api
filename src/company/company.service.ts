@@ -29,7 +29,7 @@ export class CompanyService implements IComapnyService{
        this.logger.debug(`[CompanyService] creating new company profiel${dto.name}`)
        const updateDto = {
              name:dto.name,
-             adminUserId : new Types.ObjectId(dto.adminUserId)
+             adminUserId : new Types.ObjectId(dto.UserId)
            }
         const newProfile = await this._companyRepository.create(updateDto)
         this.logger.debug(`[CompanyService] new profile created ${newProfile}`)

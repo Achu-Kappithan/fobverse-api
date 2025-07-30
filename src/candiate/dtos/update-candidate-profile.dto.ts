@@ -1,7 +1,6 @@
 
 
 import {
-  IsArray,
   IsOptional,
   IsString,
   ValidateNested,
@@ -24,22 +23,32 @@ class ContactInfoDto {
 }
 
 export class UpdateCandidateProfileDto extends CreateCandidateProfileDto {
+  @IsOptional()
   @IsString()
   profileUrl?: string;
 
+  @IsOptional()
+  coverUrl?:string;
+
   @ValidateNested()
+  @IsOptional()
   @Type(() => ContactInfoDto)
   contactInfo?: ContactInfoDto;
 
+  @IsOptional()
   education?: string[];
 
+  @IsOptional()
   skills?: string[];
-
+  
+  @IsOptional()
   experience?: string[];
 
+  @IsOptional()
   @IsString()
   resumeUrl?: string;
 
+  @IsOptional()
   @IsString()
   portfolioLinks?: string;
 }

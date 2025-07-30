@@ -3,7 +3,7 @@ import { IsNotEmpty, IsMongoId, IsString, IsEmail, MinLength } from 'class-valid
 
 export class CreateProfileDto {
   @IsMongoId()
-  adminUserId: string;
+  UserId: string;
 
   @IsNotEmpty()
   name: string;
