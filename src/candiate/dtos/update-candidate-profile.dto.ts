@@ -28,6 +28,10 @@ export class UpdateCandidateProfileDto extends CreateCandidateProfileDto {
   profileUrl?: string;
 
   @IsOptional()
+  @IsString()
+  aboutme?:string
+
+  @IsOptional()
   coverUrl?:string;
 
   @ValidateNested()

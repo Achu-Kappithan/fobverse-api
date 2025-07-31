@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { ICandidateService } from './interfaces/candidate-service.interface';
 import {
   CANDIDATE_REPOSITORY,
@@ -12,6 +12,8 @@ import { Types } from 'mongoose';
 import { CandidateResponceInterface } from './interfaces/responce.interface';
 import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
 import { plainToInstance } from 'class-transformer';
+import { NotFoundError } from 'rxjs';
+import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -56,7 +58,11 @@ export class CandidateService implements ICandidateService {
   }
 
   async GetProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
-    const ProfileData = await this._candidateRepository.findOne({UserId:id})
+    const userId = new Types.ObjectId(id)
+    const ProfileData = await this._candidateRepository.findOne({UserId:userId})
+    if(!ProfileData){
+      throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_FETCH_FAIL)
+    }
     const mappedData = plainToInstance(
       CandidateProfileResponseDto,
       {
@@ -66,6 +72,29 @@ export class CandidateService implements ICandidateService {
     )
     return {
       message:MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
+      data:mappedData
+    }
+  }
+
+  // for Update CandidateProfile
+
+  async updateProfile(dto:UpdateCandidateProfileDto,id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
+    const profileData = await this._candidateRepository.update({_id:id},{$set:dto})
+
+    if(!profileData){
+      throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_UPDATE_FAIL)
+    }
+
+    const mappedData = plainToInstance(
+      CandidateProfileResponseDto,
+      {
+        ...profileData?.toObject()
+      },
+      {excludeExtraneousValues:true}
+    )
+
+    return{
+      message:MESSAGES.CANDIDATE.PROFILE_UPDATE_SUCCESS,
       data:mappedData
     }
   }

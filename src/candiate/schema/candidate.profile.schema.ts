@@ -28,6 +28,9 @@ export class CandidateProfile {
   @Prop({ required: true })
   name: string;
 
+  @Prop()
+  aboutme:string
+
   @Prop({ default: true })
   isActive: boolean;
 

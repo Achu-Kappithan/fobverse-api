@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 class ContactInfoResponseDto {
   @Expose()
@@ -15,10 +15,10 @@ class ContactInfoResponseDto {
 }
 
 export class CandidateProfileResponseDto {
-  @Expose()
+  @Exclude()
   id: string;
 
-  @Expose()
+  @Exclude()
   UserId: string;
 
   @Expose()
