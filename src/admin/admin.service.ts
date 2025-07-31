@@ -89,7 +89,7 @@ export class AdminService implements IAdminService {
             return {
                 ...obj,
                 id: obj._id.toString(),
-                adminUserId: obj.adminUserId.toString()
+                UserId: obj.UserId.toString()
             }
         }),
         { excludeExtraneousValues: true },

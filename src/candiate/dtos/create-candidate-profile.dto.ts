@@ -4,7 +4,7 @@ import { IsMongoId, IsString } from 'class-validator';
 
 export class CreateCandidateProfileDto {
   @IsMongoId()
-  adminUserId: string;
+  UserId: string;
 
   @IsString()
   name: string;

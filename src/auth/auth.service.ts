@@ -293,7 +293,7 @@ export class AuthService implements IAuthService {
     );
 
     const profiledataDto: CreateProfileDto = {
-      adminUserId: verifieduser!._id.toString(),
+      UserId: verifieduser!._id.toString(),
       name: verifieduser!.name,
     };
 
@@ -395,7 +395,7 @@ export class AuthService implements IAuthService {
       }
 
       const profiledata: CreateProfileDto = {
-        adminUserId: user!._id,
+        UserId: user!._id,
         name: user!.name,
       };
 

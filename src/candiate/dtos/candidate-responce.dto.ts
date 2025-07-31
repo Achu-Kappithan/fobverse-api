@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 class ContactInfoResponseDto {
   @Expose()
@@ -15,11 +15,11 @@ class ContactInfoResponseDto {
 }
 
 export class CandidateProfileResponseDto {
-  @Expose()
+  @Exclude()
   id: string;
 
-  @Expose()
-  adminUserId: string;
+  @Exclude()
+  UserId: string;
 
   @Expose()
   name: string;
@@ -29,6 +29,9 @@ export class CandidateProfileResponseDto {
 
   @Expose()
   profileUrl?: string;
+
+  @Expose()
+  coverUrl?:string;
 
   @Expose()
   @Type(() => ContactInfoResponseDto)

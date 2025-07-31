@@ -50,7 +50,10 @@ export const  MESSAGES ={
         USER_PROFILE_GET: 'User profile get Successfully'
     },
     CANDIDATE:{
-
+       PROFILE_FETCH_SUCCESS: 'Candidate profile fetched successfully.',
+       PROFILE_FETCH_FAIL: 'Error regading feth candiateProfile data',
+       PROFILE_UPDATE_SUCCESS: 'Profile data updated successfully.',
+       PROFILE_UPDATE_FAIL :'Error regading updating profile data'
     },
     ADMIN:{
         DATA_RETRIEVED: "Data retrieved successfully.",
