@@ -1,18 +1,5 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 
-class ContactInfoResponseDto {
-  @Expose()
-  phoneNumber?: string;
-
-  @Expose()
-  address?: string;
-
-  @Expose()
-  linkedIn?: string;
-
-  @Expose()
-  github?: string;
-}
 
 export class CandidateProfileResponseDto {
   @Exclude()
@@ -25,6 +12,9 @@ export class CandidateProfileResponseDto {
   name: string;
 
   @Expose()
+  aboutme:string
+
+  @Expose()
   isActive: boolean;
 
   @Expose()
@@ -34,8 +24,7 @@ export class CandidateProfileResponseDto {
   coverUrl?:string;
 
   @Expose()
-  @Type(() => ContactInfoResponseDto)
-  contactInfo?: ContactInfoResponseDto;
+  contactInfo?: { type: string; value: string }[];
 
   @Expose()
   education?: string[];

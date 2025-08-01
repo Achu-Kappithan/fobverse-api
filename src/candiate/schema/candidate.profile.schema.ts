@@ -3,22 +3,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Types } from 'mongoose';
 
+@Schema({ _id: false }) // Use _id: false if you don't want MongoDB to generate _id for sub-documents
+export class ContactItem {
+  @Prop({ required: true })
+  type: string; // e.g., 'phoneNumber', 'email', 'linkedIn', 'address', 'github', 'website'
+  @Prop({ required: true })
+  value: string; // The actual phone number, email address, URL, or address string
+}
+
+export const ContactItemSchema = SchemaFactory.createForClass(ContactItem);
+
 export type CandidateProfileDocument = HydratedDocument<CandidateProfile>;
 
-@Schema({ _id: false })
-export class ContactInfo {
-  @Prop()
-  phoneNumber?: string;
-
-  @Prop()
-  address?: string;
-
-  @Prop()
-  linkedIn?: string;
-
-  @Prop()
-  github?: string;
-}
 
 @Schema({ timestamps: true })
 export class CandidateProfile {
@@ -40,8 +36,8 @@ export class CandidateProfile {
   @Prop()
   coverUrl?: string;
 
-  @Prop({ type: ContactInfo, default: {} })
-  contactInfo?: ContactInfo;
+  @Prop({ type: [ContactItemSchema], default: [] })
+  contactInfo?: ContactItem[];
 
   @Prop({ type: [String], default: [] })
   education?: string[];
@@ -55,8 +51,8 @@ export class CandidateProfile {
   @Prop()
   resumeUrl?: string;
 
-  @Prop()
-  portfolioLinks?: string;
+  @Prop({ type: [String], default: [] }) 
+  portfolioLinks?: string[]
 }
 
 export const CandidateProfileSchema = SchemaFactory.createForClass(CandidateProfile);

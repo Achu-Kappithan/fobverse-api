@@ -29,7 +29,7 @@ export class AuthRepository
           $lookup: {
             from: 'candidateprofiles',
             localField: '_id',
-            foreignField: 'adminUserId',
+            foreignField: 'UserId',
             as: 'profile'
           }
         },
