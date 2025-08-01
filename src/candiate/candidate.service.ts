@@ -12,7 +12,6 @@ import { Types } from 'mongoose';
 import { CandidateResponceInterface } from './interfaces/responce.interface';
 import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
 import { plainToInstance } from 'class-transformer';
-import { NotFoundError } from 'rxjs';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 
 @Injectable()
@@ -41,7 +40,7 @@ export class CandidateService implements ICandidateService {
     this.logger.debug(`[CandidateService] Creating new candieate profile${dto.name}`)
     const updateDto = {
       name:dto.name,
-      adminUserId : new Types.ObjectId(dto.UserId)
+      UserId : new Types.ObjectId(dto.UserId)
     }
     const newprofile = await this._candidateRepository.create(updateDto)
     this.logger.debug(`new profil created ${newprofile}`)
@@ -79,11 +78,16 @@ export class CandidateService implements ICandidateService {
   // for Update CandidateProfile
 
   async updateProfile(dto:UpdateCandidateProfileDto,id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
-    const profileData = await this._candidateRepository.update({_id:id},{$set:dto})
+    this.logger.debug(`[CandidateService] data get frondend for updating candidate profile id is : ${id} data :${dto}`)
+    console.log(id,dto)
+    const userId = new Types.ObjectId(id)
+    const profileData = await this._candidateRepository.update({UserId:userId},{$set:dto})
 
     if(!profileData){
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_UPDATE_FAIL)
     }
+    this.logger.log(`[CandiateServie], updated profile data ${profileData}`)
+    console.log(profileData)
 
     const mappedData = plainToInstance(
       CandidateProfileResponseDto,

@@ -19,13 +19,14 @@ export class CandiateController {
     return this._candiateService.GetProfile(user.id)
   }
 
-  @Post('updateprofile')
+  @Post('updataprofile')
   @UseGuards(AuthGuard('access_token'))
   async UpdateProfile(
     @Body() dto:UpdateCandidateProfileDto,
     @Request() req:any
   ){
     const user = req.user
+    console.log(user)
     return this._candiateService.updateProfile(dto,user.id)
   }
 

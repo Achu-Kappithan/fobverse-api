@@ -304,6 +304,7 @@ export class AuthService implements IAuthService {
     try {
       if (user.role == UserRole.CANDIDATE) {
        newProfile = await this._candidateService.createPorfile(profiledataDto);
+       console.log(newProfile)
       } else if (user.role === UserRole.COMPANY_ADMIN) {
         newProfile = await  this._companyService.createProfile(profiledataDto);
           if(newProfile){
