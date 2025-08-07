@@ -1,11 +1,10 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from 'src/company/interface/profile.repository.interface';
-import { GetAllcompanyResponce, PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
+import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
 import { plainToInstance } from 'class-transformer';
 import { CompanyProfileResponseDto } from 'src/company/dtos/responce.allcompany';
 import { CandidateProfileResponseDto } from 'src/candiate/dtos/candidate-responce.dto';
-import { GetAllcandidatesResponce } from 'src/candiate/interfaces/responce.interface';
 import { CANDIDATE_REPOSITORY, ICandidateRepository } from 'src/candiate/interfaces/candidate-repository.interface';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';

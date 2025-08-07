@@ -9,6 +9,7 @@ import { CompanyModule } from './company/company.module';
 import { AdminModule } from './admin/admin.module';
 import { CandiateModule } from './candiate/candidate.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CompanyModule,
     AdminModule,
     CloudinaryModule,
+    JobsModule,
   ],
   controllers: [],
   providers: [],
