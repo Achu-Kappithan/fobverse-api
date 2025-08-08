@@ -30,8 +30,7 @@ export class Jobs {
   @Prop({ type: [String], required: true })
   skills: string[];
 
-  @Prop({ type: [String], required: true })
-  experience: string[];
+  experience?: string[];
 
   @Prop({
     type: { min: Number,max: Number },
@@ -44,6 +43,7 @@ export class Jobs {
 
   @Prop({ required: true })
   vacancies: number;
+  
 
   endDate?:string
 
