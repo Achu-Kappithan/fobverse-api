@@ -7,13 +7,13 @@ export class createJobsDto {
     title:string
 
     @IsNotEmpty()
-    discription:string
+    description:string
 
     @IsNotEmpty()
     responsibility:string
 
     @IsNotEmpty()
-    jobTye:jobType
+    jobType:jobType
 
     @IsNotEmpty()
     @IsString({each:true})
@@ -30,5 +30,8 @@ export class createJobsDto {
 
     @IsOptional()
     endDate?:string
+
+    @IsNotEmpty()
+    vacancies:string
 
 }

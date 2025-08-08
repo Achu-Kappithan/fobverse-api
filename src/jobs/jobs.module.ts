@@ -1,12 +1,18 @@
-import { Controller, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { JobsController } from './jobs.controller';
 import { JOBS_SERVICE } from './interfaces/jobs.service.interface';
 import { JobsService } from './jobs.service';
 import { JOBS_REPOSITORY } from './interfaces/jobs.repository.interface';
 import { JobRepository } from './repository/jobs.repository';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Jobs, JobSchema} from './schema/jobs.schema';
 
 @Module({
-  imports:[],
+  imports:[
+    MongooseModule.forFeature([
+      {name:Jobs.name, schema:JobSchema}
+    ])
+  ],
   controllers: [JobsController],
   providers: [
     {

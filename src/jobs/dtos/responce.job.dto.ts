@@ -31,7 +31,7 @@ export class ResponseJobsDto {
   };
 
   @Expose()
-  location: string;
+  location: string[];
 
   @Expose()
   vacancies: number;

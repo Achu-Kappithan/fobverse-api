@@ -12,7 +12,7 @@ export class JobsController {
     private readonly _jobservices:IJobService
   ){}
 
-  @Post('Createjob')
+  @Post('createjob')
   @UseGuards(AuthGuard('access_token'))
   async CreateJobs(
     @Body() dto:createJobsDto,

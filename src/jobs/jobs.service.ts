@@ -6,6 +6,7 @@ import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { IJobsRepository, JOBS_REPOSITORY } from './interfaces/jobs.repository.interface';
 import { plainToInstance } from 'class-transformer';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class JobsService implements IJobService {
@@ -16,8 +17,10 @@ export class JobsService implements IJobService {
     logger = new Logger(JobsService.name)
 
     async CreateJobs(id: string, dto: createJobsDto): Promise<ApiResponce<ResponseJobsDto>> {
-        this.logger.debug(`[JobService] data get for registration id: ${id} data: ${dto}`)
-        const data = {...dto,companyId:id}
+        this.logger.log(`[JobService] data get for registration id: ${id} data: ${dto}`)
+        const objId = new Types.ObjectId(id)
+        const data = {...dto,companyId:objId}
+        console.log(data)
         const jobData = await this._jobRepository.create(data)
 
         this.logger.log(`[JobService] new job created ${jobData}`)
