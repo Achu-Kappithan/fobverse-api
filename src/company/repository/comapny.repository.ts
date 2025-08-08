@@ -3,11 +3,11 @@ import { BaseRepository } from 'src/shared/repositories/base.repository';
 import {
   CompanyProfile,
   CompanyProfileDocument,
-} from './schema/company.profile.schema';
-import { IcompanyRepository } from './interface/profile.repository.interface';
+} from '../schema/company.profile.schema';
+import { IcompanyRepository } from '../interface/profile.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateResult } from 'mongoose';
-import { InternalUserDto, TeamMemberDto } from './dtos/update.profile.dtos';
+import { InternalUserDto, TeamMemberDto } from '../dtos/update.profile.dtos';
 
 @Injectable()
 export class CompanyRepository
@@ -31,20 +31,25 @@ export class CompanyRepository
     ]);
   }
 
-  async addInternalUser(id: string, dto: InternalUserDto): Promise<CompanyProfileDocument | null> {
+  async addInternalUser(
+    id: string,
+    dto: InternalUserDto,
+  ): Promise<CompanyProfileDocument | null> {
     return await this.profileModel.findOneAndUpdate(
-      {userId:id},
-      {$addToSet:{internalUsers:dto}},
-      {new:true}
-    )
+      { userId: id },
+      { $addToSet: { internalUsers: dto } },
+      { new: true },
+    );
   }
 
-  async addTeamMembers(id: string, dto: TeamMemberDto): Promise<CompanyProfileDocument | null> {
-  return this.profileModel.findByIdAndUpdate(
-    id,
-    { $push: { teamMembers: dto } },
-    { new: true }
-  );
-}
-
+  async addTeamMembers(
+    id: string,
+    dto: TeamMemberDto,
+  ): Promise<CompanyProfileDocument | null> {
+    return this.profileModel.findByIdAndUpdate(
+      id,
+      { $push: { teamMembers: dto } },
+      { new: true },
+    );
+  }
 }

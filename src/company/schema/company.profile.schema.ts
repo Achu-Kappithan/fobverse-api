@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { UserRole as ComapnyTeamMemberRoleEnum } from 'src/auth/schema/user.schema';
 
 
 

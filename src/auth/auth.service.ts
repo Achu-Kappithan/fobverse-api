@@ -52,8 +52,6 @@ import { ResponseRegisterDto } from './dto/response.dto';
 import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
 import { FilterQuery, Types } from 'mongoose';
 import { changePassDto, InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
-import { map } from 'rxjs';
-import { PassThrough } from 'stream';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
 
