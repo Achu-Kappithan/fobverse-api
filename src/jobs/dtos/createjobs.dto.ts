@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { jobType } from "../schema/jobs.schema";
 
 export class createJobsDto {
     @IsNotEmpty()
@@ -7,6 +8,12 @@ export class createJobsDto {
 
     @IsNotEmpty()
     discription:string
+
+    @IsNotEmpty()
+    responsibility:string
+
+    @IsNotEmpty()
+    jobTye:jobType
 
     @IsNotEmpty()
     @IsString({each:true})
@@ -20,5 +27,8 @@ export class createJobsDto {
 
     @IsNotEmpty()
     location:string
+
+    @IsOptional()
+    endDate?:string
 
 }

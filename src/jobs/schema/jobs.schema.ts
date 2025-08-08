@@ -1,5 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+
+export enum jobType {
+  FullTime = 'fulltime',
+  PartTmime = 'parttime',
+  Remote = 'remote',
+  OnSite = 'onsite'
+}
 
 export type JobsDocument = HydratedDocument<Jobs>
 
@@ -14,6 +21,12 @@ export class Jobs {
   @Prop({ required: true })
   description: string;
 
+  @Prop({required:true})
+  responsibility:string 
+  
+  @Prop({required:true,enum:Object.values(jobType)})
+  jobType:jobType
+
   @Prop({ type: [String], required: true })
   skills: string[];
 
@@ -27,10 +40,13 @@ export class Jobs {
   salary: { min: number ,max: number};
 
   @Prop({ required: true })
-  location: string;
+  location: string[];
 
   @Prop({ required: true })
   vacancies: number;
+
+  endDate?:string
+
 }
 
 export const JobSchema = SchemaFactory.createForClass(Jobs);

@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { jobType } from '../schema/jobs.schema';
 
 export class ResponseJobsDto {
 
@@ -10,6 +11,12 @@ export class ResponseJobsDto {
 
   @Expose()
   description: string;
+
+  @Expose()
+  responsibility:string
+
+  @Expose()
+  jobType:jobType
 
   @Expose()
   skills: string[];
@@ -31,6 +38,9 @@ export class ResponseJobsDto {
 
   @Expose()
   companyId: string;
+
+  @Expose()
+  endData:string
 
   @Expose()
   createdAt: Date;
