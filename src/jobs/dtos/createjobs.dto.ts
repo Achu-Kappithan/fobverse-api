@@ -28,8 +28,8 @@ export class createJobsDto {
     @IsNotEmpty()
     location:string
 
-    @IsOptional()
-    endDate?:string
+    @IsNotEmpty()
+    dueDate?:string
 
     @IsNotEmpty()
     vacancies:string

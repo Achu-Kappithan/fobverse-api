@@ -11,7 +11,6 @@ import { CompanyProfileDocument } from './schema/company.profile.schema';
 import { Types } from 'mongoose';
 import { AUTH_SERVICE, IAuthService } from 'src/auth/interfaces/IAuthCandiateService';
 import { generalResponce } from 'src/auth/interfaces/api-response.interface';
-import { dot } from 'node:test/reporters';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 
 @Injectable()
@@ -135,4 +134,5 @@ export class CompanyService implements IComapnyService{
             data:mappedData
         }
     }
+
 }

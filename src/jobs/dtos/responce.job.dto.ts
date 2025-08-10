@@ -40,11 +40,14 @@ export class ResponseJobsDto {
   companyId: string;
 
   @Expose()
-  endData:string
+  dueDate:string
 
   @Expose()
   createdAt: Date;
 
   @Expose()
   updatedAt: Date;
+
+  @Expose()
+  activeStatus:boolean
 }

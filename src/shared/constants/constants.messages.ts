@@ -49,7 +49,8 @@ export const  MESSAGES ={
         USER_REG_SUCCESS: 'User registration  completed',
         USER_PROFILE_GET: 'User profile get Successfully',
 
-        NEW_JOB_ADDED: 'New Job Successfully added'
+        NEW_JOB_ADDED: 'New Job Successfully added',
+        FETCH_ALL_JOBS: 'fetch all jobs'
     },
     CANDIDATE:{
        PROFILE_FETCH_SUCCESS: 'Candidate profile fetched successfully.',
