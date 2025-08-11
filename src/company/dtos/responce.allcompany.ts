@@ -22,7 +22,7 @@ export class ContactInfoItem {
 }
 
 export class CompanyProfileResponseDto {
-  @Exclude()
+  @Expose()
   _id: string;
 
   @Exclude()

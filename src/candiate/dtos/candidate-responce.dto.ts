@@ -2,7 +2,7 @@ import { Exclude, Expose, Type } from 'class-transformer';
 
 
 export class CandidateProfileResponseDto {
-  @Exclude()
+  @Expose()
   id: string;
 
   @Exclude()
