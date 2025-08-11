@@ -55,9 +55,11 @@ export class JobsService implements IJobService {
         const skip = (page-1)*limit
 
         const {data, total} = await this._jobRepository.findManyWithPagination(filter,{skip,limit})
-        console.log(data)
-        const plaindata  =data.map((val)=>val.toJSON())
-
+        const plaindata  =data.map(val =>({
+            ...val.toJSON(),
+            _id:val._id.toString(),
+            companyId: val.companyId.toString()
+        }))
         const mappedData = plainToInstance(
             ResponseJobsDto,
             plaindata
@@ -72,7 +74,25 @@ export class JobsService implements IJobService {
             totalItems:total,
             totalPages:totalPages,
             itemsPerPage:limit
+        }
+    }
 
+    async getJobDetails(id:string):Promise<ApiResponce<ResponseJobsDto>>{
+        const data  = await this._jobRepository.findById(id)
+        this.logger.log(`[jobService] find jobDetails id: ${id} data: ${data}`)
+        const mappedData = plainToInstance(
+            ResponseJobsDto,
+            {
+                ...data?.toJSON(),
+                _id: data?._id.toString(),
+                companyId: data?.companyId.toString()
+            },
+            {excludeExtraneousValues:true}
+        )
+        console.log(mappedData)
+        return {
+            message:MESSAGES.COMPANY.GET_JOBDETAIS,
+            data:mappedData
         }
     }
     

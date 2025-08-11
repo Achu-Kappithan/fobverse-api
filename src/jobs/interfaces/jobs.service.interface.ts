@@ -9,6 +9,8 @@ export interface IJobService {
     CreateJobs(id:string,dto:createJobsDto):Promise<ApiResponce<ResponseJobsDto>>
 
     getAllJobs(id:string,pagination:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>
+
+    getJobDetails(id:string):Promise<ApiResponce<ResponseJobsDto>>
 }
 
 export const JOBS_SERVICE = 'JOBS_SERVICE'
