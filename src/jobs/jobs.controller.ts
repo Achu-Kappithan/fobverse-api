@@ -5,6 +5,7 @@ import { createJobsDto } from './dtos/createjobs.dto';
 import { ApiResponce } from 'src/shared/interface/api.responce';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
 
 @Controller('jobs')
 export class JobsController {
@@ -28,9 +29,19 @@ export class JobsController {
   async GetAllJobs(
     @Query() parms:PaginationDto,
     @Request() req:any
+  ):Promise<PaginatedResponse<ResponseJobsDto[]>>{
+    const user = req.user
+    return this._jobservices.getAllJobs(user.companyId.toString(),parms)
+  }
+
+  @Get('jobdetails')
+  @UseGuards(AuthGuard('access_token'))
+  async GetjobDetails(
+    @Query('id')id:string,
+    @Request() req:any
   ){
     const user = req.user
-    console.log(user)
-    return this._jobservices.getAllJobs(user.companyId.toString(),parms)
+    console.log(id)
+    return this._jobservices.getJobDetails(id)
   }
 }
