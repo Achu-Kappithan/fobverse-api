@@ -61,7 +61,8 @@ export const  MESSAGES ={
     },
     ADMIN:{
         DATA_RETRIEVED: "Data retrieved successfully.",
-        STATUS_UPDATED: "Status Updated Sucessfully..!"
-
+        STATUS_UPDATED: "Status Updated Sucessfully..!",
+        FETCH_ALL_JOBS: 'All jobs Successfully Fetched',
+        
     }
 }

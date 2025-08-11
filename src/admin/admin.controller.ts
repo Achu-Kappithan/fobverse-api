@@ -1,7 +1,9 @@
-import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Query, UseGuards } from '@nestjs/common';
 import { ADMIN_SERVICE, IAdminService } from './interfaces/IAdminService';
 import { AuthGuard } from '@nestjs/passport';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
+import { ResponseJobsDto } from 'src/jobs/dtos/responce.job.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -40,5 +42,21 @@ export class AdminController {
     @Query('id') id:string
   ){
     return this._adminService.updateCandidateStatus(id)
+  }
+
+  @Get('jobs/getalljobs')
+  @UseGuards(AuthGuard('access_token'))
+  async GetAllJobs(
+    @Query() parms:PaginationDto
+  ):Promise<PaginatedResponse<ResponseJobsDto[]>>{
+    return this._adminService.GetAllJobs(parms)
+  }
+
+  @Get('jobs/updatejobstatus')
+  @UseGuards(AuthGuard('access_token'))
+  async UpdateJobStatus(
+    @Query('id') id:string
+  ):Promise<PlainResponse>{
+    return this._adminService.updateJobStatus(id)
   }
 }
