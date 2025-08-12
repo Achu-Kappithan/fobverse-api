@@ -17,17 +17,17 @@ export class JobsController {
 
   @Post('createjob')
   @UseGuards(AuthGuard('access_token'))
-  async CreateJobs(
+  async createJobs(
     @Body() dto:createJobsDto,
     @Request() req:ERequest
   ):Promise<ApiResponce<ResponseJobsDto>>{
     const companyId = req.user?.companyId?.toString() ?? ""
-    return this._jobservices.CreateJobs(companyId.toString(),dto)
+    return this._jobservices.createJobs(companyId.toString(),dto)
   }
 
   @Get('getalljobs')
   @UseGuards(AuthGuard('access_token'))
-  async GetAllJobs(
+  async getAllJobs(
     @Query() parms:PaginationDto,
     @Request() req:ERequest
   ):Promise<PaginatedResponse<ResponseJobsDto[]>>{
@@ -37,7 +37,7 @@ export class JobsController {
 
   @Get('jobdetails')
   @UseGuards(AuthGuard('access_token'))
-  async GetjobDetails(
+  async getjobDetails(
     @Query('id')id:string,
   ){
     return this._jobservices.getJobDetails(id)

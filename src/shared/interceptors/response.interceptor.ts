@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SuccessApiResponse, PaginationMeta } from '../responses/api.response'; // Ensure PaginationMeta is imported
+import { SuccessApiResponse, PaginationMeta } from '../responses/api.response';
 
 interface ServiceResponsePayload<T> {
   message?: string;

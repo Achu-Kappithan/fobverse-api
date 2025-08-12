@@ -4,7 +4,7 @@ export interface BaseApiResponse {
   success: boolean;
   statusCode: HttpStatus;
   message: string | string[];
-  path: string;
+  path?: string;
 }
 
 export interface SuccessApiResponse<T> extends BaseApiResponse {

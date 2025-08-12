@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger} from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from 'src/company/interface/profile.repository.interface';
 import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
@@ -13,7 +13,7 @@ import { CompanyProfile } from 'src/company/schema/company.profile.schema';
 import { CandidateProfile } from 'src/candiate/schema/candidate.profile.schema';
 import { ResponseJobsDto } from 'src/jobs/dtos/responce.job.dto';
 import { IJobsRepository, JOBS_REPOSITORY } from 'src/jobs/interfaces/jobs.repository.interface';
-import { Jobs, JobsDocument } from 'src/jobs/schema/jobs.schema';
+import { Jobs } from 'src/jobs/schema/jobs.schema';
 
 @Injectable()
 export class AdminService implements IAdminService {
@@ -70,7 +70,7 @@ export class AdminService implements IAdminService {
     }
 
     // for  fetching all Candidates
-   async getAllCandidates(dto:PaginationDto): Promise<PaginatedResponse<CandidateProfileResponseDto[]>>{
+   async getAllCandidates(dto:PaginationDto):Promise<PaginatedResponse<CandidateProfileResponseDto[]>>{
     const{ page=1 ,limit=6 , search}= dto
 
     const filter:FilterQuery<CandidateProfile> = {}
@@ -126,7 +126,7 @@ export class AdminService implements IAdminService {
     }
 
 
-    async GetAllJobs(dto:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>{
+    async getAllJobs(dto:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>{
         const {search, page=1, limit=6} = dto
 
         const filter:FilterQuery<Jobs> ={}

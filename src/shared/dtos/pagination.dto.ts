@@ -1,10 +1,6 @@
 import { Type } from "class-transformer";
-import { IsEnum, IsOptional, IsString, Min } from "class-validator";
+import {IsOptional, IsString, Min } from "class-validator";
 
-export enum SortOrder {
-    ASC= 'asc',
-    DESC= 'desc'
-}
 
 export class PaginationDto {
     @IsOptional()

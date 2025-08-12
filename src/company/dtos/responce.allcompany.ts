@@ -98,5 +98,5 @@ export class InternalUserResponceDto {
   googleId: string;
 
   @Exclude()
-  __v: number; // Mongoose __v is typically a number, not a string
+  __v: number; 
 }

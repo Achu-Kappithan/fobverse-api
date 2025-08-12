@@ -3,6 +3,8 @@ import { CANDIDATE_SERVICE, ICandidateService } from './interfaces/candidate-ser
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 import { Request as ERequest } from 'express';
+import { CandidateResponceInterface } from './interfaces/responce.interface';
+import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
 
 @Controller('candidate')
 export class CandiateController {
@@ -13,19 +15,19 @@ export class CandiateController {
 
   @Get('getprofile')
   @UseGuards(AuthGuard('access_token'))
-  async GetProfile(
+  async getProfile(
     @Request() req:ERequest
-  ){
+  ):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
     const user = req.user
-    return this._candiateService.GetProfile(user!.id)
+    return this._candiateService.getProfile(user!.id)
   }
 
   @Post('updataprofile')
   @UseGuards(AuthGuard('access_token'))
-  async UpdateProfile(
+  async updateProfile(
     @Body() dto:UpdateCandidateProfileDto,
     @Request() req:ERequest
-  ){
+  ):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
     const user = req.user
     return this._candiateService.updateProfile(dto,user!.id)
   }

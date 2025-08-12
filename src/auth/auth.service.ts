@@ -584,7 +584,7 @@ export class AuthService implements IAuthService {
 
   // update  New password
 
-  async UpdateNewPassword(dto: UpdatePasswordDto): Promise<generalResponce> {
+  async updateNewPassword(dto: UpdatePasswordDto): Promise<generalResponce> {
     const { password, token } = dto;
     let payload: passwordResetPayload;
 

@@ -113,13 +113,13 @@ export class CompanyService implements IComapnyService{
 
     // update Password
 
-    async UpdatePassword(id:string,dto:changePassDto):Promise<generalResponce>{
+    async updatePassword(id:string,dto:changePassDto):Promise<generalResponce>{
         return await this._AuthService.changePassword(id,dto)
     }
 
     //addTeamMembers
 
-    async AddTeamMembers(id:string, dto: TeamMemberDto): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+    async addTeamMembers(id:string, dto: TeamMemberDto): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
         const data =  await this._companyRepository.addTeamMembers(id,dto)
 
         const mappedData = plainToInstance(

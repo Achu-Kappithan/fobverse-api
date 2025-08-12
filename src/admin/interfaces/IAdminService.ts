@@ -10,7 +10,7 @@ export  interface IAdminService {
     getAllCandidates(dto:PaginationDto):Promise<PaginatedResponse<CandidateProfileResponseDto[]>>
     updateCompanyStatus(id:string):Promise<PlainResponse>
     updateCandidateStatus(id:string):Promise<PlainResponse>
-    GetAllJobs(dto:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>
+    getAllJobs(dto:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>
     updateJobStatus(id:string):Promise<PlainResponse>
 }
 

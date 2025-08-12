@@ -19,7 +19,9 @@ export class JobsService implements IJobService {
     ) {}
     logger = new Logger(JobsService.name)
 
-    async CreateJobs(id: string, dto: createJobsDto): Promise<ApiResponce<ResponseJobsDto>> {
+    // creating Jobs
+
+    async createJobs(id: string, dto: createJobsDto): Promise<ApiResponce<ResponseJobsDto>> {
         this.logger.log(`[JobService] data get for registration id: ${id} data: ${dto}`)
         const objId = new Types.ObjectId(id)
         const data = {...dto,companyId:objId}
@@ -40,6 +42,8 @@ export class JobsService implements IJobService {
             data:mappedData
         }
     }
+
+    //for geting Alljobs
 
     async getAllJobs(id:string,pagination:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>{
         const {search, page=1, limit=6} = pagination
@@ -76,6 +80,8 @@ export class JobsService implements IJobService {
             itemsPerPage:limit
         }
     }
+
+    //show job Details
 
     async getJobDetails(id:string):Promise<ApiResponce<ResponseJobsDto>>{
         const data  = await this._jobRepository.findById(id)

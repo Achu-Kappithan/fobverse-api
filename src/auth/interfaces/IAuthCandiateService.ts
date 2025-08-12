@@ -23,7 +23,6 @@ export interface IAuthService {
   ): Promise<userDto>;
   registerCandidate(dto: RegisterCandidateDto): Promise<RegisterResponce>;
   verifyEmail(token: string): Promise<verificatonResponce>;
-  // resendVerificationEmail(email:string):Promise<any>
   login(user: userDto,res:Response): Promise<LoginResponce<userDto>>;
   regenerateAccessToken(paylod: UserDocument,res:Response): Promise<tokenresponce>
   googleLogin(idToken:string, role:string,res:Response): Promise<LoginResponce<userDto>>
@@ -32,7 +31,7 @@ export interface IAuthService {
   findById(id: string): Promise<UserDocument | null>;
   validateAdmin(dto: LoginDto): Promise<userDto>;
   validateEmailAndRoleExistence(dto:forgotPasswordDto):Promise<generalResponce>
-  UpdateNewPassword(dto:UpdatePasswordDto):Promise<generalResponce>
+  updateNewPassword(dto:UpdatePasswordDto):Promise<generalResponce>
   companyUserLogin(dto: LoginDto,res:Response): Promise<LoginResponce<userDto>>
   getAllUsers(id:string,pagination:PaginationDto):Promise<PaginatedResponse<InternalUserResponceDto[]>>
   createInternalUser(id:string, dto: InternalUserDto): Promise<InternalUserResponceDto>

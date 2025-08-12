@@ -6,7 +6,7 @@ import { PaginatedResponse } from "src/admin/interfaces/responce.interface"
 
 
 export interface IJobService {
-    CreateJobs(id:string,dto:createJobsDto):Promise<ApiResponce<ResponseJobsDto>>
+    createJobs(id:string,dto:createJobsDto):Promise<ApiResponce<ResponseJobsDto>>
 
     getAllJobs(id:string,pagination:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>
 

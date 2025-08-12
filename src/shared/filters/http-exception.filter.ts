@@ -90,7 +90,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode: status,
       message: frontendMessage,
       error: errorName,
-      path: request.url,
     };
 
     if (Object.keys(details).length > 0) {

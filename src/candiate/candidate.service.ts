@@ -56,7 +56,7 @@ export class CandidateService implements ICandidateService {
     return await this._candidateRepository.findAll()
   }
 
-  async GetProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
+  async getProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
     const userId = new Types.ObjectId(id)
     const ProfileData = await this._candidateRepository.findOne({UserId:userId})
     if(!ProfileData){
@@ -100,6 +100,5 @@ export class CandidateService implements ICandidateService {
       data:mappedData
     }
   }
-
 
 }

@@ -19,6 +19,8 @@ import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { Request as ERequest, Response } from 'express';
+import { generalResponce, LoginResponce, tokenresponce } from './interfaces/api-response.interface';
+import { userDto } from './dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -74,7 +76,7 @@ export class AuthController {
   @Get('getuser')
   @UseGuards(AuthGuard('access_token'))
   @HttpCode(HttpStatus.OK)
-  getCurrentUser(@Request() req:ERequest) {
+  getCurrentUser(@Request() req:ERequest){
     const user = req.user 
     return {
       id: user?.id,
@@ -93,7 +95,7 @@ export class AuthController {
   async refreshTokens(
     @Req() req: ERequest,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<any> {
+  ): Promise<tokenresponce> {
     const user = req.user 
     return this._authService.regenerateAccessToken(user!,response);
   }
@@ -104,7 +106,7 @@ export class AuthController {
   async googleAuthCallback(
     @Query() query: { googleId: string; role: string },
     @Res({ passthrough: true }) response: Response,
-  ): Promise<any> {
+  ): Promise<LoginResponce<userDto>> {
     return  this._authService.googleLogin(query.googleId, query.role,response);
   }
 
@@ -114,7 +116,7 @@ export class AuthController {
   async adminLogin(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ) {
+  ):Promise<LoginResponce<userDto>> {
     const user = await this._authService.validateAdmin(dto);
     return this._authService.login(user,response);
   }
@@ -131,13 +133,13 @@ export class AuthController {
 
   @Post('forgotpassword')
   @HttpCode(HttpStatus.CREATED)
-  async updatePassword( @Body() dto:forgotPasswordDto){
+  async updatePassword( @Body() dto:forgotPasswordDto):Promise<generalResponce>{
     return this._authService.validateEmailAndRoleExistence(dto)
   }
 
 
   @Post('updatepassword')
-  async updateNewPassword(@Body() dto:UpdatePasswordDto){
-    return this._authService.UpdateNewPassword(dto)
+  async updateNewPassword(@Body() dto:UpdatePasswordDto):Promise<generalResponce>{
+    return this._authService.updateNewPassword(dto)
   }
 }

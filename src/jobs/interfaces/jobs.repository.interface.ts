@@ -4,7 +4,6 @@ import { UpdateResult } from "mongoose"
 
 
 export interface IJobsRepository extends IBaseRepository<JobsDocument> {
-    // CreateJobs(id:string,dto:createJobsDto):Promise<JobsDocument | null>
     UpdatejobStatus(id:string):Promise<UpdateResult>
 }
 

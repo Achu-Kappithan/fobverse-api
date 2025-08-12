@@ -12,10 +12,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import {
-  CANDIDATE_SERVICE,
-  ICandidateService,
-} from 'src/candiate/interfaces/candidate-service.interface';
 
 @Injectable()
 export class JwtTokenService {

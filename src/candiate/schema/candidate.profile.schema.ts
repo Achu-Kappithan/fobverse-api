@@ -1,14 +1,14 @@
 
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
-@Schema({ _id: false }) // Use _id: false if you don't want MongoDB to generate _id for sub-documents
+@Schema({ _id: false }) 
 export class ContactItem {
   @Prop({ required: true })
-  type: string; // e.g., 'phoneNumber', 'email', 'linkedIn', 'address', 'github', 'website'
+  type: string;
   @Prop({ required: true })
-  value: string; // The actual phone number, email address, URL, or address string
+  value: string; 
 }
 
 export const ContactItemSchema = SchemaFactory.createForClass(ContactItem);

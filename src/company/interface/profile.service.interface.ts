@@ -22,9 +22,9 @@ export interface IComapnyService {
 
     upateUserProfile(id:string,dto:UpdateInternalUserDto):Promise<comapnyResponceInterface<InternalUserResponceDto>>
 
-    UpdatePassword(id:string,dto:changePassDto):Promise<generalResponce>
+    updatePassword(id:string,dto:changePassDto):Promise<generalResponce>
 
-    AddTeamMembers(id:string,dto:TeamMemberDto):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>
+    addTeamMembers(id:string,dto:TeamMemberDto):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>
 
 
 

@@ -82,16 +82,16 @@ export class CompanyController {
         @Body() dto:changePassDto,
         @Request() req:ERequest
     ):Promise<generalResponce>{
-        return await this._companyService.UpdatePassword(req.user!._id.toString(),dto)
+        return await this._companyService.updatePassword(req.user!._id.toString(),dto)
     }
 
     @Post('addteammember')
     @UseGuards(AuthGuard('access_token'))
-    async AddTeamMembers(
+    async addTeamMembers(
         @Request() req:ERequest,
         @Body() dto:TeamMemberDto
     ):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
         let companyId = req.user?.companyId?.toString() ??""
-        return this._companyService.AddTeamMembers(companyId.toString(),dto)
+        return this._companyService.addTeamMembers(companyId.toString(),dto)
     }
 }
