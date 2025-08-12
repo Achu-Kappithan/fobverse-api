@@ -1,7 +1,7 @@
-import { Exclude, Expose } from 'class-transformer';
-import { ObjectId } from 'mongoose';
+import { Exclude, Expose } from "class-transformer";
+import { ObjectId } from "mongoose";
 
-export class ResponseRegisterDto {
+export class userDto {
   @Expose()
   _id: ObjectId;
 
@@ -29,7 +29,4 @@ export class ResponseRegisterDto {
   @Exclude()
   __v: string;
 
-  constructor(partial: Partial<ResponseRegisterDto>) {
-    Object.assign(this, partial);
-  }
 }
