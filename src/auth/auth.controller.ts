@@ -18,8 +18,7 @@ import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from './dto/login.dto'
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { MESSAGES } from 'src/shared/constants/constants.messages';
-import { UserDocument } from './schema/user.schema';
-import { Response } from 'express';
+import { Request as ERequest, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -31,9 +30,9 @@ export class AuthController {
 
 
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req:ERequest) {
     return {
-      message: `Welcome, ${req.user.email}! This is a protected resource.`,
+      message: `Welcome, ${req.user!.email}! This is a protected resource.`,
       user: req.user,
     };
   }
@@ -41,13 +40,13 @@ export class AuthController {
 
   @Post('/register')
   @HttpCode(HttpStatus.CREATED)
-  async registerCandidate(@Body() registerDto: RegisterCandidateDto) {
+  async registerCandidate(@Body() registerDto: RegisterCandidateDto){
     return this._authService.registerCandidate(registerDto);
   }
 
 
   @Get('verify-email')
-  async verifyEmail(@Query('token') token: string) {
+  async verifyEmail(@Query('token') token: string){
     return await this._authService.verifyEmail(token);
   }
 
@@ -57,7 +56,7 @@ export class AuthController {
   async Login(
     @Body() Dto: LoginDto,
     @Res({ passthrough: true }) response:Response,
-  ) {
+  ){
     const user = await this._authService.validateUser(Dto.email,Dto.password,Dto.role,);
     return this._authService.login(user,response);
   }
@@ -65,7 +64,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Res({ passthrough: true }) res: Response){
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
     return { message:MESSAGES.AUTH.LOGOUT_SUCCESS };
@@ -75,14 +74,14 @@ export class AuthController {
   @Get('getuser')
   @UseGuards(AuthGuard('access_token'))
   @HttpCode(HttpStatus.OK)
-  getCurrentUser(@Request() req: any) {
-    const user = req.user as UserDocument;
+  getCurrentUser(@Request() req:ERequest) {
+    const user = req.user 
     return {
-      id: user.id,
-      role: user.role,
-      email: user.email,
-      is_verified: user.isVerified,
-      profileImg:user.profileImg,
+      id: user?.id,
+      role: user?.role,
+      email: user?.email,
+      is_verified: user?.isVerified,
+      profileImg:user?.profileImg,
       message: 'completed',
     };
   }
@@ -92,11 +91,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt-refresh'))
   async refreshTokens(
-    @Req() req: any,
+    @Req() req: ERequest,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
     const user = req.user 
-    return this._authService.regenerateAccessToken(user,response);
+    return this._authService.regenerateAccessToken(user!,response);
   }
 
 

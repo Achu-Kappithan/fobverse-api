@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
 import { JwtTokenService } from '../jwt.services/jwt-service';
@@ -20,7 +19,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   private readonly logger = new Logger(GoogleStrategy.name);
   constructor(
     private readonly configService: ConfigService,
-    private jwtService: JwtService,
     private jwtTokenService: JwtTokenService,
     @Inject(AUTH_SERVICE)
     private readonly authService: IAuthService,
@@ -35,9 +33,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(
-    request: any,
-    accessToken: string,
-    refreshToken: string,
     profile,
     done: Function,
   ) {
