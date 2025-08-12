@@ -27,7 +27,6 @@ export class CandiateController {
     @Request() req:ERequest
   ){
     const user = req.user
-    console.log(user)
     return this._candiateService.updateProfile(dto,user!.id)
   }
 

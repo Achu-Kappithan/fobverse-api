@@ -20,9 +20,9 @@ export class JwtAccessStrategy extends PassportStrategy(
   logger = new Logger(JwtAccessStrategy.name);
 
   constructor(
-    private readonly configService: ConfigService,
+    private readonly _configService: ConfigService,
     @Inject(AUTH_SERVICE)
-    private readonly authService: IAuthService,
+    private readonly _authService: IAuthService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -36,7 +36,7 @@ export class JwtAccessStrategy extends PassportStrategy(
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_ACCESS_SECRET') || '',
+      secretOrKey: _configService.get<string>('JWT_ACCESS_SECRET') || '',
     });
   }
 
@@ -53,7 +53,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     }
 
     const { UserId } = payload;
-    const user = await this.authService.findById(UserId);
+    const user = await this._authService.findById(UserId);
 
     if (!user) {
       this.logger.warn(

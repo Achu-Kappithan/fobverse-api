@@ -11,7 +11,7 @@ import { ErrorApiResponse } from 'src/shared/responses/api.response';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  private readonly _logger = new Logger(HttpExceptionFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -80,9 +80,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     `;
 
     if (status >= 500) {
-      this.logger.error(logMessage);
+      this._logger.error(logMessage);
     } else {
-      this.logger.warn(logMessage);
+      this._logger.warn(logMessage);
     }
 
     const responsePayload: ErrorApiResponse = {

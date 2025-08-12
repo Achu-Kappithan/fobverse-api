@@ -19,26 +19,24 @@ import {
 
 @Injectable()
 export class JwtTokenService {
-  private readonly logger = new Logger(JwtTokenService.name);
+  private readonly _logger = new Logger(JwtTokenService.name);
 
   constructor(
-    private readonly configService: ConfigService,
-    private jwtService: JwtService,
-    @Inject(CANDIDATE_SERVICE)
-    private readonly candidateService: ICandidateService,
+    private readonly _configService: ConfigService,
+    private _jwtService: JwtService,
   ) {}
 
   generateVerificationToken(payload: JwtVerificationPayload): string {
     try {
-      const token = this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
-        expiresIn: this.configService.get<string>(
+      const token = this._jwtService.sign(payload, {
+        secret: this._configService.get<string>('JWT_VERIFICATION_SECRET'),
+        expiresIn: this._configService.get<string>(
           'JWT_VERIFICATION_EXPIRES_IN',
         ),
       });
       return token;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error generating verificaton token for user ${payload.UserId}: ${error.message}`,
       );
       throw new InternalServerErrorException(
@@ -49,13 +47,13 @@ export class JwtTokenService {
 
   generateAccessToken(payload: JwtAccessPayload): string {
     try {
-      const token = this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
+      const token = this._jwtService.sign(payload, {
+        secret: this._configService.get<string>('JWT_ACCESS_SECRET'),
+        expiresIn: this._configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
       });
       return token;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error generating access token for user ${payload.UserId}: ${error.message}`,
       );
       throw new InternalServerErrorException(
@@ -66,13 +64,13 @@ export class JwtTokenService {
 
   generateRefreshToken(payload: JwtRefreshPayload): string {
     try {
-      const token = this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
+      const token = this._jwtService.sign(payload, {
+        secret: this._configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: this._configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
       });
       return token;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error generating refresh token for user ${payload.UserId}: ${error.message}`,
       );
       throw new InternalServerErrorException(
@@ -83,15 +81,15 @@ export class JwtTokenService {
 
   GeneratePassResetToken(payload: passwordResetPayload): string {
     try {
-      const token = this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
-        expiresIn: this.configService.get<string>(
+      const token = this._jwtService.sign(payload, {
+        secret: this._configService.get<string>('JWT_VERIFICATION_SECRET'),
+        expiresIn: this._configService.get<string>(
           'JWT_VERIFICATION_EXPIRES_IN',
         ),
       });
       return token;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error generating passwordReestToken for user ${payload.id}: ${error.message}`,
       );
       throw new InternalServerErrorException(

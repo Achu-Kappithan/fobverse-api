@@ -89,7 +89,6 @@ export class JobsService implements IJobService {
             },
             {excludeExtraneousValues:true}
         )
-        console.log(mappedData)
         return {
             message:MESSAGES.COMPANY.GET_JOBDETAIS,
             data:mappedData

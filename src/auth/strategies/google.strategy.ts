@@ -16,16 +16,16 @@ import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  private readonly logger = new Logger(GoogleStrategy.name);
+  private readonly _logger = new Logger(GoogleStrategy.name);
   constructor(
-    private readonly configService: ConfigService,
-    private jwtTokenService: JwtTokenService,
+    private readonly _configService: ConfigService,
+    private _jwtTokenService: JwtTokenService,
     @Inject(AUTH_SERVICE)
-    private readonly authService: IAuthService,
+    private readonly _authService: IAuthService,
   ) {
     super({
-      clientID: configService.get<string>('CLIENT_ID') || '',
-      clientSecret: configService.get<string>('CLIENT_SECRET') || '',
+      clientID: _configService.get<string>('CLIENT_ID') || '',
+      clientSecret: _configService.get<string>('CLIENT_SECRET') || '',
       callbackURL: 'http://localhost:3000/auth/callback',
       passReqToCallback: true,
       scope: ['profile'],
@@ -37,7 +37,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: Function,
   ) {
     try {
-      this.logger.debug(`Google profile received: ${JSON.stringify(profile)}`);
+      this._logger.debug(`Google profile received: ${JSON.stringify(profile)}`);
       const userEmail =
         profile.emails && profile.emails.length > 0
           ? profile.emails[0].value
@@ -46,7 +46,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       const name = profile.displayName;
 
       if (userEmail) {
-        this.logger.warn(
+        this._logger.warn(
           `Google profile missing email for user ID: ${googleId}`,
         );
         throw new UnauthorizedException(
@@ -54,17 +54,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         );
       }
 
-      let user = await this.authService.findByEmail(userEmail);
+      let user = await this._authService.findByEmail(userEmail);
 
       if (!user) {
-        this.logger.log(
+        this._logger.log(
           `Creating new user with googleId ${googleId} and ${userEmail}`,
         );
       } else if (!user.googleId) {
-        this.logger.log(
+        this._logger.log(
           `Linking existing user ${userEmail} to Google ID: ${googleId}`,
         );
-        user = await this.authService.linkGoogleAccount(user._id.toString(), googleId);
+        user = await this._authService.linkGoogleAccount(user._id.toString(), googleId);
       }
 
       const AccessPayload: JwtAccessPayload = {
@@ -80,16 +80,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       };
 
       const accessToken =
-        this.jwtTokenService.generateAccessToken(AccessPayload);
+        this._jwtTokenService.generateAccessToken(AccessPayload);
       const refreshToken =
-        this.jwtTokenService.generateRefreshToken(RefreshPayload);
+        this._jwtTokenService.generateRefreshToken(RefreshPayload);
       done(null, {
         user: user,
         accessToken: accessToken,
         refreshToken: refreshToken,
       });
     } catch (err) {
-      this.logger.error(
+      this._logger.error(
         `Error during Google authentication for user: ${profile.emails?.[0]?.value || profile.id}`,
         err.stack,
       );

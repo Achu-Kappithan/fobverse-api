@@ -5,21 +5,21 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
-  private frontendUrl: string;
-  private senderEmail: string;
-  private transporter: Mail;
-  private readonly logger = new Logger(EmailService.name);
+  private _frontendUrl: string;
+  private _senderEmail: string;
+  private _transporter: Mail;
+  private readonly _logger = new Logger(EmailService.name);
 
-  constructor(private readonly confiService: ConfigService) {
-    ((this.frontendUrl = this.confiService.get<string>('FRONTEND_URL') ?? ''),
-      (this.senderEmail =
-        this.confiService.get<string>('EMAIL_USER') ??
+  constructor(private readonly _confiService: ConfigService) {
+    ((this._frontendUrl = this._confiService.get<string>('FRONTEND_URL') ?? ''),
+      (this._senderEmail =
+        this._confiService.get<string>('EMAIL_USER') ??
         'fobverseweb@gmail.com'));
-    this.transporter = nodemailer.createTransport({
+    this._transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: this.confiService.get<string>('EMAIL_USER'),
-        pass: this.confiService.get<string>('EMAIL_PASSWORD'),
+        user: this._confiService.get<string>('EMAIL_USER'),
+        pass: this._confiService.get<string>('EMAIL_PASSWORD'),
       },
     });
   }
@@ -31,17 +31,17 @@ export class EmailService {
     from?: string,
   ): Promise<void> {
     const mailOptions = {
-      from: from || `"FobVerse" <${this.senderEmail}>`,
+      from: from || `"FobVerse" <${this._senderEmail}>`,
       to: to,
       subject: subject,
       html: htmlContent,
     };
 
     try {
-      await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Verification email sent to ${to}`);
+      await this._transporter.sendMail(mailOptions);
+      this._logger.log(`Verification email sent to ${to}`);
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Failed to send verification email to ${to}: ${error.message}`,
         error.stack,
       );
@@ -55,7 +55,7 @@ export class EmailService {
     to: string,
     verificationjwt: string,
   ): Promise<void> {
-    const verificationLink = `${this.frontendUrl}/email/verification?token=${verificationjwt}`;
+    const verificationLink = `${this._frontendUrl}/email/verification?token=${verificationjwt}`;
     const subject = 'Verify Your Email Address for FobVerse';
     const htmlContent = `
             <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
@@ -110,7 +110,7 @@ export class EmailService {
   }
 
   async sendForgotPasswordEmail(to:string, token:string):Promise<void> {
-    const resetLink = `${this.frontendUrl}/forgotpassword/newpassword?token=${token}`;
+    const resetLink = `${this._frontendUrl}/forgotpassword/newpassword?token=${token}`;
     const subject = 'Verify Your Email Address for FobVerse';
     const htmlContent = `<div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
