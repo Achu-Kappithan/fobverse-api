@@ -6,6 +6,7 @@ import { ApiResponce } from 'src/shared/interface/api.responce';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
+import { Request as ERequest } from 'express';
 
 @Controller('jobs')
 export class JobsController {
@@ -18,30 +19,27 @@ export class JobsController {
   @UseGuards(AuthGuard('access_token'))
   async CreateJobs(
     @Body() dto:createJobsDto,
-    @Request() req:any
+    @Request() req:ERequest
   ):Promise<ApiResponce<ResponseJobsDto>>{
-    const user = req.user
-    return this._jobservices.CreateJobs(user.companyId.toString(),dto)
+    const companyId = req.user?.companyId?.toString() ?? ""
+    return this._jobservices.CreateJobs(companyId.toString(),dto)
   }
 
   @Get('getalljobs')
   @UseGuards(AuthGuard('access_token'))
   async GetAllJobs(
     @Query() parms:PaginationDto,
-    @Request() req:any
+    @Request() req:ERequest
   ):Promise<PaginatedResponse<ResponseJobsDto[]>>{
-    const user = req.user
-    return this._jobservices.getAllJobs(user.companyId.toString(),parms)
+    const companyId = req.user?.companyId?.toString() ?? ""
+    return this._jobservices.getAllJobs(companyId.toString(),parms)
   }
 
   @Get('jobdetails')
   @UseGuards(AuthGuard('access_token'))
   async GetjobDetails(
     @Query('id')id:string,
-    @Request() req:any
   ){
-    const user = req.user
-    console.log(id)
     return this._jobservices.getJobDetails(id)
   }
 }
