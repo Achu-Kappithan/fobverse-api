@@ -1,10 +1,10 @@
 import { ResponseRegisterDto } from "../dto/response.dto";
+import { userDto } from "../dto/user.dto";
 import { UserDocument } from "../schema/user.schema";
 
-export interface LoginResponce {
-  accessToken: string;
-  refreshToken: string;
-  data: ResponseRegisterDto | null;
+export interface LoginResponce<T> {
+  data: T
+  message:string
 }
 
 export interface RegisterResponce {
@@ -19,7 +19,7 @@ export interface verificatonResponce {
 }
 
 export interface tokenresponce {
-  newAccess: string;
+  newAccess?: string;
   message: string;
 }
 
