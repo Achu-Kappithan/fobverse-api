@@ -1,8 +1,8 @@
-import { ApiResponce } from "src/shared/interface/api.responce"
+import { PaginatedResponse } from "../../admin/interfaces/responce.interface"
+import { PaginationDto } from "../../shared/dtos/pagination.dto"
+import { ApiResponce } from "../../shared/interface/api.responce"
 import { createJobsDto } from "../dtos/createjobs.dto"
 import { ResponseJobsDto } from "../dtos/responce.job.dto"
-import { PaginationDto } from "src/shared/dtos/pagination.dto"
-import { PaginatedResponse } from "src/admin/interfaces/responce.interface"
 
 
 export interface IJobService {

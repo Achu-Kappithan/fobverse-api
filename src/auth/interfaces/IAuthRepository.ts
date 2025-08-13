@@ -1,4 +1,4 @@
-import { IBaseRepository } from 'src/shared/interface/base-repository.interface';
+import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { UserDocument } from '../schema/user.schema';
 import { Types } from 'mongoose';
 

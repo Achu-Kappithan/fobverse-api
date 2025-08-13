@@ -12,7 +12,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { EmailService } from 'src/email/email.service';
 import {
   JwtAccessPayload,
   JwtRefreshPayload,
@@ -36,31 +35,22 @@ import {
 import { OAuth2Client } from 'google-auth-library';
 import { JwtTokenService } from './jwt.services/jwt-service';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
-import {
-  COMPANY_SERVICE,
-  IComapnyService,
-} from 'src/company/interface/profile.service.interface';
-import { CreateProfileDto } from 'src/company/dtos/create.profile.dto';
-import {
-  CANDIDATE_SERVICE,
-  ICandidateService,
-} from 'src/candiate/interfaces/candidate-service.interface';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { UserDocument, UserRole } from './schema/user.schema';
 import { plainToInstance } from 'class-transformer';
 import { ResponseRegisterDto } from './dto/response.dto';
-import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
 import { FilterQuery, Types } from 'mongoose';
-import {
-  changePassDto,
-  InternalUserDto,
-  UpdateInternalUserDto,
-} from 'src/company/dtos/update.profile.dtos';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
-import { setJwtCookie } from 'src/shared/utils/cookie.util';
 import { userDto } from './dto/user.dto';
 import { Response } from 'express';
+import { COMPANY_SERVICE, IComapnyService } from '../company/interface/profile.service.interface';
+import { CANDIDATE_SERVICE, ICandidateService } from '../candiate/interfaces/candidate-service.interface';
+import { EmailService } from '../email/email.service';
+import { MESSAGES } from '../shared/constants/constants.messages';
+import { setJwtCookie } from '../shared/utils/cookie.util';
+import { CreateProfileDto } from '../company/dtos/create.profile.dto';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto } from '../company/dtos/update.profile.dtos';
+import { InternalUserResponceDto } from '../company/dtos/responce.allcompany';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 
 @Injectable()
 export class AuthService implements IAuthService {

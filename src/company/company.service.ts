@@ -6,12 +6,12 @@ import { CompanyProfileResponseDto, InternalUserResponceDto, TeamMemberResponceD
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { plainToInstance } from 'class-transformer';
 import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import { Types } from 'mongoose';
-import { AUTH_SERVICE, IAuthService } from 'src/auth/interfaces/IAuthCandiateService';
-import { generalResponce } from 'src/auth/interfaces/api-response.interface';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { AUTH_SERVICE, IAuthService } from '../auth/interfaces/IAuthCandiateService';
+import { MESSAGES } from '../shared/constants/constants.messages';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { generalResponce } from '../auth/interfaces/api-response.interface';
 
 @Injectable()
 export class CompanyService implements IComapnyService{

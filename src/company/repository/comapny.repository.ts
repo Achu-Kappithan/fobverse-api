@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BaseRepository } from 'src/shared/repositories/base.repository';
 import {
   CompanyProfile,
   CompanyProfileDocument,
@@ -8,6 +7,7 @@ import { IcompanyRepository } from '../interface/profile.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateResult } from 'mongoose';
 import { InternalUserDto, TeamMemberDto } from '../dtos/update.profile.dtos';
+import { BaseRepository } from '../../shared/repositories/base.repository';
 
 @Injectable()
 export class CompanyRepository

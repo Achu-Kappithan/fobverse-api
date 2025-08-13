@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { IJobsRepository } from "../interfaces/jobs.repository.interface";
-import { BaseRepository } from "src/shared/repositories/base.repository";
 import { Jobs, JobsDocument } from "../schema/jobs.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, UpdateResult } from "mongoose";
+import { BaseRepository } from "../../shared/repositories/base.repository";
 
 @Injectable()
 export class JobRepository extends BaseRepository<JobsDocument> implements IJobsRepository {

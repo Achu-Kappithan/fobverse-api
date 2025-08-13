@@ -17,10 +17,10 @@ import { AUTH_SERVICE, IAuthService } from './interfaces/IAuthCandiateService';
 import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from './dto/login.dto';
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { Request as ERequest, Response } from 'express';
 import { generalResponce, LoginResponce, tokenresponce } from './interfaces/api-response.interface';
 import { userDto } from './dto/user.dto';
+import { MESSAGES } from '../shared/constants/constants.messages';
 
 @Controller('auth')
 export class AuthController {

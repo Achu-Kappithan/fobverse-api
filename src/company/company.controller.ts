@@ -4,10 +4,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
 import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
-import { generalResponce } from 'src/auth/interfaces/api-response.interface';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { Request as ERequest } from 'express';
-import { Types } from 'mongoose';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { generalResponce } from '../auth/interfaces/api-response.interface';
 
 @Controller('company')
 export class CompanyController {

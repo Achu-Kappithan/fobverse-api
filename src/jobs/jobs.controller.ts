@@ -2,11 +2,11 @@ import { Body, Controller, Get, Inject, Post, Query, Request, UseGuards } from '
 import { IJobService, JOBS_SERVICE } from './interfaces/jobs.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { createJobsDto } from './dtos/createjobs.dto';
-import { ApiResponce } from 'src/shared/interface/api.responce';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
 import { Request as ERequest } from 'express';
+import { ApiResponce } from '../shared/interface/api.responce';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 
 @Controller('jobs')
 export class JobsController {

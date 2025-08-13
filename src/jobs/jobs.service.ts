@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IJobService } from './interfaces/jobs.service.interface';
-import { ApiResponce } from 'src/shared/interface/api.responce';
 import { createJobsDto } from './dtos/createjobs.dto';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { IJobsRepository, JOBS_REPOSITORY } from './interfaces/jobs.repository.interface';
 import { plainToInstance } from 'class-transformer';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { FilterQuery, Types } from 'mongoose';
-import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { Jobs } from './schema/jobs.schema';
+import { ApiResponce } from '../shared/interface/api.responce';
+import { MESSAGES } from '../shared/constants/constants.messages';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 
 @Injectable()
 export class JobsService implements IJobService {

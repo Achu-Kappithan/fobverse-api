@@ -1,4 +1,3 @@
-import { RegisterCandidateDto } from 'src/auth/dto/register-candidate.dto';
 import {
   generalResponce,
   LoginResponce,
@@ -8,12 +7,13 @@ import {
 } from './api-response.interface';
 import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from '../dto/login.dto';
 import { UserDocument } from '../schema/user.schema';
-import { changePassDto, InternalUserDto, UpdateInternalUserDto } from 'src/company/dtos/update.profile.dtos';
-import { InternalUserResponceDto } from 'src/company/dtos/responce.allcompany';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
-import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
 import { userDto } from '../dto/user.dto';
 import { Response } from 'express';
+import { RegisterCandidateDto } from '../dto/register-candidate.dto';
+import { PaginationDto } from '../../shared/dtos/pagination.dto';
+import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
+import { InternalUserResponceDto } from '../../company/dtos/responce.allcompany';
+import { changePassDto, InternalUserDto, UpdateInternalUserDto } from '../../company/dtos/update.profile.dtos';
 
 export interface IAuthService {
   validateUser(

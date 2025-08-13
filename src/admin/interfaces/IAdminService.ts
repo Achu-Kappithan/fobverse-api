@@ -1,9 +1,8 @@
-import { CompanyProfileResponseDto } from "src/company/dtos/responce.allcompany"
+import { CandidateProfileResponseDto } from "../../candiate/dtos/candidate-responce.dto"
+import { CompanyProfileResponseDto } from "../../company/dtos/responce.allcompany"
+import { ResponseJobsDto } from "../../jobs/dtos/responce.job.dto"
+import { PaginationDto } from "../../shared/dtos/pagination.dto"
 import { PaginatedResponse, PlainResponse } from "./responce.interface"
-import { CandidateProfileResponseDto } from "src/candiate/dtos/candidate-responce.dto"
-import { PaginationDto } from "src/shared/dtos/pagination.dto"
-import { ResponseJobsDto } from "src/jobs/dtos/responce.job.dto"
-
 
 export  interface IAdminService {
     getAllCompnys(dto:PaginationDto):Promise<PaginatedResponse<CompanyProfileResponseDto[]>>

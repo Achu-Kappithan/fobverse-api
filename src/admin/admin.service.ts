@@ -1,20 +1,19 @@
 import { BadRequestException, Inject, Injectable, Logger} from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
-import { COMAPNY_REPOSITORY, IcompanyRepository } from 'src/company/interface/profile.repository.interface';
 import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
 import { plainToInstance } from 'class-transformer';
-import { CompanyProfileResponseDto } from 'src/company/dtos/responce.allcompany';
-import { CandidateProfileResponseDto } from 'src/candiate/dtos/candidate-responce.dto';
-import { CANDIDATE_REPOSITORY, ICandidateRepository } from 'src/candiate/interfaces/candidate-repository.interface';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { FilterQuery } from 'mongoose';
-import { CompanyProfile } from 'src/company/schema/company.profile.schema';
-import { CandidateProfile } from 'src/candiate/schema/candidate.profile.schema';
-import { ResponseJobsDto } from 'src/jobs/dtos/responce.job.dto';
-import { IJobsRepository, JOBS_REPOSITORY } from 'src/jobs/interfaces/jobs.repository.interface';
-import { Jobs } from 'src/jobs/schema/jobs.schema';
-
+import { COMAPNY_REPOSITORY, IcompanyRepository } from '../company/interface/profile.repository.interface';
+import { CANDIDATE_REPOSITORY, ICandidateRepository } from '../candiate/interfaces/candidate-repository.interface';
+import { IJobsRepository, JOBS_REPOSITORY } from '../jobs/interfaces/jobs.repository.interface';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+import { CompanyProfile } from '../company/schema/company.profile.schema';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { CandidateProfile } from '../candiate/schema/candidate.profile.schema';
+import { Jobs } from '../jobs/schema/jobs.schema';
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
+import { MESSAGES } from '../shared/constants/constants.messages';
 @Injectable()
 export class AdminService implements IAdminService {
     logger = new  Logger(AdminService.name)

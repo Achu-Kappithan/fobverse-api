@@ -6,13 +6,12 @@ import {
 } from './interfaces/candidate-repository.interface';
 import { CreateCandidateProfileDto } from './dtos/create-candidate-profile.dto';
 import { CandidateProfileDocument } from './schema/candidate.profile.schema';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
-import { CreateProfileDto } from 'src/company/dtos/create.profile.dto';
 import { Types } from 'mongoose';
 import { CandidateResponceInterface } from './interfaces/responce.interface';
 import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
+import { MESSAGES } from '../shared/constants/constants.messages';
 
 @Injectable()
 export class CandidateService implements ICandidateService {

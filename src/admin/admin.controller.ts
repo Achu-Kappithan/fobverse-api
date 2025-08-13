@@ -1,11 +1,11 @@
 import { Controller, Get, Inject, Param, Query, UseGuards } from '@nestjs/common';
 import { ADMIN_SERVICE, IAdminService } from './interfaces/IAdminService';
 import { AuthGuard } from '@nestjs/passport';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
-import { ResponseJobsDto } from 'src/jobs/dtos/responce.job.dto';
-import { CompanyProfileResponseDto } from 'src/company/dtos/responce.allcompany';
-import { CandidateProfileResponseDto } from 'src/candiate/dtos/candidate-responce.dto';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 
 @Controller('admin')
 export class AdminController {

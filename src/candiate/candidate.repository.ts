@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateResult } from 'mongoose';
-import { BaseRepository } from 'src/shared/repositories/base.repository';
 import { ICandidateRepository } from './interfaces/candidate-repository.interface';
 import { CandidateProfile, CandidateProfileDocument } from './schema/candidate.profile.schema';
+import { BaseRepository } from '../shared/repositories/base.repository';
 
 @Injectable()
 export class CandidateRepository extends BaseRepository<CandidateProfileDocument> implements ICandidateRepository {
