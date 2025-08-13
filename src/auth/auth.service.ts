@@ -729,17 +729,25 @@ export class AuthService implements IAuthService {
     id: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<InternalUserResponceDto[]>> {
-    const { search, page = 1, limit = 6 } = pagination;
+    const { search, page = 1, limit = 6, filtervalue } = pagination;
     const filter: FilterQuery<UserDocument> = {};
 
     if (search) {
-      filter.name = { $regex: `^${search}`, $options: 'i' };
+      filter.$or = [
+        { name: { $regex: `^${search}`, $options: 'i' } },
+        { role: { $regex: `^${search}`, $options: 'i' } }
+      ];
     }
+
+    if(filtervalue){
+      filter.role ={$regex: `^${filtervalue}`,$options: 'i' };
+    }
+
     const companyId = new Types.ObjectId(id);
     filter.companyId = companyId;
 
     this._logger.log(
-      `[AuthService] comapny id for get internal users :${id} and query ${filter}`,
+      `[AuthService] comapny id for get internal users :${id} Serchquery ${filter} and filterQuery: ${filtervalue}`,
     );
     const skip = (page - 1) * limit;
 
