@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IJobService } from './interfaces/jobs.service.interface';
-import { ApiResponce } from 'src/shared/interface/api.responce';
 import { createJobsDto } from './dtos/createjobs.dto';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { IJobsRepository, JOBS_REPOSITORY } from './interfaces/jobs.repository.interface';
 import { plainToInstance } from 'class-transformer';
-import { MESSAGES } from 'src/shared/constants/constants.messages';
 import { FilterQuery, Types } from 'mongoose';
-import { PaginatedResponse } from 'src/admin/interfaces/responce.interface';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { Jobs } from './schema/jobs.schema';
+import { ApiResponce } from '../shared/interface/api.responce';
+import { MESSAGES } from '../shared/constants/constants.messages';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 
 @Injectable()
 export class JobsService implements IJobService {
@@ -19,7 +19,9 @@ export class JobsService implements IJobService {
     ) {}
     logger = new Logger(JobsService.name)
 
-    async CreateJobs(id: string, dto: createJobsDto): Promise<ApiResponce<ResponseJobsDto>> {
+    // creating Jobs
+
+    async createJobs(id: string, dto: createJobsDto): Promise<ApiResponce<ResponseJobsDto>> {
         this.logger.log(`[JobService] data get for registration id: ${id} data: ${dto}`)
         const objId = new Types.ObjectId(id)
         const data = {...dto,companyId:objId}
@@ -40,6 +42,8 @@ export class JobsService implements IJobService {
             data:mappedData
         }
     }
+
+    //for geting Alljobs
 
     async getAllJobs(id:string,pagination:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>{
         const {search, page=1, limit=6} = pagination
@@ -77,6 +81,8 @@ export class JobsService implements IJobService {
         }
     }
 
+    //show job Details
+
     async getJobDetails(id:string):Promise<ApiResponce<ResponseJobsDto>>{
         const data  = await this._jobRepository.findById(id)
         this.logger.log(`[jobService] find jobDetails id: ${id} data: ${data}`)
@@ -89,7 +95,6 @@ export class JobsService implements IJobService {
             },
             {excludeExtraneousValues:true}
         )
-        console.log(mappedData)
         return {
             message:MESSAGES.COMPANY.GET_JOBDETAIS,
             data:mappedData

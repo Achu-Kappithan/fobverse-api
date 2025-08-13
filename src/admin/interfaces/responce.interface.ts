@@ -1,4 +1,3 @@
-import { CompanyProfileResponseDto } from "src/company/dtos/responce.allcompany";
 
 
 export interface GetAllcompanyResponce<T> {

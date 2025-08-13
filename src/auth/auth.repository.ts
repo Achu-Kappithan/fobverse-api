@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRepository } from 'src/shared/repositories/base.repository';
 import { IAuthRepository } from './interfaces/IAuthRepository';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument, UserRole } from './schema/user.schema';
+import { BaseRepository } from '../shared/repositories/base.repository';
 
 @Injectable()
 export class AuthRepository

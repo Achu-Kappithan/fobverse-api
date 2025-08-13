@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateProfileDto } from './create.profile.dto';
-import { isNotEmpty, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { UserRole } from 'src/auth/schema/user.schema';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { UserRole } from '../../auth/schema/user.schema';
 
 
 export class TeamMemberDto {

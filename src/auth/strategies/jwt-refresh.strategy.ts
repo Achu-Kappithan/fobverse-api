@@ -19,9 +19,9 @@ export class jwtRefreshStrategy extends PassportStrategy(
 ) {
   logger = new Logger(jwtRefreshStrategy.name);
   constructor(
-    private readonly configService: ConfigService,
+    private readonly _configService: ConfigService,
     @Inject(AUTH_SERVICE)
-    private readonly authService: IAuthService,
+    private readonly _authService: IAuthService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -37,16 +37,16 @@ export class jwtRefreshStrategy extends PassportStrategy(
         }, 
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_REFRESH_SECRET') || '',
+      secretOrKey: _configService.get<string>('JWT_REFRESH_SECRET') || '',
     });
     this.logger.debug(
-      `[Strategy Init] JwtAccessStrategy initialized. Secret status: ${configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`,
+      `[Strategy Init] JwtAccessStrategy initialized. Secret status: ${_configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`,
     );
   }
 
   async validate(payload: JwtRefreshPayload): Promise<UserDocument> {
     const { UserId } = payload;
-    const candidate = await this.authService.findById(UserId);
+    const candidate = await this._authService.findById(UserId);
 
     if (!candidate) {
       throw new UnauthorizedException(

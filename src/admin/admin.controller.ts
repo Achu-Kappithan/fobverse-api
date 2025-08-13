@@ -1,9 +1,11 @@
 import { Controller, Get, Inject, Param, Query, UseGuards } from '@nestjs/common';
 import { ADMIN_SERVICE, IAdminService } from './interfaces/IAdminService';
 import { AuthGuard } from '@nestjs/passport';
-import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
-import { ResponseJobsDto } from 'src/jobs/dtos/responce.job.dto';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -16,7 +18,7 @@ export class AdminController {
   @UseGuards(AuthGuard('access_token'))
   async getAllcompany(
     @Query() dto:PaginationDto
-  ){
+  ):Promise<PaginatedResponse<CompanyProfileResponseDto[]>>{
     return await this._adminService.getAllCompnys(dto)
   }
 
@@ -24,7 +26,7 @@ export class AdminController {
   @UseGuards(AuthGuard('access_token'))
   async getAllCandidates(
     @Query() dto:PaginationDto
-  ){
+  ):Promise<PaginatedResponse<CandidateProfileResponseDto[]>>{
     return this._adminService.getAllCandidates(dto)
   }
 
@@ -32,7 +34,7 @@ export class AdminController {
   @UseGuards(AuthGuard('access_token')) 
   async updateStatus(
     @Query('id') id:string
-  ){
+  ):Promise<PlainResponse>{
     return this._adminService.updateCompanyStatus(id)
   }
 
@@ -40,21 +42,21 @@ export class AdminController {
   @UseGuards(AuthGuard('access_token'))
   async updateCandidateStatus(
     @Query('id') id:string
-  ){
+  ):Promise<PlainResponse>{
     return this._adminService.updateCandidateStatus(id)
   }
 
   @Get('jobs/getalljobs')
   @UseGuards(AuthGuard('access_token'))
-  async GetAllJobs(
+  async getAllJobs(
     @Query() parms:PaginationDto
   ):Promise<PaginatedResponse<ResponseJobsDto[]>>{
-    return this._adminService.GetAllJobs(parms)
+    return this._adminService.getAllJobs(parms)
   }
 
   @Get('jobs/updatejobstatus')
   @UseGuards(AuthGuard('access_token'))
-  async UpdateJobStatus(
+  async updateJobStatus(
     @Query('id') id:string
   ):Promise<PlainResponse>{
     return this._adminService.updateJobStatus(id)

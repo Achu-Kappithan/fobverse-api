@@ -1,5 +1,5 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 
 export class TeamMemberResponceDto {
@@ -98,5 +98,5 @@ export class InternalUserResponceDto {
   googleId: string;
 
   @Exclude()
-  __v: number; // Mongoose __v is typically a number, not a string
+  __v: number; 
 }

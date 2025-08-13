@@ -1,7 +1,7 @@
 import { CompanyProfileDocument } from "../schema/company.profile.schema";
 import { UpdateResult } from "mongoose";
 import { InternalUserDto, TeamMemberDto } from "../dtos/update.profile.dtos";
-import { IBaseRepository } from "src/shared/interface/base-repository.interface";
+import { IBaseRepository } from "../../shared/interface/base-repository.interface";
 
 
 export interface IcompanyRepository extends IBaseRepository<CompanyProfileDocument> {

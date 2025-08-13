@@ -8,8 +8,8 @@ import {
 } from './schema/company.profile.schema';
 import { COMAPNY_REPOSITORY } from './interface/profile.repository.interface';
 import { COMPANY_SERVICE } from './interface/profile.service.interface';
-import { AuthModule } from 'src/auth/auth.module';
 import { CompanyRepository } from './repository/comapny.repository';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [

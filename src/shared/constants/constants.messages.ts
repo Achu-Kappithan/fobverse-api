@@ -1,7 +1,4 @@
 
-
-
-
 export const  MESSAGES ={
     AUTH: {
         // Success Messages

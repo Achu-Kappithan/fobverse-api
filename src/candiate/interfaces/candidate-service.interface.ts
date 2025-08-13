@@ -9,7 +9,7 @@ export interface ICandidateService {
   findById(id: string): Promise<CandidateProfileDocument | null>;
   findAllCandidate(): Promise<CandidateProfileDocument[] | null>;
   createPorfile(dto: CreateCandidateProfileDto): Promise<CandidateProfileDocument>;
-  GetProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
+  getProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
   updateProfile(dto:UpdateCandidateProfileDto,id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
 }
 

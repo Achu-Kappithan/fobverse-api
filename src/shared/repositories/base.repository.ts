@@ -37,7 +37,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     options?: {
       limit?: number;
       skip?: number;
-      sort?: Record<string, -1 | 1>; 
+      sort?: Record<string, -1 | 1>;
       projection?: any;
     }
   ): Promise<{ data: T[]; total: number }> {

@@ -1,5 +1,3 @@
-import { ResponseRegisterDto } from "../dto/response.dto";
-import { userDto } from "../dto/user.dto";
 import { UserDocument } from "../schema/user.schema";
 
 export interface LoginResponce<T> {

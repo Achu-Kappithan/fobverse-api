@@ -1,4 +1,3 @@
-import { ObjectId } from "mongoose";
 
 export interface JwtAccessPayload {
   UserId: string;

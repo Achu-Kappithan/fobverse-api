@@ -3,11 +3,7 @@
 import {
   IsOptional,
   IsString,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CreateCandidateProfileDto } from './create-candidate-profile.dto';
-
 
 export class UpdateCandidateProfileDto {
 

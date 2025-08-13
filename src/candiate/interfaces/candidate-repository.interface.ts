@@ -1,5 +1,4 @@
-import { IBaseRepository } from 'src/shared/interface/base-repository.interface';
-import { CandidateRepository } from '../candidate.repository';
+import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { CandidateProfileDocument } from '../schema/candidate.profile.schema';
 import { UpdateResult } from 'mongoose';
 
