@@ -1,6 +1,6 @@
 import { CandidateProfileResponseDto } from "../../candiate/dtos/candidate-responce.dto"
 import { CompanyProfileResponseDto } from "../../company/dtos/responce.allcompany"
-import { ResponseJobsDto } from "../../jobs/dtos/responce.job.dto"
+import { AllJobsAdminResponce, ResponseJobsDto } from "../../jobs/dtos/responce.job.dto"
 import { PaginationDto } from "../../shared/dtos/pagination.dto"
 import { PaginatedResponse, PlainResponse } from "./responce.interface"
 
@@ -9,7 +9,7 @@ export  interface IAdminService {
     getAllCandidates(dto:PaginationDto):Promise<PaginatedResponse<CandidateProfileResponseDto[]>>
     updateCompanyStatus(id:string):Promise<PlainResponse>
     updateCandidateStatus(id:string):Promise<PlainResponse>
-    getAllJobs(dto:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>
+    getAllJobs(dto:PaginationDto):Promise<PaginatedResponse<AllJobsAdminResponce[]>>
     updateJobStatus(id:string):Promise<PlainResponse>
 }
 

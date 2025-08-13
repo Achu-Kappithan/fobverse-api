@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, Logger} from '@nestjs/common';
 import { IAdminService } from './interfaces/IAdminService';
 import { PaginatedResponse, PlainResponse } from './interfaces/responce.interface';
 import { plainToInstance } from 'class-transformer';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from '../company/interface/profile.repository.interface';
 import { CANDIDATE_REPOSITORY, ICandidateRepository } from '../candiate/interfaces/candidate-repository.interface';
 import { IJobsRepository, JOBS_REPOSITORY } from '../jobs/interfaces/jobs.repository.interface';
@@ -12,7 +12,7 @@ import { CompanyProfile } from '../company/schema/company.profile.schema';
 import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
 import { CandidateProfile } from '../candiate/schema/candidate.profile.schema';
 import { Jobs } from '../jobs/schema/jobs.schema';
-import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
+import { AllJobsAdminResponce, ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
 @Injectable()
 export class AdminService implements IAdminService {
@@ -125,7 +125,7 @@ export class AdminService implements IAdminService {
     }
 
 
-    async getAllJobs(dto:PaginationDto):Promise<PaginatedResponse<ResponseJobsDto[]>>{
+    async getAllJobs(dto:PaginationDto):Promise<PaginatedResponse<AllJobsAdminResponce[]>>{
         const {search, page=1, limit=6} = dto
 
         const filter:FilterQuery<Jobs> ={}
@@ -137,17 +137,20 @@ export class AdminService implements IAdminService {
         const skip = (page-1)*limit
         this.logger.log(`[AdminService] findAllCompanys Using ${filter} , ${page} , ${limit}`)
 
-        const {data,total} = await this._jobsRepository.findManyWithPagination(filter,{limit,skip})
+        const {data,total} = await this._jobsRepository.findAllJobs(filter,{limit,skip})
         this.logger.log(`[AdminService] All jobs Data  gets from the db ${data}`)
 
-        const plainData = data.map(val=>({
+        const plainData = data.map(val=>{
+            const company = val.companyId as {_id:Types.ObjectId,name:string}
+            return {
             ...val.toJSON(),
             _id:val._id.toString(),
-            companyId: val.companyId.toString()
-        }))
+            companyId:company.name
+            }
+        })
 
         const mapdeData = plainToInstance(
-            ResponseJobsDto,
+            AllJobsAdminResponce,
             plainData,
             {excludeExtraneousValues:true}
         )

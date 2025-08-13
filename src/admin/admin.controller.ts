@@ -5,7 +5,7 @@ import { PaginatedResponse, PlainResponse } from './interfaces/responce.interfac
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
 import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
-import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
+import { AllJobsAdminResponce, ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -50,7 +50,7 @@ export class AdminController {
   @UseGuards(AuthGuard('access_token'))
   async getAllJobs(
     @Query() parms:PaginationDto
-  ):Promise<PaginatedResponse<ResponseJobsDto[]>>{
+  ):Promise<PaginatedResponse<AllJobsAdminResponce[]>>{
     return this._adminService.getAllJobs(parms)
   }
 
