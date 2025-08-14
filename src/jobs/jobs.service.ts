@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IJobService } from './interfaces/jobs.service.interface';
-import { createJobsDto } from './dtos/createjobs.dto';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { IJobsRepository, JOBS_REPOSITORY } from './interfaces/jobs.repository.interface';
 import { plainToInstance } from 'class-transformer';
@@ -10,6 +9,7 @@ import { ApiResponce } from '../shared/interface/api.responce';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { JobsDto } from './dtos/createjobs.dto';
 
 @Injectable()
 export class JobsService implements IJobService {
@@ -21,7 +21,7 @@ export class JobsService implements IJobService {
 
     // creating Jobs
 
-    async createJobs(id: string, dto: createJobsDto): Promise<ApiResponce<ResponseJobsDto>> {
+    async createJobs(id: string, dto: JobsDto): Promise<ApiResponce<ResponseJobsDto>> {
         this.logger.log(`[JobService] data get for registration id: ${id} data: ${dto}`)
         const objId = new Types.ObjectId(id)
         const data = {...dto,companyId:objId}
@@ -97,6 +97,26 @@ export class JobsService implements IJobService {
         )
         return {
             message:MESSAGES.COMPANY.GET_JOBDETAIS,
+            data:mappedData
+        }
+    }
+
+
+    async updateJobDetails(id:string,dto:JobsDto):Promise<ApiResponce<ResponseJobsDto>>{
+        const data = await this._jobRepository.update({_id:id},{$set:dto})
+
+        const mappedData = plainToInstance(
+             ResponseJobsDto,
+            {
+                ...data?.toJSON(),
+                _id: data?._id.toString(),
+                companyId: data?.companyId.toString()
+            },
+            {excludeExtraneousValues:true}
+        )
+
+        return {
+            message:MESSAGES.COMPANY.UPDATE_JOBS,
             data:mappedData
         }
     }

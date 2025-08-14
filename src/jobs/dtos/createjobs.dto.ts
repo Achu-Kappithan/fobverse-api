@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { jobType } from "../schema/jobs.schema";
 
-export class createJobsDto {
+export class JobsDto {
     @IsNotEmpty()
     @IsString()
     title:string
