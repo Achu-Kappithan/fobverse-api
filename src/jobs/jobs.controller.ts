@@ -10,12 +10,12 @@ import {
 } from '@nestjs/common';
 import { IJobService, JOBS_SERVICE } from './interfaces/jobs.service.interface';
 import { AuthGuard } from '@nestjs/passport';
-import { createJobsDto } from './dtos/createjobs.dto';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { Request as ERequest } from 'express';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { JobsDto } from './dtos/createjobs.dto';
 
 @Controller('jobs')
 export class JobsController {
@@ -27,7 +27,7 @@ export class JobsController {
   @Post('createjob')
   @UseGuards(AuthGuard('access_token'))
   async createJobs(
-    @Body() dto: createJobsDto,
+    @Body() dto: JobsDto,
     @Request() req: ERequest,
   ): Promise<ApiResponce<ResponseJobsDto>> {
     const companyId = req.user?.companyId?.toString() ?? '';
@@ -48,5 +48,14 @@ export class JobsController {
   @UseGuards(AuthGuard('access_token'))
   async getjobDetails(@Query('id') id: string) {
     return this._jobservices.getJobDetails(id);
+  }
+
+  @Post('updatejob')
+  @UseGuards(AuthGuard('access_token'))
+  async updateJobDetails(
+    @Query('id') id:string,
+    @Body() dto:JobsDto
+  ):Promise<ApiResponce<ResponseJobsDto>>{
+    return this._jobservices.updateJobDetails(id.toString(),dto)
   }
 }

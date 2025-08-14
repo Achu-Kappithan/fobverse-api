@@ -48,7 +48,8 @@ export const  MESSAGES ={
 
         NEW_JOB_ADDED: 'New Job Successfully added',
         FETCH_ALL_JOBS: 'fetch all jobs',
-        GET_JOBDETAIS: 'Job details successfully fetched'
+        GET_JOBDETAIS: 'Job details successfully fetched',
+        UPDATE_JOBS: 'Update job Details'
     },
     CANDIDATE:{
        PROFILE_FETCH_SUCCESS: 'Candidate profile fetched successfully.',
