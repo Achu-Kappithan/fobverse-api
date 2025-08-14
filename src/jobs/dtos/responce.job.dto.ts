@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import { jobType } from '../schema/jobs.schema';
+import { Types } from 'mongoose';
 
 export class ResponseJobsDto {
 
@@ -50,4 +51,28 @@ export class ResponseJobsDto {
 
   @Expose()
   activeStatus:boolean
+}
+
+
+export class AllJobsAdminResponce {
+  @Expose()
+  title:string
+
+  @Expose()
+  _id:string
+
+  @Expose()
+  vacancies: number;
+
+  @Expose()
+  companyId: string |{ _id: Types.ObjectId; name: string }
+
+  @Expose()
+  activeStatus:boolean
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  jobType:jobType
 }

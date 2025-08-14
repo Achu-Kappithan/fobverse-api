@@ -13,7 +13,7 @@ export type JobsDocument = HydratedDocument<Jobs>
 @Schema({ timestamps: true })
 export class Jobs {
   @Prop({ type: Types.ObjectId, ref: 'CompanyProfile', required: true})
-  companyId: Types.ObjectId;
+  companyId: Types.ObjectId | { _id: Types.ObjectId; name: string }
 
   @Prop({ required: true })
   title: string;
