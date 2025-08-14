@@ -1,17 +1,15 @@
-
-
 export interface GetAllcompanyResponce<T> {
-    message:string,
-    data: T[]
+  message: string;
+  data: T[];
 }
 
 export interface PlainResponse {
-    message:string
+  message: string;
 }
 
 export interface PaginatedResponse<T> {
   message: string;
-  data:T;
+  data: T;
   totalItems: number;
   currentPage: number;
   itemsPerPage: number;
