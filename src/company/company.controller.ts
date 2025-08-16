@@ -2,7 +2,7 @@ import { Body, Controller, Get, Inject, Patch, Post, Query, Request, UseGuards }
 import { COMPANY_SERVICE, IComapnyService } from './interface/profile.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { comapnyResponceInterface } from './interface/responce.interface';
-import { CompanyProfileResponseDto, InternalUserResponceDto } from './dtos/responce.allcompany';
+import { CompanyProfileResponseDto, UserResponceDto } from './dtos/responce.allcompany';
 import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
 import { Request as ERequest } from 'express';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
@@ -60,7 +60,7 @@ export class CompanyController {
     @UseGuards(AuthGuard('access_token'))
     async getUserProfile(
         @Request() req:ERequest
-    ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+    ):Promise<comapnyResponceInterface<UserResponceDto>>{
         const user = req.user
         return this._companyService.getUserProfile(user!._id.toString())
     }
@@ -70,7 +70,7 @@ export class CompanyController {
     async updateUserProfile(
         @Body() dto:UpdateInternalUserDto,
         @Request() req:ERequest
-    ):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+    ):Promise<comapnyResponceInterface<UserResponceDto>>{
         const user = req.user
         return this._companyService.upateUserProfile(user!._id.toString(),dto)
     }

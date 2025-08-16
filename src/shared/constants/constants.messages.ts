@@ -60,6 +60,7 @@ export const  MESSAGES ={
         DATA_RETRIEVED: "Data retrieved successfully.",
         STATUS_UPDATED: "Status Updated Sucessfully..!",
         FETCH_ALL_JOBS: 'All jobs Successfully Fetched',
-        
+        PROFILE_GET: 'Admin profile get Successfully',
+        PROFILE_UPDATE_SUCCESS: 'Profile data updated successfully.',
     }
 }

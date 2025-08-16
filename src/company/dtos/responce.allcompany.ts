@@ -72,7 +72,7 @@ export class CompanyProfileResponseDto {
 
 
 
-export class InternalUserResponceDto {
+export class UserResponceDto {
   @Expose({ name: 'id' }) 
   @Transform(({ value }) => {
     if (value instanceof Types.ObjectId) {

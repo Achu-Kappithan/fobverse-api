@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable, InternalServerErrorException, Logger} f
 import { IComapnyService } from './interface/profile.service.interface';
 import { COMAPNY_REPOSITORY, IcompanyRepository } from './interface/profile.repository.interface';
 import { CreateProfileDto } from './dtos/create.profile.dto';
-import { CompanyProfileResponseDto, InternalUserResponceDto, TeamMemberResponceDto } from './dtos/responce.allcompany';
+import { CompanyProfileResponseDto, UserResponceDto, TeamMemberResponceDto } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
 import { plainToInstance } from 'class-transformer';
 import { changePassDto, InternalUserDto, TeamMemberDto, UpdateInternalUserDto, UpdateProfileDto } from './dtos/update.profile.dtos';
@@ -75,7 +75,7 @@ export class CompanyService implements IComapnyService{
 
     //add internal users to the company
 
-    async createUser(id:string, dto: InternalUserDto): Promise<comapnyResponceInterface<InternalUserResponceDto>> {
+    async createUser(id:string, dto: InternalUserDto): Promise<comapnyResponceInterface<UserResponceDto>> {
         const data = await this._AuthService.createInternalUser(id,dto)
         return  {
             message:MESSAGES.COMPANY.USER_REG_SUCCESS,
@@ -85,14 +85,14 @@ export class CompanyService implements IComapnyService{
 
     // get all Internal users
 
-    async getInternalUsers(id:string,pagination:PaginationDto):Promise<comapnyResponceInterface<InternalUserResponceDto[]>>{
+    async getInternalUsers(id:string,pagination:PaginationDto):Promise<comapnyResponceInterface<UserResponceDto[]>>{
         this.logger.log(`[ComapanyService] id get in Comapny service :${id}`)
         return await this._AuthService.getAllUsers(id,pagination)
     }
 
     //getUserProfile
 
-    async getUserProfile(id:string):Promise<comapnyResponceInterface<InternalUserResponceDto>>{
+    async getUserProfile(id:string):Promise<comapnyResponceInterface<UserResponceDto>>{
         this.logger.log(`[ComapayService] try to getUser Profile ${id}`)
         const userProfile = await this._AuthService.getUserProfile(id)
         return {
@@ -103,7 +103,7 @@ export class CompanyService implements IComapnyService{
 
     //updateUserProfile
 
-    async upateUserProfile(id: string, dto: UpdateInternalUserDto): Promise<comapnyResponceInterface<InternalUserResponceDto>> {
+    async upateUserProfile(id: string, dto: UpdateInternalUserDto): Promise<comapnyResponceInterface<UserResponceDto>> {
         const data =await this._AuthService.updateUserProfile(id,dto)
         return{
             message:MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
