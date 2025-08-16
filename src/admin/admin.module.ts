@@ -5,12 +5,14 @@ import { ADMIN_SERVICE } from './interfaces/IAdminService';
 import { CompanyModule } from '../company/company.module';
 import { CandiateModule } from '../candiate/candidate.module';
 import { JobsModule } from '../jobs/jobs.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports:[
     CompanyModule,
     CandiateModule,
-    JobsModule
+    JobsModule,
+    AuthModule
   ],
   controllers: [AdminController],
   providers: [

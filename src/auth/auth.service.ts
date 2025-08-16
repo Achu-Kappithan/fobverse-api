@@ -48,7 +48,7 @@ import { MESSAGES } from '../shared/constants/constants.messages';
 import { setJwtCookie } from '../shared/utils/cookie.util';
 import { CreateProfileDto } from '../company/dtos/create.profile.dto';
 import { changePassDto, InternalUserDto, UpdateInternalUserDto } from '../company/dtos/update.profile.dtos';
-import { InternalUserResponceDto } from '../company/dtos/responce.allcompany';
+import { UserResponceDto } from '../company/dtos/responce.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 
@@ -690,7 +690,7 @@ export class AuthService implements IAuthService {
   async createInternalUser(
     id: string,
     dto: InternalUserDto,
-  ): Promise<InternalUserResponceDto> {
+  ): Promise<UserResponceDto> {
     const existinguser = await this.authRepository.findByEmail(dto.email);
 
     if (existinguser) {
@@ -715,7 +715,7 @@ export class AuthService implements IAuthService {
     );
 
     const mappedData = plainToInstance(
-      InternalUserResponceDto,
+      UserResponceDto,
       {
         ...data?.toJSON(),
       },
@@ -728,7 +728,7 @@ export class AuthService implements IAuthService {
   async getAllUsers(
     id: string,
     pagination: PaginationDto,
-  ): Promise<PaginatedResponse<InternalUserResponceDto[]>> {
+  ): Promise<PaginatedResponse<UserResponceDto[]>> {
     const { search, page = 1, limit = 6, filtervalue } = pagination;
     const filter: FilterQuery<UserDocument> = {};
 
@@ -760,7 +760,7 @@ export class AuthService implements IAuthService {
     );
     const plaindata = data.map((val) => val.toJSON());
 
-    const mappedData = plainToInstance(InternalUserResponceDto, data);
+    const mappedData = plainToInstance(UserResponceDto, data);
     const totalPages = Math.ceil(total / limit);
     return {
       data: mappedData,
@@ -774,10 +774,10 @@ export class AuthService implements IAuthService {
 
   //get UserProfile
 
-  async getUserProfile(id: string): Promise<InternalUserResponceDto> {
+  async getUserProfile(id: string): Promise<UserResponceDto> {
     this._logger.log('[AuthService] geting Company active userprofile', id);
     const data = await this.authRepository.findById(id);
-    const mappedData = plainToInstance(InternalUserResponceDto, data?.toJSON());
+    const mappedData = plainToInstance(UserResponceDto, data?.toJSON());
     this._logger.debug(`[AuthService] profile details gets${mappedData}`);
     return mappedData;
   }
@@ -787,9 +787,9 @@ export class AuthService implements IAuthService {
   async updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
-  ): Promise<InternalUserResponceDto> {
+  ): Promise<UserResponceDto> {
     const data = await this.authRepository.update({ _id: id }, { $set: dto });
-    const mappedData = plainToInstance(InternalUserResponceDto, data?.toJSON());
+    const mappedData = plainToInstance(UserResponceDto, data?.toJSON());
     this._logger.debug(`[AuthService] User profile updated ${mappedData}`);
     return mappedData;
   }
