@@ -11,7 +11,7 @@ export class PaginationDto {
     @IsOptional()
     @Min(1)
     @Type(()=> Number)
-    limit?:number = 10
+    limit?:number = 6
 
     @IsOptional()
     @IsString()

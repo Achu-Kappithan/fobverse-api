@@ -31,7 +31,7 @@ export class JobRepository extends BaseRepository<JobsDocument> implements IJobs
     }
   ):Promise<{ data:JobsDocument[]; total: number }>{
     const query = this.jobModel.find(filter,options?.projection)
-    .populate('companyId', 'name')
+    .populate('companyId', 'name logoUrl')
 
     if (options?.sort) {
       query.sort(options.sort);

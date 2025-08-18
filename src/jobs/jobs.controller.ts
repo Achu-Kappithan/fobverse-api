@@ -13,9 +13,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
 import { Request as ERequest } from 'express';
 import { ApiResponce } from '../shared/interface/api.responce';
-import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
-import { JobsDto } from './dtos/createjobs.dto';
+import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
 
 @Controller('jobs')
 export class JobsController {
@@ -37,9 +36,10 @@ export class JobsController {
   @Get('getalljobs')
   @UseGuards(AuthGuard('access_token'))
   async getAllJobs(
-    @Query() parms: PaginationDto,
+    @Query() parms: jobsPagesAndFilterDto,
     @Request() req: ERequest,
   ): Promise<PaginatedResponse<ResponseJobsDto[]>> {
+    console.log(parms)
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._jobservices.getAllJobs(companyId.toString(), parms);
   }
