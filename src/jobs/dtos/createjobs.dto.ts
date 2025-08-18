@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { jobType } from "../schema/jobs.schema";
+import { Type } from "class-transformer";
 
 export class JobsDto {
     @IsNotEmpty()
@@ -34,4 +35,40 @@ export class JobsDto {
     @IsNotEmpty()
     vacancies:string
 
+}
+
+export class jobsPagesAndFilterDto {
+  @IsOptional()
+  @Min(1)
+  @Type(()=> Number)
+  page?:number = 1
+
+  @IsOptional()
+  @Min(1)
+  @Type(()=> Number)
+  limit?:number = 6
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  jobType?: string[];
+
+  @IsOptional()
+  @Type(()=>Number)
+  minSalary?: number;
+
+  @IsOptional()
+  @Type(()=>Number)
+  maxSalary?: number;
+
+  @IsOptional()
+  @IsString()
+  dueDate?: string;
+
+  @IsOptional()
+  @IsString()
+  activeStatus?: string; 
 }

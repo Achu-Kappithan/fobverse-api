@@ -2,6 +2,8 @@ import { Expose } from 'class-transformer';
 import { jobType } from '../schema/jobs.schema';
 import { Types } from 'mongoose';
 
+export class populatedcompanyId { _id: Types.ObjectId; name: string; logoUrl:string }
+
 export class ResponseJobsDto {
 
   @Expose()
@@ -38,7 +40,7 @@ export class ResponseJobsDto {
   vacancies: number;
 
   @Expose()
-  companyId: string;
+  companyId: string | populatedcompanyId
 
   @Expose()
   dueDate:string

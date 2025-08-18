@@ -33,10 +33,14 @@ export class Jobs {
   experience?: string[];
 
   @Prop({
-    type: { min: Number,max: Number },
+    type: {
+      min: { type: Number, required: true },
+      max: { type: Number, required: true },
+    },
+    _id: false,  
     required: true,
   })
-  salary: { min: number ,max: number};
+  salary: { min: number; max: number };
 
   @Prop({ required: true })
   location: string[];
