@@ -11,6 +11,7 @@ export interface ICandidateService {
   createPorfile(dto: CreateCandidateProfileDto): Promise<CandidateProfileDocument>;
   getProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
   updateProfile(dto:UpdateCandidateProfileDto,id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
+  publicView(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';
