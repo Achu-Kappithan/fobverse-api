@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { CANDIDATE_SERVICE, ICandidateService } from './interfaces/candidate-service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
@@ -30,6 +30,14 @@ export class CandiateController {
   ):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
     const user = req.user
     return this._candiateService.updateProfile(dto,user!.id)
+  }
+
+  @Get('/public/profile')
+  @UseGuards(AuthGuard('access_token'))
+  async publicView(
+    @Query('id') id:string
+  ):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>{
+    return this._candiateService.publicView(id)
   }
 
   

@@ -100,4 +100,25 @@ export class CandidateService implements ICandidateService {
     }
   }
 
+
+  async publicView(id: string): Promise<CandidateResponceInterface<CandidateProfileResponseDto>> {
+    const userId = new Types.ObjectId(id)
+    const ProfileData = await this._candidateRepository.findById(id)
+    if(!ProfileData){
+      throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_FETCH_FAIL)
+    }
+    const mappedData = plainToInstance(
+      CandidateProfileResponseDto,
+      {
+      ...ProfileData?.toObject()
+      },
+      {excludeExtraneousValues:true}
+    )
+    return {
+      message:MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
+      data:mappedData
+    }
+  }
+
+
 }
