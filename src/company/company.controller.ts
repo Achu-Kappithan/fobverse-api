@@ -93,4 +93,14 @@ export class CompanyController {
         let companyId = req.user?.companyId?.toString() ??""
         return this._companyService.addTeamMembers(companyId.toString(),dto)
     }
+
+    @Get('public/profile')
+    @UseGuards(AuthGuard('access_token'))
+    async getPublicView(
+        @Query('id') id:string
+    ):Promise<comapnyResponceInterface<CompanyProfileResponseDto>>{
+        return this._companyService.getPorfile(id)
+    }
+
+    
 }
