@@ -9,11 +9,11 @@ export class CloudinaryController {
 
   @Post('sign-upload')
   @UseGuards(AuthGuard('access_token'))
-  async signUpload(@Body() body: SignatureRequestDto) {
+  signUpload(@Body() body: SignatureRequestDto) {
     return this._cloudinaryService.generateUploadSignature({
-      folder:body.folder,
-      public_id_prefix:body.publicIdPrefix,
-      tags:body.tags
-    })
+      folder: body.folder,
+      public_id_prefix: body.publicIdPrefix,
+      tags: body.tags,
+    });
   }
 }

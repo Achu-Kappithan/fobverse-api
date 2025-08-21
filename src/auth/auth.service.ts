@@ -23,6 +23,7 @@ import { IAuthService } from './interfaces/IAuthCandiateService';
 import {
   generalResponce,
   LoginResponce,
+  populatedpData,
   RegisterResponce,
   tokenresponce,
   verificatonResponce,
@@ -37,20 +38,33 @@ import { JwtTokenService } from './jwt.services/jwt-service';
 import { AUTH_REPOSITORY, IAuthRepository } from './interfaces/IAuthRepository';
 import { UserDocument, UserRole } from './schema/user.schema';
 import { plainToInstance } from 'class-transformer';
-import { ResponseRegisterDto } from './dto/response.dto';
 import { FilterQuery, Types } from 'mongoose';
 import { userDto } from './dto/user.dto';
 import { Response } from 'express';
-import { COMPANY_SERVICE, IComapnyService } from '../company/interface/profile.service.interface';
-import { CANDIDATE_SERVICE, ICandidateService } from '../candiate/interfaces/candidate-service.interface';
+import {
+  COMPANY_SERVICE,
+  IComapnyService,
+} from '../company/interface/profile.service.interface';
+import {
+  CANDIDATE_SERVICE,
+  ICandidateService,
+} from '../candiate/interfaces/candidate-service.interface';
 import { EmailService } from '../email/email.service';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { setJwtCookie } from '../shared/utils/cookie.util';
 import { CreateProfileDto } from '../company/dtos/create.profile.dto';
-import { changePassDto, InternalUserDto, UpdateInternalUserDto } from '../company/dtos/update.profile.dtos';
-import { UserResponceDto } from '../company/dtos/responce.allcompany';
+import {
+  changePassDto,
+  InternalUserDto,
+  UpdateInternalUserDto,
+} from '../company/dtos/update.profile.dtos';
+import {
+  CompanyProfileResponseDto,
+  UserResponceDto,
+} from '../company/dtos/responce.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -59,7 +73,7 @@ export class AuthService implements IAuthService {
 
   constructor(
     @Inject(AUTH_REPOSITORY)
-    private readonly authRepository: IAuthRepository,
+    private readonly _authRepository: IAuthRepository,
     @Inject(forwardRef(() => COMPANY_SERVICE))
     private readonly _companyService: IComapnyService,
     @Inject(CANDIDATE_SERVICE)
@@ -74,19 +88,19 @@ export class AuthService implements IAuthService {
     );
   }
 
-
   // find user by Email
 
   async findByEmail(email: string): Promise<UserDocument | null> {
     this._logger.debug(`Finding user by email: ${email}`);
-    return this.authRepository.findByEmail(email);
+    return this._authRepository.findByEmail(email);
   }
 
   //find user by Id
 
   async findById(id: string): Promise<UserDocument | null> {
-    this._logger.debug(`Finding user by Id:${id}`);
-    return this.authRepository.findById(id);
+    this._logger.log(`Finding user by Id:${id}`);
+    const user = await this._authRepository.findById(id);
+    return user;
   }
 
   //vaildate user for login
@@ -94,13 +108,11 @@ export class AuthService implements IAuthService {
   async validateUser(
     email: string,
     password: string,
-    role: string,
+    role: UserRole,
   ): Promise<userDto> {
     this._logger.debug(`Attempting to validate user: ${email}`);
-    let profileData;
 
-    profileData = await this.authRepository.findCandidateByEmail(email);
-    profileData = profileData[0];
+    const profileData = await this._authRepository.findCandidateByEmail(email);
 
     if (!profileData) {
       this._logger.warn(`Login attempt for ${email}: User not found.`);
@@ -111,7 +123,7 @@ export class AuthService implements IAuthService {
       throw new BadRequestException(MESSAGES.AUTH.ACCOUNT_LINKED_WITH_GOOGLE);
     }
 
-    if (!(await bcrypt.compare(password, profileData.password!))) {
+    if (!(await bcrypt.compare(password, profileData.password))) {
       this._logger.warn(`Login attempt for ${email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
@@ -138,26 +150,26 @@ export class AuthService implements IAuthService {
 
   //complete user login process
 
-  async login(user: userDto, res: Response): Promise<LoginResponce<userDto>> {
+  login(user: userDto, res: Response): LoginResponce<userDto> {
     this._logger.debug(
       `[AuthService.login] Preparing payload for tokens for user: ${user.email}`,
     );
     const AccessPayload: JwtAccessPayload = {
-      UserId: user._id.toString(),
+      UserId: (user._id as unknown as Types.ObjectId).toString(),
       email: user.email,
       role: user.role,
       profileId: user.companyId?.toString(),
     };
 
     const RefreshPayload: JwtRefreshPayload = {
-      UserId: user._id.toString(),
+      UserId: (user._id as unknown as Types.ObjectId).toString(),
       email: user.email,
     };
 
     const AccessToken =
-      await this._jwtTokenService.generateAccessToken(AccessPayload);
+      this._jwtTokenService.generateAccessToken(AccessPayload);
     const RefreshToken =
-      await this._jwtTokenService.generateRefreshToken(RefreshPayload);
+      this._jwtTokenService.generateRefreshToken(RefreshPayload);
 
     setJwtCookie(
       res,
@@ -179,10 +191,10 @@ export class AuthService implements IAuthService {
       7 * 24 * 60 * 60 * 1000,
     );
 
-    const mappedData = plainToInstance(ResponseRegisterDto, user);
+    const mappedData = plainToInstance(userDto, user);
 
     return {
-      message:MESSAGES.AUTH.LOGIN_SUCCESS,
+      message: MESSAGES.AUTH.LOGIN_SUCCESS,
       data: mappedData,
     };
   }
@@ -192,7 +204,7 @@ export class AuthService implements IAuthService {
   async registerCandidate(
     dto: RegisterCandidateDto,
   ): Promise<RegisterResponce> {
-    const existingUser = await this.authRepository.findByEmail(dto.email);
+    const existingUser = await this._authRepository.findByEmail(dto.email);
     if (existingUser) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
@@ -217,7 +229,7 @@ export class AuthService implements IAuthService {
         ),
       });
 
-      this._emailService.sendVerificationEmail(
+      await this._emailService.sendVerificationEmail(
         newUser.email,
         verificationToken,
       );
@@ -249,9 +261,9 @@ export class AuthService implements IAuthService {
       email,
       password: hashPassword,
       role: role,
-    };
+    } as UserDocument;
     this._logger.log(`Creating new candidate: ${email}`);
-    return this.authRepository.create(newUser);
+    return await this._authRepository.create(newUser);
   }
 
   // Email verification  (Registration Process)
@@ -271,14 +283,14 @@ export class AuthService implements IAuthService {
       );
     } catch (error) {
       this._logger.error(
-        `Email verification failed: Invalid or expired token - ${error.message}`,
+        `Email verification failed: Invalid or expired token - ${error}`,
       );
       throw new BadRequestException(
         MESSAGES.AUTH.VERIFICATION_LINK_INVALID_OR_EXPIRED,
       );
     }
 
-    const user = await this.authRepository.findById(payload.UserId);
+    const user = await this._authRepository.findById(payload.UserId);
 
     if (!user) {
       this._logger.warn(
@@ -292,7 +304,7 @@ export class AuthService implements IAuthService {
       throw new BadRequestException(MESSAGES.AUTH.EMAIL_ALREADY_VERIFIED);
     }
 
-    const verifieduser = await this.authRepository.updateVerificationStatus(
+    const verifieduser = await this._authRepository.updateVerificationStatus(
       user._id.toString(),
       true,
     );
@@ -302,27 +314,28 @@ export class AuthService implements IAuthService {
       name: verifieduser!.name,
     };
 
-    let newProfile;
+    let newProfile:
+      | CandidateProfileResponseDto
+      | CompanyProfileResponseDto
+      | undefined;
 
-    this._logger.log(`User ${verifieduser} successfully verified.`);
+    this._logger.log(
+      `User ${JSON.stringify(verifieduser)} successfully verified.`,
+    );
 
-    try {
-      if (user.role == UserRole.CANDIDATE) {
-        newProfile = await this._candidateService.createPorfile(profiledataDto);
-      } else if (user.role === UserRole.COMPANY_ADMIN) {
-        newProfile = await this._companyService.createProfile(profiledataDto);
-        if (newProfile) {
-          const finaldata = await this.authRepository.update(
-            { _id: newProfile.adminUserId },
-            { $set: { companyId: newProfile._id } },
-          );
-          this._logger.debug(
-            `[AuthService], completed company profile${finaldata}`,
-          );
-        }
+    if (user.role == UserRole.CANDIDATE) {
+      newProfile = await this._candidateService.createPorfile(profiledataDto);
+    } else if (user.role === UserRole.COMPANY_ADMIN) {
+      newProfile = await this._companyService.createProfile(profiledataDto);
+      if (newProfile) {
+        const finaldata = await this._authRepository.update(
+          { _id: newProfile.adminUserId },
+          { $set: { companyId: newProfile._id } },
+        );
+        this._logger.debug(
+          `[AuthService], completed company profile${JSON.stringify(finaldata)}`,
+        );
       }
-    } catch (error) {
-      throw error;
     }
 
     return {
@@ -333,10 +346,7 @@ export class AuthService implements IAuthService {
 
   // create new Access Token user RefreshTokens
 
-  async regenerateAccessToken(
-    paylod: UserDocument,
-    res: Response,
-  ): Promise<tokenresponce> {
+  regenerateAccessToken(paylod: UserDocument, res: Response): tokenresponce {
     const tokenPaylod: JwtAccessPayload = {
       UserId: paylod._id.toString(),
       email: paylod.email,
@@ -345,7 +355,7 @@ export class AuthService implements IAuthService {
     };
 
     const newAccessToken =
-      await this._jwtTokenService.generateAccessToken(tokenPaylod);
+      this._jwtTokenService.generateAccessToken(tokenPaylod);
 
     setJwtCookie(
       res,
@@ -366,7 +376,7 @@ export class AuthService implements IAuthService {
 
   async googleLogin(
     idToken: string,
-    role: string,
+    role: UserRole,
     res: Response,
   ): Promise<LoginResponce<userDto>> {
     this._logger.log(
@@ -380,7 +390,7 @@ export class AuthService implements IAuthService {
 
     const payload = ticket.getPayload();
     this._logger.log(
-      `[authService] get details from the google payload${payload}`,
+      `[authService] get details from the google payload${JSON.stringify(payload)}`,
     );
 
     if (!payload) {
@@ -396,38 +406,36 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_GOOGLE_TOKEN);
     }
 
-    let user = await this.authRepository.findCandidateByEmail(email);
+    let user: populatedpData | UserDocument | null;
 
-    user = user[0];
-    if (user && user.role !== role) {
+    user = await this._authRepository.findCandidateByEmail(email);
+
+    if (user.role !== role) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
 
     if (!user) {
-      user = await this.authRepository.create({
-        name: name,
+      user = await this._authRepository.create({
+        name: name!,
         email: email,
         googleId: googleId,
-        isVerified: isVerified,
+        isVerified: isVerified!,
         role: role,
-      });
+      } as UserDocument);
 
       if (!user) {
         throw new UnauthorizedException(MESSAGES.AUTH.PROFILE_CREATION_FAIILD);
       }
 
       const profiledata: CreateProfileDto = {
-        UserId: user!._id,
-        name: user!.name,
+        UserId: user._id.toString(),
+        name: user.name,
       };
 
-      try {
-        this._candidateService.createPorfile(profiledata);
-      } catch (error) {
-        throw error;
-      }
+      await this._candidateService.createPorfile(profiledata);
     } else {
-      if (!user.profile.isActive) {
+      const populatedUser = user as populatedpData;
+      if (!populatedUser.profile.isActive) {
         throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
       }
 
@@ -436,7 +444,7 @@ export class AuthService implements IAuthService {
           `Linking Google is To the Existinng User ${user.email}`,
         );
       }
-      user = await this.authRepository.UpdateGoogleId(
+      user = await this._authRepository.UpdateGoogleId(
         user._id.toString(),
         googleId,
       );
@@ -454,7 +462,7 @@ export class AuthService implements IAuthService {
     };
 
     const RefreshPayload: JwtRefreshPayload = {
-      UserId: user.id.toString(),
+      UserId: user._id.toString(),
       email: user.email,
     };
 
@@ -467,7 +475,7 @@ export class AuthService implements IAuthService {
       res,
       this._configService,
       'access_token',
-      accessToken!,
+      accessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
       7 * 24 * 60 * 60 * 1000,
@@ -477,17 +485,17 @@ export class AuthService implements IAuthService {
       res,
       this._configService,
       'refresh_token',
-      refreshToken!,
+      refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
       7 * 24 * 60 * 60 * 1000,
     );
 
-    const { profile, ...cleanedProfile } = user.toObject();
+    const mappedData = plainToInstance(userDto, user);
 
     return {
-      message:MESSAGES.AUTH.LOGIN_SUCCESS,
-      data: cleanedProfile,
+      message: MESSAGES.AUTH.LOGIN_SUCCESS,
+      data: mappedData,
     };
   }
 
@@ -497,13 +505,13 @@ export class AuthService implements IAuthService {
     id: string,
     googleId: string,
   ): Promise<UserDocument | null> {
-    return this.authRepository.UpdateGoogleId(id, googleId);
+    return this._authRepository.UpdateGoogleId(id, googleId);
   }
 
   async validateAdmin(dto: LoginDto): Promise<userDto> {
     this._logger.debug('[authService] adminLogin dto', dto);
 
-    const user = await this.authRepository.findUserbyEmailAndRole(
+    const user = await this._authRepository.findUserbyEmailAndRole(
       dto.email,
       dto.role,
     );
@@ -524,7 +532,18 @@ export class AuthService implements IAuthService {
     }
 
     this._logger.log(`User ${dto.email} successfully validated.`);
-    const mappedData = plainToInstance(userDto, user);
+
+    const mappedData = plainToInstance(
+      userDto,
+      {
+        ...user.toObject(),
+        _id: user._id.toString(),
+        companyId: user.companyId?.toString(),
+      },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
     return mappedData;
   }
 
@@ -539,7 +558,7 @@ export class AuthService implements IAuthService {
       dto,
     );
 
-    const user = await this.authRepository.findUserbyEmailAndRole(email, role);
+    const user = await this._authRepository.findUserbyEmailAndRole(email, role);
     this._logger.debug(
       '[authService] fetch user from db for udpateing password ',
       user,
@@ -560,12 +579,15 @@ export class AuthService implements IAuthService {
     };
 
     const verificationToken =
-      await this._jwtTokenService.GeneratePassResetToken(Tokenpayload);
+      this._jwtTokenService.GeneratePassResetToken(Tokenpayload);
     this._logger.debug(
       `[authService] create token for password updation${verificationToken}`,
     );
 
-    this._emailService.sendForgotPasswordEmail(user.email, verificationToken);
+    await this._emailService.sendForgotPasswordEmail(
+      user.email,
+      verificationToken,
+    );
 
     return {
       message: MESSAGES.AUTH.PASSWORD_RESET_LINK_SENT,
@@ -589,7 +611,7 @@ export class AuthService implements IAuthService {
       this._logger.log(`Verification token valid for user ID: ${payload.id}`);
     } catch (error) {
       this._logger.error(
-        `Email verification failed: Invalid or expired token - ${error.message}`,
+        `Email verification failed: Invalid or expired token - ${error}`,
       );
       throw new BadRequestException(
         MESSAGES.AUTH.VERIFICATION_LINK_INVALID_OR_EXPIRED,
@@ -598,7 +620,7 @@ export class AuthService implements IAuthService {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const updatedUser = await this.authRepository.update(
+    const updatedUser = await this._authRepository.update(
       { _id: payload.id },
       { $set: { password: hashPassword } },
     );
@@ -612,17 +634,19 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async companyUserLogin(dto: LoginDto, res: Response): Promise<LoginResponce<userDto>> {
+  async companyUserLogin(
+    dto: LoginDto,
+    res: Response,
+  ): Promise<LoginResponce<userDto>> {
     this._logger.log(`[AuthSevice] ComapnyUsers${dto.role}try to login`);
 
-    let user = await this.authRepository.findCompanyByEmail(dto.email);
-    user = user[0];
+    const user = await this._authRepository.findCompanyByEmail(dto.email);
 
     if (!user) {
       throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUD);
     }
-
-    if (!(await bcrypt.compare(dto.password, user.password!))) {
+    const compareResult = await bcrypt.compare(dto.password, user.password!);
+    if (!compareResult) {
       this._logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
@@ -642,27 +666,27 @@ export class AuthService implements IAuthService {
     }
 
     const jwtAccessPayload: JwtAccessPayload = {
-      UserId: user._id,
+      UserId: user._id.toString(),
       email: user.email,
       role: user.role,
-      profileId: user.companyId,
+      profileId: user.companyId?.toString(),
     };
 
     const RefreshPayload: JwtRefreshPayload = {
       email: user.email,
-      UserId: user._id,
+      UserId: user._id.toString(),
     };
 
     const accessToken =
-      await this._jwtTokenService.generateAccessToken(jwtAccessPayload);
+      this._jwtTokenService.generateAccessToken(jwtAccessPayload);
     const refreshToken =
-      await this._jwtTokenService.generateRefreshToken(RefreshPayload);
+      this._jwtTokenService.generateRefreshToken(RefreshPayload);
 
     setJwtCookie(
       res,
       this._configService,
       'access_token',
-      accessToken!,
+      accessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
       7 * 24 * 60 * 60 * 1000,
@@ -672,15 +696,15 @@ export class AuthService implements IAuthService {
       res,
       this._configService,
       'refresh_token',
-      refreshToken!,
+      refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
       7 * 24 * 60 * 60 * 1000,
     );
 
-    const mappedData = plainToInstance(ResponseRegisterDto, user);
+    const mappedData = plainToInstance(userDto, user);
     return {
-      message:MESSAGES.AUTH.LOGIN_SUCCESS,
+      message: MESSAGES.AUTH.LOGIN_SUCCESS,
       data: mappedData,
     };
   }
@@ -691,7 +715,7 @@ export class AuthService implements IAuthService {
     id: string,
     dto: InternalUserDto,
   ): Promise<UserResponceDto> {
-    const existinguser = await this.authRepository.findByEmail(dto.email);
+    const existinguser = await this._authRepository.findByEmail(dto.email);
 
     if (existinguser) {
       this._logger.log(`[AuthService] Email alredy Exist${dto.email}`);
@@ -707,11 +731,11 @@ export class AuthService implements IAuthService {
       password: hashedPassword,
       isVerified: true,
       companyId: new Types.ObjectId(id),
-    };
+    } as UserDocument;
 
-    const data = await this.authRepository.create(newUser);
+    const data = await this._authRepository.create(newUser);
     this._logger.log(
-      `[comapnyService] new company member is added${data.toJSON()}`,
+      `[comapnyService] new company member is added${JSON.stringify(data)}`,
     );
 
     const mappedData = plainToInstance(
@@ -735,23 +759,23 @@ export class AuthService implements IAuthService {
     if (search) {
       filter.$or = [
         { name: { $regex: `^${search}`, $options: 'i' } },
-        { role: { $regex: `^${search}`, $options: 'i' } }
+        { role: { $regex: `^${search}`, $options: 'i' } },
       ];
     }
 
-    if(filtervalue){
-      filter.role ={$regex: `^${filtervalue}`,$options: 'i' };
+    if (filtervalue) {
+      filter.role = { $regex: `^${filtervalue}`, $options: 'i' };
     }
 
     const companyId = new Types.ObjectId(id);
     filter.companyId = companyId;
 
     this._logger.log(
-      `[AuthService] comapny id for get internal users :${id} Serchquery ${filter} and filterQuery: ${filtervalue}`,
+      `[AuthService] comapny id for get internal users :${id} Serchquery ${JSON.stringify(filter)} and filterQuery: ${filtervalue}`,
     );
     const skip = (page - 1) * limit;
 
-    const { data, total } = await this.authRepository.findManyWithPagination(
+    const { data, total } = await this._authRepository.findManyWithPagination(
       filter,
       {
         skip,
@@ -760,7 +784,7 @@ export class AuthService implements IAuthService {
     );
     const plaindata = data.map((val) => val.toJSON());
 
-    const mappedData = plainToInstance(UserResponceDto, data);
+    const mappedData = plainToInstance(UserResponceDto, plaindata);
     const totalPages = Math.ceil(total / limit);
     return {
       data: mappedData,
@@ -776,9 +800,11 @@ export class AuthService implements IAuthService {
 
   async getUserProfile(id: string): Promise<UserResponceDto> {
     this._logger.log('[AuthService] geting Company active userprofile', id);
-    const data = await this.authRepository.findById(id);
+    const data = await this._authRepository.findById(id);
     const mappedData = plainToInstance(UserResponceDto, data?.toJSON());
-    this._logger.debug(`[AuthService] profile details gets${mappedData}`);
+    this._logger.debug(
+      `[AuthService] profile details gets${JSON.stringify(mappedData)}`,
+    );
     return mappedData;
   }
 
@@ -788,9 +814,11 @@ export class AuthService implements IAuthService {
     id: string,
     dto: UpdateInternalUserDto,
   ): Promise<UserResponceDto> {
-    const data = await this.authRepository.update({ _id: id }, { $set: dto });
+    const data = await this._authRepository.update({ _id: id }, { $set: dto });
     const mappedData = plainToInstance(UserResponceDto, data?.toJSON());
-    this._logger.debug(`[AuthService] User profile updated ${mappedData}`);
+    this._logger.debug(
+      `[AuthService] User profile updated ${JSON.stringify(mappedData)}`,
+    );
     return mappedData;
   }
 
@@ -803,7 +831,7 @@ export class AuthService implements IAuthService {
     this._logger.log(
       `[AuthsService] Try to Update password id: ${id} newPass : ${dto.newPass}`,
     );
-    const User = await this.authRepository.findById(id);
+    const User = await this._authRepository.findById(id);
 
     if (!User) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUD);
@@ -819,7 +847,7 @@ export class AuthService implements IAuthService {
       throw new ForbiddenException(MESSAGES.AUTH.PASSWORD_MISMATCH_ERROR);
     }
     const newHashedPassword = await bcrypt.hash(dto.newPass, 10);
-    await this.authRepository.update(
+    await this._authRepository.update(
       { _id: id },
       { $set: { password: newHashedPassword } },
     );

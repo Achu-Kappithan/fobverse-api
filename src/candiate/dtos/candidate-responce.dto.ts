@@ -1,5 +1,4 @@
-import { Exclude, Expose} from 'class-transformer';
-
+import { Exclude, Expose } from 'class-transformer';
 
 export class CandidateProfileResponseDto {
   @Expose()
@@ -12,7 +11,7 @@ export class CandidateProfileResponseDto {
   name: string;
 
   @Expose()
-  aboutme:string
+  aboutme: string;
 
   @Expose()
   isActive: boolean;
@@ -21,7 +20,7 @@ export class CandidateProfileResponseDto {
   profileUrl?: string;
 
   @Expose()
-  coverUrl?:string;
+  coverUrl?: string;
 
   @Expose()
   contactInfo?: { type: string; value: string }[];

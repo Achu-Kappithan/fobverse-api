@@ -1,12 +1,6 @@
-
-
-import {
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateCandidateProfileDto {
-
   @IsString()
   name: string;
 
@@ -14,10 +8,10 @@ export class UpdateCandidateProfileDto {
   profileUrl?: string;
 
   @IsOptional()
-  aboutme?:string
+  aboutme?: string;
 
   @IsOptional()
-  coverUrl?:string;
+  coverUrl?: string;
 
   @IsOptional()
   contactInfo?: { type: string; value: string }[];
@@ -27,7 +21,7 @@ export class UpdateCandidateProfileDto {
 
   @IsOptional()
   skills?: string[];
-  
+
   @IsOptional()
   experience?: string[];
 

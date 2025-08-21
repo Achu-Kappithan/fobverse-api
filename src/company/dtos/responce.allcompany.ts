@@ -1,7 +1,6 @@
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Types } from 'mongoose';
 
-
 export class TeamMemberResponceDto {
   @Expose()
   name: string;
@@ -44,10 +43,10 @@ export class CompanyProfileResponseDto {
   techStack?: string[];
 
   @Expose()
-  imageGallery:string[]
+  imageGallery: string[];
 
   @Expose()
-  benafits?:string[]
+  benafits?: string[];
 
   @Expose()
   logoUrl?: string;
@@ -67,20 +66,20 @@ export class CompanyProfileResponseDto {
   @Expose()
   @Type(() => TeamMemberResponceDto)
   teamMembers?: TeamMemberResponceDto[];
-
 }
 
-
-
 export class UserResponceDto {
-  @Expose({ name: 'id' }) 
-  @Transform(({ value }) => {
-    if (value instanceof Types.ObjectId) {
-      return value.toString();
-    }
-    return value; 
-  }, { toPlainOnly: true }) 
-  _id: string; 
+  @Expose({ name: 'id' })
+  @Transform(
+    ({ value }) => {
+      if (value instanceof Types.ObjectId) {
+        return value.toString();
+      }
+      return String(value);
+    },
+    { toPlainOnly: true },
+  )
+  _id: string;
 
   @Expose()
   name: string;
@@ -98,5 +97,5 @@ export class UserResponceDto {
   googleId: string;
 
   @Exclude()
-  __v: number; 
+  __v: number;
 }

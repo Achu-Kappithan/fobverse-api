@@ -11,10 +11,10 @@ export class EmailService {
   private readonly _logger = new Logger(EmailService.name);
 
   constructor(private readonly _confiService: ConfigService) {
-    ((this._frontendUrl = this._confiService.get<string>('FRONTEND_URL') ?? ''),
-      (this._senderEmail =
-        this._confiService.get<string>('EMAIL_USER') ??
-        'fobverseweb@gmail.com'));
+    this._frontendUrl = this._confiService.get<string>('FRONTEND_URL') ?? '';
+    this._senderEmail =
+      this._confiService.get<string>('EMAIL_USER') ?? 'fobverseweb@gmail.com';
+
     this._transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -40,11 +40,13 @@ export class EmailService {
     try {
       await this._transporter.sendMail(mailOptions);
       this._logger.log(`Verification email sent to ${to}`);
-    } catch (error) {
-      this._logger.error(
-        `Failed to send verification email to ${to}: ${error.message}`,
-        error.stack,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this._logger.error(
+          `Failed to send verification email to ${to}: ${error.message}`,
+          error.stack,
+        );
+      }
       throw new Error(
         'Could not send verification email. Please try again later.',
       );
@@ -109,7 +111,7 @@ export class EmailService {
     await this.sendEmail(to, subject, htmlContent);
   }
 
-  async sendForgotPasswordEmail(to:string, token:string):Promise<void> {
+  async sendForgotPasswordEmail(to: string, token: string): Promise<void> {
     const resetLink = `${this._frontendUrl}/forgotpassword/newpassword?token=${token}`;
     const subject = 'Verify Your Email Address for FobVerse';
     const htmlContent = `<div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
@@ -157,9 +159,8 @@ export class EmailService {
                   </td>
               </tr>
           </table>
-      </div>`
+      </div>`;
 
-      await this.sendEmail(to,subject,htmlContent)
-
+    await this.sendEmail(to, subject, htmlContent);
   }
 }

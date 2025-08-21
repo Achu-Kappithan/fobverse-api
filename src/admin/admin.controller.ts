@@ -15,11 +15,12 @@ import {
   PlainResponse,
 } from './interfaces/responce.interface';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { CompanyProfileResponseDto, UserResponceDto } from '../company/dtos/responce.allcompany';
-import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
 import {
-  AllJobsAdminResponce,
-} from '../jobs/dtos/responce.job.dto';
+  CompanyProfileResponseDto,
+  UserResponceDto,
+} from '../company/dtos/responce.allcompany';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { AllJobsAdminResponce } from '../jobs/dtos/responce.job.dto';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { Request as ERequest } from 'express';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
@@ -78,27 +79,29 @@ export class AdminController {
   @Get('profile')
   @UseGuards(AuthGuard('access_token'))
   async getProfie(
-    @Request() req:ERequest
-  ):Promise<ApiResponce<UserResponceDto>>{
-    return this._adminService.getAdminProfile(req.user._id.toString())
+    @Request() request: ERequest,
+  ): Promise<ApiResponce<UserResponceDto>> {
+    const user = request.user as { _id: string };
+    return this._adminService.getAdminProfile(user._id.toString());
   }
 
   @Post('updatepassword')
   @UseGuards(AuthGuard('access_token'))
   async UpdatePassword(
-      @Body() dto:changePassDto,
-      @Request() req:ERequest
-  ):Promise<generalResponce>{
-      return await this._adminService.updatePassword(req.user!._id.toString(),dto)
+    @Body() dto: changePassDto,
+    @Request() req: ERequest,
+  ): Promise<generalResponce> {
+    const user = req.user as { _id: string };
+    return await this._adminService.updatePassword(user._id.toString(), dto);
   }
 
   @Post('updateprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateUserProfile(
-    @Body() dto:UpdateAdminProfileDto,
-    @Request() req:ERequest
-  ):Promise<ApiResponce<UserResponceDto>>{
-    const user = req.user
-    return this._adminService.upateUserProfile(user!._id.toString(),dto)
+    @Body() dto: UpdateAdminProfileDto,
+    @Request() req: ERequest,
+  ): Promise<ApiResponce<UserResponceDto>> {
+    const user = req.user as { _id: string };
+    return this._adminService.upateUserProfile(user._id.toString(), dto);
   }
 }

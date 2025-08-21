@@ -9,6 +9,12 @@ import {
 import { Request, Response } from 'express';
 import { ErrorApiResponse } from '../responses/api.response';
 
+interface ErrorDetails {
+  validationErrors?: string[];
+  originalErrorMessage?: string;
+  [key: string]: unknown; // allow additional props
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly _logger = new Logger(HttpExceptionFilter.name);
@@ -18,10 +24,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status: HttpStatus;
+    let status: number;
     let frontendMessage: string;
     let errorName: string;
-    const details: any = {};
+    const details: ErrorDetails = {};
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -51,7 +57,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         errorName = responseObj.error || exception.name;
 
-        const { message, error, statusCode: _, ...restDetails } = responseObj;
+        const { ...restDetails } = responseObj;
         Object.assign(details, restDetails);
       } else {
         frontendMessage = `HTTP Error ${status}`;

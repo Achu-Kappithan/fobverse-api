@@ -20,7 +20,7 @@ import { CompanyModule } from '../company/company.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema  }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -30,7 +30,7 @@ import { CompanyModule } from '../company/company.module';
     ConfigModule,
     CandiateModule,
     EmailModule,
-    forwardRef(()=>CompanyModule)
+    forwardRef(() => CompanyModule),
   ],
   providers: [
     {
@@ -47,6 +47,6 @@ import { CompanyModule } from '../company/company.module';
     JwtTokenService,
   ],
   controllers: [AuthController],
-  exports: [AUTH_SERVICE,AUTH_REPOSITORY],
+  exports: [AUTH_SERVICE, AUTH_REPOSITORY],
 })
 export class AuthModule {}

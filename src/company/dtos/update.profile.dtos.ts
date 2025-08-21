@@ -3,7 +3,6 @@ import { CreateProfileDto } from './create.profile.dto';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { UserRole } from '../../auth/schema/user.schema';
 
-
 export class TeamMemberDto {
   @IsNotEmpty()
   @IsString()
@@ -17,8 +16,6 @@ export class TeamMemberDto {
   image?: string;
 }
 
-
-
 export class InternalUserDto {
   @IsNotEmpty()
   email: string;
@@ -27,7 +24,7 @@ export class InternalUserDto {
   password: string;
 
   @IsNotEmpty()
-  role: UserRole
+  role: UserRole;
 
   @IsNotEmpty()
   name: string;
@@ -38,16 +35,15 @@ export class InternalUserDto {
 
 export class UpdateInternalUserDto {
   @IsNotEmpty()
-  email:string
+  email: string;
 
   @IsNotEmpty()
-  name:string
+  name: string;
 
   @IsOptional()
   @IsNotEmpty()
-  profileImg:string
+  profileImg: string;
 }
-
 
 export class UpdateProfileDto extends PartialType(CreateProfileDto) {
   name: string;
@@ -62,7 +58,7 @@ export class UpdateProfileDto extends PartialType(CreateProfileDto) {
   techStack?: string[];
 
   @IsOptional()
-  imageGallery?:string[]
+  imageGallery?: string[];
 
   @IsOptional()
   teamMembers?: TeamMemberDto[];
@@ -71,7 +67,7 @@ export class UpdateProfileDto extends PartialType(CreateProfileDto) {
   internalUsers?: InternalUserDto[];
 
   @IsOptional()
-  benafits?:string[]
+  benafits?: string[];
 
   @IsOptional()
   logoUrl?: string;
@@ -81,23 +77,14 @@ export class UpdateProfileDto extends PartialType(CreateProfileDto) {
 
   @IsOptional()
   contactInfo?: { type: string; value: string }[];
-
 }
-
 
 export class changePassDto {
+  @IsNotEmpty()
+  @IsString()
+  currPass: string;
 
   @IsNotEmpty()
   @IsString()
-  currPass:string
-
-  @IsNotEmpty()
-  @IsString()
-  newPass:string
+  newPass: string;
 }
-
-
-
-
-
-

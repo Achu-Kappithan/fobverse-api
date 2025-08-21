@@ -1,16 +1,18 @@
-import { Model, Document, FilterQuery, UpdateQuery } from 'mongoose';
+import { Model, Document, FilterQuery, UpdateQuery, Types } from 'mongoose';
 import { IBaseRepository } from '../interface/base-repository.interface';
 
 export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   constructor(private readonly model: Model<T>) {}
 
-  async create(document: T | any): Promise<T> {
+  async create(document: T | Partial<T>): Promise<T> {
     const createdModel = new this.model(document);
     return createdModel.save();
   }
 
   async findById(id: string): Promise<T | null> {
-    return this.model.findById(id).exec();
+    const userId = new Types.ObjectId(id);
+    const user = await this.model.findById(userId).exec();
+    return user;
   }
 
   async findOne(filter: FilterQuery<T>): Promise<T | null> {
@@ -32,14 +34,14 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     return this.model.findOneAndDelete(filter).exec();
   }
 
- async findManyWithPagination(
+  async findManyWithPagination(
     filter: FilterQuery<T> = {},
     options?: {
       limit?: number;
       skip?: number;
       sort?: Record<string, -1 | 1>;
       projection?: any;
-    }
+    },
   ): Promise<{ data: T[]; total: number }> {
     const query = this.model.find(filter, options?.projection);
 
@@ -58,7 +60,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
 
     const [data, total] = await Promise.all([
       query.exec(),
-      this.model.countDocuments(filter).exec(), 
+      this.model.countDocuments(filter).exec(),
     ]);
 
     return { data, total };

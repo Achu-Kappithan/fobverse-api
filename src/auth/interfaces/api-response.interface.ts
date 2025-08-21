@@ -1,8 +1,10 @@
-import { UserDocument } from "../schema/user.schema";
+import { CandidateProfileDocument } from '../../candiate/schema/candidate.profile.schema';
+import { CompanyProfileDocument } from '../../company/schema/company.profile.schema';
+import { UserDocument } from '../schema/user.schema';
 
 export interface LoginResponce<T> {
-  data: T
-  message:string
+  data: T;
+  message: string;
 }
 
 export interface RegisterResponce {
@@ -22,5 +24,13 @@ export interface tokenresponce {
 }
 
 export interface generalResponce {
-  message:string
+  message: string;
 }
+
+export type populatedpData = UserDocument & {
+  profile: CandidateProfileDocument;
+};
+
+export type PopulatedCompany = UserDocument & {
+  profile: CompanyProfileDocument;
+};

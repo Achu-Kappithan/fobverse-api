@@ -25,16 +25,19 @@ export class jwtRefreshStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
+        (request: Request): string | null => {
           this.logger.debug(
             `[ExtractJwt] Full request.cookies object: ${JSON.stringify(request?.cookies)}`,
           );
-          const token = request?.cookies?.['refresh_token'];
+          const token: string | null =
+            (request?.cookies as Record<string, string> | undefined)?.[
+              'refresh_token'
+            ] ?? null;
           if (!token) {
             this.logger.warn(`[ExtractJwt] No refresh_Token found in cookie.`);
           }
           return token;
-        }, 
+        },
       ]),
       ignoreExpiration: false,
       secretOrKey: _configService.get<string>('JWT_REFRESH_SECRET') || '',

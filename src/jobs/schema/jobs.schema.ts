@@ -5,15 +5,15 @@ export enum jobType {
   FullTime = 'fulltime',
   PartTmime = 'parttime',
   Remote = 'remote',
-  OnSite = 'onsite'
+  OnSite = 'onsite',
 }
 
-export type JobsDocument = HydratedDocument<Jobs>
+export type JobsDocument = HydratedDocument<Jobs>;
 
 @Schema({ timestamps: true })
 export class Jobs {
-  @Prop({ type: Types.ObjectId, ref: 'CompanyProfile', required: true})
-  companyId: Types.ObjectId | { _id: Types.ObjectId; name: string }
+  @Prop({ type: Types.ObjectId, ref: 'CompanyProfile', required: true })
+  companyId: Types.ObjectId | { _id: Types.ObjectId; name: string };
 
   @Prop({ required: true })
   title: string;
@@ -21,11 +21,11 @@ export class Jobs {
   @Prop({ required: true })
   description: string;
 
-  @Prop({required:true})
-  responsibility:string 
-  
-  @Prop({required:true,enum:Object.values(jobType)})
-  jobType:jobType
+  @Prop({ required: true })
+  responsibility: string;
+
+  @Prop({ required: true, enum: Object.values(jobType) })
+  jobType: jobType;
 
   @Prop({ type: [String], required: true })
   skills: string[];
@@ -37,7 +37,7 @@ export class Jobs {
       min: { type: Number, required: true },
       max: { type: Number, required: true },
     },
-    _id: false,  
+    _id: false,
     required: true,
   })
   salary: { min: number; max: number };
@@ -46,14 +46,13 @@ export class Jobs {
   location: string[];
 
   @Prop({ required: true })
-  vacancies: number;
+  vacancies: string;
 
-  @Prop({required:true})
-  dueDate:string
+  @Prop({ required: true })
+  dueDate: string;
 
-  @Prop({default:true})
-  activeStatus:boolean
-
+  @Prop({ default: true })
+  activeStatus: boolean;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Jobs);

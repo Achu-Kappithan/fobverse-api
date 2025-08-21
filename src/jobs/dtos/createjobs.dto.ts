@@ -1,52 +1,51 @@
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { jobType } from "../schema/jobs.schema";
-import { Type } from "class-transformer";
+import { IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { jobType } from '../schema/jobs.schema';
+import { Type } from 'class-transformer';
 
 export class JobsDto {
-    @IsNotEmpty()
-    @IsString()
-    title:string
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsNotEmpty()
-    description:string
+  @IsNotEmpty()
+  description: string;
 
-    @IsNotEmpty()
-    responsibility:string
+  @IsNotEmpty()
+  responsibility: string;
 
-    @IsNotEmpty()
-    jobType:jobType
+  @IsNotEmpty()
+  jobType: jobType;
 
-    @IsNotEmpty()
-    @IsString({each:true})
-    skills:string[]
+  @IsNotEmpty()
+  @IsString({ each: true })
+  skills: string[];
 
-    @IsOptional({})
-    experience?:string[]
+  @IsOptional({})
+  experience?: string[];
 
-    @IsNotEmpty()
-    salary:{min:number,max:number}
+  @IsNotEmpty()
+  salary: { min: number; max: number };
 
-    @IsNotEmpty()
-    location:string
+  @IsNotEmpty()
+  location: string[];
 
-    @IsNotEmpty()
-    dueDate?:string
+  @IsNotEmpty()
+  dueDate?: string;
 
-    @IsNotEmpty()
-    vacancies:string
-
+  @IsNotEmpty()
+  vacancies: string;
 }
 
 export class jobsPagesAndFilterDto {
   @IsOptional()
   @Min(1)
-  @Type(()=> Number)
-  page?:number = 1
+  @Type(() => Number)
+  page?: number = 1;
 
   @IsOptional()
   @Min(1)
-  @Type(()=> Number)
-  limit?:number = 6
+  @Type(() => Number)
+  limit?: number = 6;
 
   @IsOptional()
   @IsString()
@@ -57,11 +56,11 @@ export class jobsPagesAndFilterDto {
   jobType?: string[];
 
   @IsOptional()
-  @Type(()=>Number)
+  @Type(() => Number)
   minSalary?: number;
 
   @IsOptional()
-  @Type(()=>Number)
+  @Type(() => Number)
   maxSalary?: number;
 
   @IsOptional()
@@ -70,5 +69,5 @@ export class jobsPagesAndFilterDto {
 
   @IsOptional()
   @IsString()
-  activeStatus?: string; 
+  activeStatus?: string;
 }

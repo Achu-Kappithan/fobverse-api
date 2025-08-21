@@ -6,7 +6,7 @@ export class ResponseRegisterDto {
   _id: ObjectId;
 
   @Expose()
-  companyId:ObjectId
+  companyId: ObjectId;
 
   @Expose()
   name: string;
@@ -24,7 +24,7 @@ export class ResponseRegisterDto {
   googleId: string;
 
   @Expose()
-  profileImg?:string
+  profileImg?: string;
 
   @Exclude()
   __v: string;

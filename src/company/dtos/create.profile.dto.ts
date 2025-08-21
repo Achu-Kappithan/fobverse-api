@@ -1,5 +1,10 @@
-
-import { IsNotEmpty, IsMongoId, IsString, IsEmail, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsMongoId,
+  IsString,
+  IsEmail,
+  MinLength,
+} from 'class-validator';
 
 export class CreateProfileDto {
   @IsMongoId()
@@ -9,8 +14,7 @@ export class CreateProfileDto {
   name: string;
 }
 
-
-export class CoamapnyUserDto  {
+export class CoamapnyUserDto {
   @IsNotEmpty()
   @IsString()
   name: string;

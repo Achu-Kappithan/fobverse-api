@@ -27,7 +27,10 @@ export class JwtAccessStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          const token = request?.cookies?.['access_token'];
+          const token: string | null =
+            (request?.cookies as Record<string, string> | undefined)?.[
+              'access_token'
+            ] ?? null;
           this.logger.log(`[jwtStratagy] jwt token from cookies${token}`);
           if (!token) {
             this.logger.warn(`[ExtractJwt] No access_token found in cookie.`);
@@ -41,7 +44,7 @@ export class JwtAccessStrategy extends PassportStrategy(
   }
 
   async validate(payload: JwtAccessPayload): Promise<UserDocument> {
-    this.logger.debug(
+    this.logger.log(
       `[Validate] JwtAccessStrategy validate method called with payload: ${JSON.stringify(payload)}`,
     );
 
@@ -57,9 +60,9 @@ export class JwtAccessStrategy extends PassportStrategy(
 
     if (!user) {
       this.logger.warn(
-        `[Validate] Candidate not found in DB for userId: ${payload.UserId}`,
+        `[Validate] user not found in DB for userId: ${payload.UserId}`,
       );
-      throw new UnauthorizedException('Access denied: Candidate not found.');
+      throw new UnauthorizedException('Access denied: user not found.');
     }
 
     if (!user.isVerified) {
