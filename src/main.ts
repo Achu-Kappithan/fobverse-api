@@ -13,9 +13,11 @@ async function bootstrap() {
     bufferLogs: true,
   });
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+  const configService = app.get(ConfigService);
+  const clientUrl = configService.get<string>('CLIENT_URL');
 
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: clientUrl,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: 'Content-Type, Authorization',
@@ -40,7 +42,6 @@ async function bootstrap() {
     new ResponseInterceptor(),
   );
 
-  const configService = app.get(ConfigService);
   const port = configService.get<string>('PORT') ?? 3009;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);

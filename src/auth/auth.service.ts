@@ -171,6 +171,13 @@ export class AuthService implements IAuthService {
     const RefreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
 
+    const accessTokenExpiresIn = this._configService.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+    );
+    const refreshTokenExpiresIn = this._configService.get<string>(
+      'JWT_REFRESH_EXPIRES_IN',
+    );
+
     setJwtCookie(
       res,
       this._configService,
@@ -178,7 +185,7 @@ export class AuthService implements IAuthService {
       AccessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(accessTokenExpiresIn!),
     );
 
     setJwtCookie(
@@ -188,7 +195,7 @@ export class AuthService implements IAuthService {
       RefreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(refreshTokenExpiresIn!),
     );
 
     const mappedData = plainToInstance(userDto, user);
@@ -357,6 +364,10 @@ export class AuthService implements IAuthService {
     const newAccessToken =
       this._jwtTokenService.generateAccessToken(tokenPaylod);
 
+    const accessTokenExpiresIn = this._configService.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+    );
+
     setJwtCookie(
       res,
       this._configService,
@@ -364,7 +375,7 @@ export class AuthService implements IAuthService {
       newAccessToken,
       'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
       true,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(accessTokenExpiresIn!),
     );
 
     return {
@@ -409,8 +420,9 @@ export class AuthService implements IAuthService {
     let user: populatedpData | UserDocument | null;
 
     user = await this._authRepository.findCandidateByEmail(email);
+    console.log('get candiate usering email ', user);
 
-    if (user.role !== role) {
+    if (user && user.role !== role) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
 
@@ -471,6 +483,13 @@ export class AuthService implements IAuthService {
     const refreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
 
+    const accessTokenExpiresIn = this._configService.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+    );
+    const refreshTokenExpiresIn = this._configService.get<string>(
+      'JWT_REFRESH_EXPIRES_IN',
+    );
+
     setJwtCookie(
       res,
       this._configService,
@@ -478,7 +497,7 @@ export class AuthService implements IAuthService {
       accessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(accessTokenExpiresIn!),
     );
 
     setJwtCookie(
@@ -488,7 +507,7 @@ export class AuthService implements IAuthService {
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(refreshTokenExpiresIn!),
     );
 
     const mappedData = plainToInstance(userDto, user);
@@ -682,6 +701,13 @@ export class AuthService implements IAuthService {
     const refreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
 
+    const accessTokenExpiresIn = this._configService.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+    );
+    const refreshTokenExpiresIn = this._configService.get<string>(
+      'JWT_REFRESH_EXPIRES_IN',
+    );
+
     setJwtCookie(
       res,
       this._configService,
@@ -689,7 +715,7 @@ export class AuthService implements IAuthService {
       accessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(accessTokenExpiresIn!),
     );
 
     setJwtCookie(
@@ -699,7 +725,7 @@ export class AuthService implements IAuthService {
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
-      7 * 24 * 60 * 60 * 1000,
+      parseInt(refreshTokenExpiresIn!),
     );
 
     const mappedData = plainToInstance(userDto, user);
