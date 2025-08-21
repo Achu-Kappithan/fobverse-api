@@ -21,27 +21,12 @@ export const loggerConfig = (env: string): WinstonModuleOptions => {
   if (env === 'production' || env === 'development') {
     transports.push(
       new DailyRotateFile({
-        filename: 'logs/application-%DATE%.log',
-        datePattern: 'YYYY-MM-DD',
-        zippedArchive: true,
-        maxSize: '20m',
-        maxFiles: '14d',
-        level: 'info',
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.json(),
-        ),
-      }),
-    );
-
-    transports.push(
-      new DailyRotateFile({
-        filename: 'logs/application-%DATE%.log',
-        datePattern: 'YYYY-MM-DD',
-        zippedArchive: true,
-        maxSize: '20m',
-        maxFiles: '14d',
-        level: 'info',
+        filename: process.env.LOG_FILE_NAME || 'logs/application-%DATE%.log',
+        datePattern: process.env.LOG_DATE_PATTERN || 'YYYY-MM-DD',
+        zippedArchive: process.env.LOG_ZIPPED_ARCHIVE === 'true',
+        maxSize: process.env.LOG_MAX_SIZE || '20m',
+        maxFiles: process.env.LOG_MAX_FILES || '14d',
+        level: process.env.LOG_LEVEL || 'info',
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.json(),

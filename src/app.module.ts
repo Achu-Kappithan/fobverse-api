@@ -15,7 +15,7 @@ import { JobsModule } from './jobs/jobs.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
