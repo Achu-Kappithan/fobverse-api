@@ -1,20 +1,17 @@
-
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
-@Schema({ _id: false }) 
+@Schema({ _id: false })
 export class ContactItem {
   @Prop({ required: true })
   type: string;
   @Prop({ required: true })
-  value: string; 
+  value: string;
 }
 
 export const ContactItemSchema = SchemaFactory.createForClass(ContactItem);
 
 export type CandidateProfileDocument = HydratedDocument<CandidateProfile>;
-
 
 @Schema({ timestamps: true })
 export class CandidateProfile {
@@ -25,7 +22,7 @@ export class CandidateProfile {
   name: string;
 
   @Prop()
-  aboutme:string
+  aboutme: string;
 
   @Prop({ default: true })
   isActive: boolean;
@@ -51,8 +48,9 @@ export class CandidateProfile {
   @Prop()
   resumeUrl?: string;
 
-  @Prop({ type: [String], default: [] }) 
-  portfolioLinks?: string[]
+  @Prop({ type: [String], default: [] })
+  portfolioLinks?: string[];
 }
 
-export const CandidateProfileSchema = SchemaFactory.createForClass(CandidateProfile);
+export const CandidateProfileSchema =
+  SchemaFactory.createForClass(CandidateProfile);

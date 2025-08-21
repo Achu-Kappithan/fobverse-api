@@ -8,20 +8,14 @@ import { JobsModule } from '../jobs/jobs.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports:[
-    CompanyModule,
-    CandiateModule,
-    JobsModule,
-    AuthModule
-  ],
+  imports: [CompanyModule, CandiateModule, JobsModule, AuthModule],
   controllers: [AdminController],
   providers: [
     {
-      provide:ADMIN_SERVICE,
-      useClass: AdminService
+      provide: ADMIN_SERVICE,
+      useClass: AdminService,
     },
-
   ],
-  exports:[ADMIN_SERVICE]
+  exports: [ADMIN_SERVICE],
 })
 export class AdminModule {}

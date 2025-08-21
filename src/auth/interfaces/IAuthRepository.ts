@@ -1,6 +1,7 @@
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { UserDocument } from '../schema/user.schema';
 import { Types } from 'mongoose';
+import { PopulatedCompany, populatedpData } from './api-response.interface';
 
 export interface IAuthRepository extends IBaseRepository<UserDocument> {
   findByEmail(email: string): Promise<UserDocument | null>;
@@ -11,17 +12,17 @@ export interface IAuthRepository extends IBaseRepository<UserDocument> {
   ): Promise<UserDocument | null>;
 
   UpdateGoogleId(id: string, googleid: string): Promise<UserDocument | null>;
-  
+
   findUserbyEmailAndRole(
     email: string,
     role: string,
   ): Promise<UserDocument | null>;
 
-  findCandidateByEmail(email:string):Promise<any>
+  findCandidateByEmail(email: string): Promise<populatedpData>;
 
-  findCompanyByEmail(email:string):Promise<any>
+  findCompanyByEmail(email: string): Promise<PopulatedCompany>;
 
-  findInternalUsers(companyId:Types.ObjectId):Promise<UserDocument[]>
+  findInternalUsers(companyId: Types.ObjectId): Promise<UserDocument[]>;
 }
 
 export const AUTH_REPOSITORY = 'AUTH_REPOSITORY';

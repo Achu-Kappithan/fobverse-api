@@ -14,13 +14,23 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AUTH_SERVICE, IAuthService } from './interfaces/IAuthCandiateService';
-import { forgotPasswordDto, LoginDto, UpdatePasswordDto } from './dto/login.dto';
+import {
+  forgotPasswordDto,
+  LoginDto,
+  UpdatePasswordDto,
+} from './dto/login.dto';
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ERequest, Response } from 'express';
-import { generalResponce, LoginResponce, tokenresponce } from './interfaces/api-response.interface';
+import {
+  generalResponce,
+  LoginResponce,
+  tokenresponce,
+} from './interfaces/api-response.interface';
 import { userDto } from './dto/user.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
+import { CurrentUserDto } from '../shared/dtos/userresponce.dto';
+import { UserDocument } from './schema/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -30,76 +40,73 @@ export class AuthController {
     private readonly _authService: IAuthService,
   ) {}
 
-
   @Get('profile')
-  getProfile(@Request() req:ERequest) {
+  getProfile(@Request() req: ERequest) {
+    const user = req.user as { email: string };
     return {
-      message: `Welcome, ${req.user!.email}! This is a protected resource.`,
-      user: req.user,
+      message: `Welcome, ${user.email}! This is a protected resource.`,
+      user: user,
     };
   }
 
-
   @Post('/register')
   @HttpCode(HttpStatus.CREATED)
-  async registerCandidate(@Body() registerDto: RegisterCandidateDto){
+  async registerCandidate(@Body() registerDto: RegisterCandidateDto) {
     return this._authService.registerCandidate(registerDto);
   }
 
-
   @Get('verify-email')
-  async verifyEmail(@Query('token') token: string){
+  async verifyEmail(@Query('token') token: string) {
     return await this._authService.verifyEmail(token);
   }
-
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   async Login(
     @Body() Dto: LoginDto,
-    @Res({ passthrough: true }) response:Response,
-  ){
-    const user = await this._authService.validateUser(Dto.email,Dto.password,Dto.role,);
-    return this._authService.login(user,response);
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const user = await this._authService.validateUser(
+      Dto.email,
+      Dto.password,
+      Dto.role,
+    );
+    return this._authService.login(user, response);
   }
-
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Res({ passthrough: true }) res: Response){
+  logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    return { message:MESSAGES.AUTH.LOGOUT_SUCCESS };
+    return { message: MESSAGES.AUTH.LOGOUT_SUCCESS };
   }
-
 
   @Get('getuser')
   @UseGuards(AuthGuard('access_token'))
   @HttpCode(HttpStatus.OK)
-  getCurrentUser(@Request() req:ERequest){
-    const user = req.user 
+  getCurrentUser(@Request() req: ERequest) {
+    const user = req.user as CurrentUserDto;
     return {
       id: user?.id,
       role: user?.role,
       email: user?.email,
-      is_verified: user?.isVerified,
-      profileImg:user?.profileImg,
+      is_verified: user?.is_verified,
+      profileImg: user?.profileImg,
       message: 'completed',
     };
   }
 
-
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt-refresh'))
-  async refreshTokens(
+  refreshTokens(
     @Req() req: ERequest,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<tokenresponce> {
-    const user = req.user 
-    return this._authService.regenerateAccessToken(user!,response);
+  ): tokenresponce {
+    const user = req.user as UserDocument;
+    return this._authService.regenerateAccessToken(user, response);
   }
-
 
   @Get('google')
   @HttpCode(HttpStatus.ACCEPTED)
@@ -107,39 +114,39 @@ export class AuthController {
     @Query() query: { googleId: string; role: string },
     @Res({ passthrough: true }) response: Response,
   ): Promise<LoginResponce<userDto>> {
-    return  this._authService.googleLogin(query.googleId, query.role,response);
+    return this._authService.googleLogin(query.googleId, query.role, response);
   }
-
 
   @Post('admin/login')
   @HttpCode(HttpStatus.OK)
   async adminLogin(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ):Promise<LoginResponce<userDto>> {
+  ): Promise<LoginResponce<userDto>> {
     const user = await this._authService.validateAdmin(dto);
-    return this._authService.login(user,response);
+    return this._authService.login(user, response);
   }
-
 
   @Post('companyuserslogin')
   async companyUsersLogin(
-    @Body()dto:LoginDto,
-    @Res({ passthrough: true }) res:Response
-  ){
-    return this._authService.companyUserLogin(dto,res)
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this._authService.companyUserLogin(dto, res);
   }
-
 
   @Post('forgotpassword')
   @HttpCode(HttpStatus.CREATED)
-  async updatePassword( @Body() dto:forgotPasswordDto):Promise<generalResponce>{
-    return this._authService.validateEmailAndRoleExistence(dto)
+  async updatePassword(
+    @Body() dto: forgotPasswordDto,
+  ): Promise<generalResponce> {
+    return this._authService.validateEmailAndRoleExistence(dto);
   }
 
-
   @Post('updatepassword')
-  async updateNewPassword(@Body() dto:UpdatePasswordDto):Promise<generalResponce>{
-    return this._authService.updateNewPassword(dto)
+  async updateNewPassword(
+    @Body() dto: UpdatePasswordDto,
+  ): Promise<generalResponce> {
+    return this._authService.updateNewPassword(dto);
   }
 }

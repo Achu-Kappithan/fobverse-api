@@ -1,16 +1,15 @@
-import { IsArray, IsOptional, IsString } from "class-validator";
-
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class SignatureRequestDto {
   @IsString()
-  folder: string; 
+  folder: string;
 
   @IsOptional()
   @IsString()
-  publicIdPrefix?: string; 
+  publicIdPrefix?: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  tags?: string[]; 
+  tags?: string[];
 }

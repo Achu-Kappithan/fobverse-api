@@ -5,7 +5,7 @@ import { UpdateResult } from 'mongoose';
 export interface ICandidateRepository
   extends IBaseRepository<CandidateProfileDocument> {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
-  updateStatus(id:string):Promise<UpdateResult>
+  updateStatus(id: string): Promise<UpdateResult>;
 }
 
 export const CANDIDATE_REPOSITORY = 'CANDIDATE_REPOSITORY';

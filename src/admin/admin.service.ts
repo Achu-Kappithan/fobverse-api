@@ -24,15 +24,20 @@ import {
   JOBS_REPOSITORY,
 } from '../jobs/interfaces/jobs.repository.interface';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { CompanyProfileResponseDto, UserResponceDto } from '../company/dtos/responce.allcompany';
+import {
+  CompanyProfileResponseDto,
+  UserResponceDto,
+} from '../company/dtos/responce.allcompany';
 import { CompanyProfile } from '../company/schema/company.profile.schema';
 import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
 import { CandidateProfile } from '../candiate/schema/candidate.profile.schema';
 import { Jobs } from '../jobs/schema/jobs.schema';
 import { AllJobsAdminResponce } from '../jobs/dtos/responce.job.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
-import { AUTH_SERVICE, IAuthService } from '../auth/interfaces/IAuthCandiateService';
-import { comapnyResponceInterface } from '../company/interface/responce.interface';
+import {
+  AUTH_SERVICE,
+  IAuthService,
+} from '../auth/interfaces/IAuthCandiateService';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
@@ -48,8 +53,8 @@ export class AdminService implements IAdminService {
     private readonly _candidateRepository: ICandidateRepository,
     @Inject(JOBS_REPOSITORY)
     private readonly _jobsRepository: IJobsRepository,
-    @Inject(AUTH_SERVICE) 
-    readonly _authService:IAuthService
+    @Inject(AUTH_SERVICE)
+    readonly _authService: IAuthService,
   ) {}
 
   async getAllCompnys(
@@ -120,7 +125,9 @@ export class AdminService implements IAdminService {
         skip,
       });
 
-    this.logger.debug(`[adminService] fetch all candidate data ${data}`);
+    this.logger.debug(
+      `[adminService] fetch all candidate data ${JSON.stringify(data)}`,
+    );
     const mapdeData = plainToInstance(
       CandidateProfileResponseDto,
       data.map((doc) => {
@@ -135,7 +142,7 @@ export class AdminService implements IAdminService {
     );
     const totalpages = Math.ceil(total / limit);
     this.logger.log(
-      `[AdminService] mapped data of company for fetching ${mapdeData}`,
+      `[AdminService] mapped data of company for fetching ${JSON.stringify(mapdeData)}`,
     );
     return {
       message: MESSAGES.ADMIN.DATA_RETRIEVED,
@@ -149,7 +156,9 @@ export class AdminService implements IAdminService {
 
   async updateCompanyStatus(id: string): Promise<PlainResponse> {
     const data = await this._companyRepository.updateStatus(id);
-    this.logger.debug(`[AdminService] status Updated data ${data}`);
+    this.logger.debug(
+      `[AdminService] status Updated data ${JSON.stringify(data)}`,
+    );
     return {
       message: MESSAGES.ADMIN.STATUS_UPDATED,
     };
@@ -157,7 +166,9 @@ export class AdminService implements IAdminService {
 
   async updateCandidateStatus(id: string): Promise<PlainResponse> {
     const data = await this._candidateRepository.updateStatus(id);
-    this.logger.debug(`[AdminService] status Updated data ${data}`);
+    this.logger.debug(
+      `[AdminService] status Updated data ${JSON.stringify(data)}`,
+    );
     return {
       message: MESSAGES.ADMIN.STATUS_UPDATED,
     };
@@ -176,14 +187,16 @@ export class AdminService implements IAdminService {
 
     const skip = (page - 1) * limit;
     this.logger.log(
-      `[AdminService] findAllCompanys Using ${filter} , ${page} , ${limit}`,
+      `[AdminService] findAllCompanys Using ${JSON.stringify(filter)} , ${page} , ${limit}`,
     );
 
     const { data, total } = await this._jobsRepository.findAllJobs(filter, {
       limit,
       skip,
     });
-    this.logger.log(`[AdminService] All jobs Data  gets from the db ${data}`);
+    this.logger.log(
+      `[AdminService] All jobs Data  gets from the db ${JSON.stringify(data)}`,
+    );
 
     const plainData = data.map((val) => {
       const company = val.companyId as { _id: Types.ObjectId; name: string };
@@ -219,24 +232,30 @@ export class AdminService implements IAdminService {
     };
   }
 
-  async getAdminProfile(id:string):Promise<ApiResponce<UserResponceDto>>{
-    this.logger.log(`[AdminService] try to getUser Profile ${id}`)
-    const userProfile = await this._authService.getUserProfile(id)
+  async getAdminProfile(id: string): Promise<ApiResponce<UserResponceDto>> {
+    this.logger.log(`[AdminService] try to getUser Profile ${id}`);
+    const userProfile = await this._authService.getUserProfile(id);
     return {
-        message:MESSAGES.ADMIN.PROFILE_GET,
-        data:userProfile
-    }
+      message: MESSAGES.ADMIN.PROFILE_GET,
+      data: userProfile,
+    };
   }
 
-  async updatePassword(id:string,dto:changePassDto):Promise<generalResponce>{
-      return await this._authService.changePassword(id,dto)
+  async updatePassword(
+    id: string,
+    dto: changePassDto,
+  ): Promise<generalResponce> {
+    return await this._authService.changePassword(id, dto);
   }
 
-  async upateUserProfile(id: string, dto: UpdateAdminProfileDto): Promise<ApiResponce<UserResponceDto>> {
-    const data =await this._authService.updateUserProfile(id,dto)
-    return{
-        message:MESSAGES.ADMIN.PROFILE_UPDATE_SUCCESS,
-        data:data
-    }
+  async upateUserProfile(
+    id: string,
+    dto: UpdateAdminProfileDto,
+  ): Promise<ApiResponce<UserResponceDto>> {
+    const data = await this._authService.updateUserProfile(id, dto);
+    return {
+      message: MESSAGES.ADMIN.PROFILE_UPDATE_SUCCESS,
+      data: data,
+    };
   }
 }

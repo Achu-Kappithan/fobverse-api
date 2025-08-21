@@ -1,9 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
-
-
-@Schema({_id:false})
+@Schema({ _id: false })
 export class TeamMember {
   @Prop({ required: true })
   name: string;
@@ -15,19 +13,22 @@ export class TeamMember {
   image?: string;
 }
 
-export const TeamMemberSchema = SchemaFactory.createForClass(TeamMember)
+export const TeamMemberSchema = SchemaFactory.createForClass(TeamMember);
 
-
-export type CompanyProfileDocument = HydratedDocument<CompanyProfile>
-
+export type CompanyProfileDocument = HydratedDocument<CompanyProfile>;
 
 @Schema({ timestamps: true })
 export class CompanyProfile {
-
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true, index: true })
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true,
+    index: true,
+  })
   adminUserId: Types.ObjectId;
 
-  @Prop({ required: true,unique:true, index:true })
+  @Prop({ required: true, unique: true, index: true })
   name: string;
 
   @Prop()
@@ -39,14 +40,14 @@ export class CompanyProfile {
   @Prop({ type: [String], default: [] })
   techStack?: string[];
 
-  @Prop({ type: [String], default:[]})
-  imageGallery?:string[]
+  @Prop({ type: [String], default: [] })
+  imageGallery?: string[];
 
   @Prop({ type: [TeamMemberSchema], default: [] })
   teamMembers?: TeamMember[];
 
-  @Prop({type:[String], default:[]})
-  benafits?:string[]
+  @Prop({ type: [String], default: [] })
+  benafits?: string[];
 
   @Prop({ default: true })
   isActive: boolean;
@@ -58,7 +59,7 @@ export class CompanyProfile {
   description?: string;
 
   @Prop({
-  type: [
+    type: [
       {
         type: { type: String },
         value: { type: String },
@@ -68,10 +69,8 @@ export class CompanyProfile {
   })
   contactInfo?: { type: string; value: string }[];
 
-  _id?:string
+  _id?: string;
 }
 
-export const CompanyProfileSchema = SchemaFactory.createForClass(CompanyProfile);
-
-
-
+export const CompanyProfileSchema =
+  SchemaFactory.createForClass(CompanyProfile);

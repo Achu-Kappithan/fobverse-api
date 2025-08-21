@@ -4,6 +4,10 @@ import { IAuthRepository } from './interfaces/IAuthRepository';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument, UserRole } from './schema/user.schema';
 import { BaseRepository } from '../shared/repositories/base.repository';
+import {
+  PopulatedCompany,
+  populatedpData,
+} from './interfaces/api-response.interface';
 
 @Injectable()
 export class AuthRepository
@@ -20,48 +24,50 @@ export class AuthRepository
     return this.findOne({ email });
   }
 
-  async findCandidateByEmail(email: string): Promise<any> {
-    return this.userModel.aggregate([
-        {
-          $match: { email: email } 
+  async findCandidateByEmail(email: string): Promise<populatedpData> {
+    const result = await this.userModel.aggregate([
+      {
+        $match: { email: email },
+      },
+      {
+        $lookup: {
+          from: 'candidateprofiles',
+          localField: '_id',
+          foreignField: 'UserId',
+          as: 'profile',
         },
-        {
-          $lookup: {
-            from: 'candidateprofiles',
-            localField: '_id',
-            foreignField: 'UserId',
-            as: 'profile'
-          }
-        },
-        {
+      },
+      {
         $unwind: {
           path: '$profile',
-          preserveNullAndEmptyArrays: true
-        }
-      }
-    ])
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
+    return result[0] as populatedpData;
   }
 
-  async findCompanyByEmail(email: string): Promise<any> {
-        return this.userModel.aggregate([
-        {
-          $match: { email: email } 
+  async findCompanyByEmail(email: string): Promise<PopulatedCompany> {
+    const result = await this.userModel.aggregate([
+      {
+        $match: { email: email },
+      },
+      {
+        $lookup: {
+          from: 'companyprofiles',
+          localField: 'companyId',
+          foreignField: '_id',
+          as: 'profile',
         },
-        {
-          $lookup: {
-            from: 'companyprofiles',
-            localField: 'companyId',
-            foreignField: '_id',
-            as: 'profile'
-          }
-        },
-        {
+      },
+      {
         $unwind: {
           path: '$profile',
-          preserveNullAndEmptyArrays: true
-        }
-      }
-    ])
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
+    return result[0] as PopulatedCompany;
   }
 
   async updateVerificationStatus(
@@ -89,9 +95,10 @@ export class AuthRepository
     return this.userModel.findOne({ email: emai, role: role });
   }
 
-  async findInternalUsers(companyId:Types.ObjectId): Promise<UserDocument[]> {
-    return this.userModel.find(
-      {companyId:companyId,role:{$ne:UserRole.COMPANY_ADMIN}}
-    )
+  async findInternalUsers(companyId: Types.ObjectId): Promise<UserDocument[]> {
+    return this.userModel.find({
+      companyId: companyId,
+      role: { $ne: UserRole.COMPANY_ADMIN },
+    });
   }
 }

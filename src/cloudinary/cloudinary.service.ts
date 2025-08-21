@@ -24,13 +24,15 @@ export class CloudinaryService {
     folder: string;
     public_id_prefix?: string;
     tags?: string[];
-  }): {
-    signature: string;
-    timestamp: number;
-    apiKey: string;
-    cloudName: string;
-    publicId?: string;
-  } {
+  }):
+    | {
+        signature: string;
+        timestamp: number;
+        apiKey: string;
+        cloudName: string;
+        publicId?: string;
+      }
+    | undefined {
     const timestamp = Math.round(new Date().getTime() / 1000);
 
     const paramsToSign: { [key: string]: any } = {
@@ -63,15 +65,17 @@ export class CloudinaryService {
         cloudName: this._configService.get<string>('CLOUDINARY_CLOUD_NAME')!,
         publicId: publicIdGenerated,
       };
-    } catch (error) {
-      this.logger.error(
-        'Error generating Cloudinary signature:',
-        error.message,
-        error.stack,
-      );
-      throw new InternalServerErrorException(
-        'Failed to generate upload signature',
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error(
+          'Error generating Cloudinary signature:',
+          error.message,
+          error.stack,
+        );
+        throw new InternalServerErrorException(
+          'Failed to generate upload signature',
+        );
+      }
     }
   }
 }

@@ -2,24 +2,27 @@ import { Expose } from 'class-transformer';
 import { jobType } from '../schema/jobs.schema';
 import { Types } from 'mongoose';
 
-export class populatedcompanyId { _id: Types.ObjectId; name: string; logoUrl:string }
+export class populatedcompanyId {
+  _id: Types.ObjectId;
+  name: string;
+  logoUrl: string;
+}
 
 export class ResponseJobsDto {
-
   @Expose()
   title: string;
 
   @Expose()
-  _id:string
+  _id: string;
 
   @Expose()
   description: string;
 
   @Expose()
-  responsibility:string
+  responsibility: string;
 
   @Expose()
-  jobType:jobType
+  jobType: jobType;
 
   @Expose()
   skills: string[];
@@ -40,10 +43,10 @@ export class ResponseJobsDto {
   vacancies: number;
 
   @Expose()
-  companyId: string | populatedcompanyId
+  companyId: string | populatedcompanyId;
 
   @Expose()
-  dueDate:string
+  dueDate: string;
 
   @Expose()
   createdAt: Date;
@@ -52,29 +55,28 @@ export class ResponseJobsDto {
   updatedAt: Date;
 
   @Expose()
-  activeStatus:boolean
+  activeStatus: boolean;
 }
-
 
 export class AllJobsAdminResponce {
   @Expose()
-  title:string
+  title: string;
 
   @Expose()
-  _id:string
+  _id: string;
 
   @Expose()
   vacancies: number;
 
   @Expose()
-  companyId: string |{ _id: Types.ObjectId; name: string }
+  companyId: string | { _id: Types.ObjectId; name: string };
 
   @Expose()
-  activeStatus:boolean
+  activeStatus: boolean;
 
   @Expose()
   createdAt: Date;
 
   @Expose()
-  jobType:jobType
+  jobType: jobType;
 }

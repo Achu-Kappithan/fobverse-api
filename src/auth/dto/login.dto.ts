@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { UserRole } from '../schema/user.schema';
 
 export class LoginDto {
   @IsEmail({}, { message: 'Please provide a valid email address.' })
@@ -11,7 +12,7 @@ export class LoginDto {
 
   @IsString({ message: 'UserRole is not defined' })
   @IsNotEmpty({ message: 'Password cannot be empty' })
-  role: string;
+  role: UserRole;
 }
 
 export class GoogleLoginDto {
@@ -23,19 +24,19 @@ export class GoogleLoginDto {
 }
 
 export class forgotPasswordDto {
-  @IsEmail({},{message: "Email for forgotPassword is not vaild"})
-  email:string
+  @IsEmail({}, { message: 'Email for forgotPassword is not vaild' })
+  email: string;
 
   @IsString()
-  role:string
+  role: string;
 }
 
 export class UpdatePasswordDto {
   @IsString()
   @IsNotEmpty()
-  password:string
+  password: string;
 
   @IsString()
   @IsNotEmpty()
-  token:string
+  token: string;
 }

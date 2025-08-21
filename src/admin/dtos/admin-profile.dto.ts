@@ -1,33 +1,28 @@
-import { Exclude, Expose } from "class-transformer";
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { Exclude, Expose } from 'class-transformer';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class AdminProfieDto {
-    @Expose()
-    name:string
+  @Expose()
+  name: string;
 
-    @Expose()
-    email:string
+  @Expose()
+  email: string;
 
-    @Expose()
-    profileImg:string
+  @Expose()
+  profileImg: string;
 
-    @Exclude()
-    _id:string
+  @Exclude()
+  _id: string;
 }
-
 
 export class UpdateAdminProfileDto {
   @IsNotEmpty()
-  email:string
+  email: string;
 
   @IsNotEmpty()
-  name:string
+  name: string;
 
   @IsOptional()
   @IsNotEmpty()
-  profileImg:string
+  profileImg: string;
 }
-
-
-
-

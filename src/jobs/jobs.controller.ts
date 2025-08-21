@@ -11,8 +11,7 @@ import {
 import { IJobService, JOBS_SERVICE } from './interfaces/jobs.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { ResponseJobsDto } from './dtos/responce.job.dto';
-import { Request as ERequest } from 'express';
-import { ApiResponce } from '../shared/interface/api.responce';
+import { ApiResponce, ERequest } from '../shared/interface/api.responce';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
 
@@ -39,7 +38,6 @@ export class JobsController {
     @Query() parms: jobsPagesAndFilterDto,
     @Request() req: ERequest,
   ): Promise<PaginatedResponse<ResponseJobsDto[]>> {
-    console.log(parms)
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._jobservices.getAllJobs(companyId.toString(), parms);
   }
@@ -53,9 +51,9 @@ export class JobsController {
   @Post('updatejob')
   @UseGuards(AuthGuard('access_token'))
   async updateJobDetails(
-    @Query('id') id:string,
-    @Body() dto:JobsDto
-  ):Promise<ApiResponce<ResponseJobsDto>>{
-    return this._jobservices.updateJobDetails(id.toString(),dto)
+    @Query('id') id: string,
+    @Body() dto: JobsDto,
+  ): Promise<ApiResponce<ResponseJobsDto>> {
+    return this._jobservices.updateJobDetails(id.toString(), dto);
   }
 }

@@ -1,9 +1,8 @@
-
 export interface JwtAccessPayload {
   UserId: string;
   email: string;
   role: string;
-  profileId?:string
+  profileId?: string;
 }
 
 export interface JwtRefreshPayload {
@@ -17,7 +16,7 @@ export interface JwtVerificationPayload {
 }
 
 export interface passwordResetPayload {
-  id:string;
-  email:string;
-  role:string
+  id: string;
+  email: string;
+  role: string;
 }

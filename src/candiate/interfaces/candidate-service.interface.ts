@@ -8,10 +8,19 @@ export interface ICandidateService {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
   findById(id: string): Promise<CandidateProfileDocument | null>;
   findAllCandidate(): Promise<CandidateProfileDocument[] | null>;
-  createPorfile(dto: CreateCandidateProfileDto): Promise<CandidateProfileDocument>;
-  getProfile(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
-  updateProfile(dto:UpdateCandidateProfileDto,id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
-  publicView(id:string):Promise<CandidateResponceInterface<CandidateProfileResponseDto>>
+  createPorfile(
+    dto: CreateCandidateProfileDto,
+  ): Promise<CandidateProfileResponseDto>;
+  getProfile(
+    id: string,
+  ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>>;
+  updateProfile(
+    dto: UpdateCandidateProfileDto,
+    id: string,
+  ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>>;
+  publicView(
+    id: string,
+  ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>>;
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';

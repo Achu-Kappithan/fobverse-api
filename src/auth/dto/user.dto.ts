@@ -1,12 +1,11 @@
-import { Exclude, Expose } from "class-transformer";
-import { ObjectId } from "mongoose";
+import { Exclude, Expose } from 'class-transformer';
 
 export class userDto {
   @Expose()
-  _id: ObjectId;
+  _id: string;
 
   @Expose()
-  companyId:ObjectId
+  companyId: string;
 
   @Expose()
   name: string;
@@ -24,9 +23,8 @@ export class userDto {
   googleId: string;
 
   @Expose()
-  profileImg?:string
+  profileImg?: string;
 
   @Exclude()
   __v: string;
-
 }

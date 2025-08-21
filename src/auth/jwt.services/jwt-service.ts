@@ -6,7 +6,6 @@ import {
   passwordResetPayload,
 } from '../interfaces/jwt-payload.interface';
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -33,7 +32,7 @@ export class JwtTokenService {
       return token;
     } catch (error) {
       this._logger.error(
-        `Error generating verificaton token for user ${payload.UserId}: ${error.message}`,
+        `Error generating verificaton token for user ${payload.UserId}: ${error}`,
       );
       throw new InternalServerErrorException(
         'Failed to generate verification token.',
@@ -50,7 +49,7 @@ export class JwtTokenService {
       return token;
     } catch (error) {
       this._logger.error(
-        `Error generating access token for user ${payload.UserId}: ${error.message}`,
+        `Error generating access token for user ${payload.UserId}: ${error}`,
       );
       throw new InternalServerErrorException(
         'Failed to generate access token.',
@@ -67,7 +66,7 @@ export class JwtTokenService {
       return token;
     } catch (error) {
       this._logger.error(
-        `Error generating refresh token for user ${payload.UserId}: ${error.message}`,
+        `Error generating refresh token for user ${payload.UserId}: ${error}`,
       );
       throw new InternalServerErrorException(
         'Failed to generate refresh token.',
@@ -86,7 +85,7 @@ export class JwtTokenService {
       return token;
     } catch (error) {
       this._logger.error(
-        `Error generating passwordReestToken for user ${payload.id}: ${error.message}`,
+        `Error generating passwordReestToken for user ${payload.id}: ${error}`,
       );
       throw new InternalServerErrorException(
         'Failed to generate passwordReestToken token.',
