@@ -1,8 +1,9 @@
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateCandidateProfileDto {
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @IsOptional()
   profileUrl?: string;
