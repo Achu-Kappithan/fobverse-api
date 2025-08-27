@@ -70,4 +70,9 @@ export const MESSAGES = {
     PROFILE_GET: 'Admin profile get Successfully',
     PROFILE_UPDATE_SUCCESS: 'Profile data updated successfully.',
   },
+  APPLICATIONS: {
+    SUBMIT_APPLICATION: 'Application Submited successfully',
+    SUBMITION_FAILD: 'Creation Faild internalServer Error',
+    ALREDY_APPLYED: 'Thsi job role is alredy applayied',
+  },
 };
