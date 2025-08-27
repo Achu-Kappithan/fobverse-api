@@ -10,10 +10,17 @@ import {
   APPLICATION_REPOSITORY,
   IApplicationRepository,
 } from './interfaces/application.repository.interface';
-import { PlainResponse } from '../admin/interfaces/responce.interface';
+import {
+  PaginatedResponse,
+  PlainResponse,
+} from '../admin/interfaces/responce.interface';
 import { CreateApplicationDto } from './dtos/createapplication.dto';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { MESSAGES } from '../shared/constants/constants.messages';
+import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationDocument } from './schema/applications.schema';
+import { plainToInstance } from 'class-transformer';
+import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -26,10 +33,17 @@ export class ApplicationsService implements IApplicationService {
   async createApplication(
     dto: CreateApplicationDto,
     id: string,
+    companyId: string,
   ): Promise<PlainResponse> {
     const jobid = new Types.ObjectId(dto.jobId);
     const candidateObjId = new Types.ObjectId(id);
-    const updatedDto = { ...dto, candidateId: candidateObjId, jobId: jobid };
+    const companyObjId = new Types.ObjectId(companyId);
+    const updatedDto = {
+      ...dto,
+      candidateId: candidateObjId,
+      jobId: jobid,
+      companyId: companyObjId,
+    };
 
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
@@ -54,6 +68,65 @@ export class ApplicationsService implements IApplicationService {
     }
     return {
       message: MESSAGES.APPLICATIONS.SUBMIT_APPLICATION,
+    };
+  }
+
+  async getAllApplications(
+    companyId: string,
+    dto: PaginatedApplicationDto,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+    const { page = 1, limit = 6, search, filtervalue, jobId } = dto;
+    this._logger.log(
+      `[ApplicationService] request getall application with dto :${JSON.stringify(dto)} and comapayId is : ${companyId}`,
+    );
+
+    const filter: FilterQuery<ApplicationDocument> = {};
+
+    if (search) {
+      filter.name = { $regex: `^${search}`, $options: 'i' };
+    }
+
+    if (filtervalue) {
+      filter.Stages = { $regex: `^${filtervalue}`, $options: 'i' };
+    }
+
+    filter.companyId = new Types.ObjectId(companyId);
+    filter.jobId = new Types.ObjectId(jobId);
+
+    console.log(filter);
+
+    const skip = (page - 1) * limit;
+    const { data, total } =
+      await this._applicationRepository.findManyWithPagination(filter, {
+        skip,
+        limit,
+      });
+
+    console.log(data, total);
+
+    const plaindata = data.map((job) => {
+      const jobData = job.toJSON();
+
+      return {
+        ...jobData,
+        candidateId: jobData.candidateId.toString(),
+        _id: jobData._id.toString(),
+      };
+    });
+
+    const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
+      excludeExtraneousValues: true,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mappedData,
+      message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
+      currentPage: page,
+      totalItems: total,
+      totalPages: totalPages,
+      itemsPerPage: limit,
     };
   }
 }

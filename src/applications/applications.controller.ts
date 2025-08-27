@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   Inject,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -12,9 +14,14 @@ import {
 } from './interfaces/application.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateApplicationDto } from './dtos/createapplication.dto';
-import { PlainResponse } from '../admin/interfaces/responce.interface';
+import {
+  PaginatedResponse,
+  PlainResponse,
+} from '../admin/interfaces/responce.interface';
 import { Request as ERequest } from 'express';
 import { UserDocument } from '../auth/schema/user.schema';
+import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
+import { ApplicationResponceDto } from './dtos/application.responce';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -28,8 +35,26 @@ export class ApplicationsController {
   async applayJob(
     @Body() dto: CreateApplicationDto,
     @Request() req: ERequest,
+    @Query('id') id: string,
   ): Promise<PlainResponse> {
     const user = req.user as UserDocument;
-    return this.applicationsService.createApplication(dto, user._id.toString());
+    return this.applicationsService.createApplication(
+      dto,
+      user._id.toString(),
+      id,
+    );
+  }
+
+  @Get('applicants')
+  @UseGuards(AuthGuard('access_token'))
+  async getApplications(
+    @Query() dto: PaginatedApplicationDto,
+    @Request() req: ERequest,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+    const user = req.user as UserDocument;
+    return this.applicationsService.getAllApplications(
+      user.companyId!.toString(),
+      dto,
+    );
   }
 }
