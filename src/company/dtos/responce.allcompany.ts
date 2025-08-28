@@ -1,5 +1,4 @@
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { Types } from 'mongoose';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 export class TeamMemberResponceDto {
   @Expose()
@@ -69,16 +68,7 @@ export class CompanyProfileResponseDto {
 }
 
 export class UserResponceDto {
-  @Expose({ name: 'id' })
-  @Transform(
-    ({ value }) => {
-      if (value instanceof Types.ObjectId) {
-        return value.toString();
-      }
-      return String(value);
-    },
-    { toPlainOnly: true },
-  )
+  @Expose()
   _id: string;
 
   @Expose()

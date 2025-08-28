@@ -35,6 +35,7 @@ import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
 import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
+import { PlainResponse } from '../admin/interfaces/responce.interface';
 
 @Injectable()
 export class CompanyService implements IComapnyService {
@@ -174,11 +175,14 @@ export class CompanyService implements IComapnyService {
   // get all Internal users
 
   async getInternalUsers(
-    id: string,
+    companyId: string,
+    userId: string,
     pagination: PaginationDto,
   ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
-    this.logger.log(`[ComapanyService] id get in Comapny service :${id}`);
-    return await this._AuthService.getAllUsers(id, pagination);
+    this.logger.log(
+      `[ComapanyService] id get in Comapny service :${companyId}`,
+    );
+    return await this._AuthService.getAllUsers(companyId, userId, pagination);
   }
 
   //getUserProfile
@@ -235,5 +239,9 @@ export class CompanyService implements IComapnyService {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
       data: mappedData,
     };
+  }
+
+  async removeUser(id: string): Promise<PlainResponse> {
+    return await this._AuthService.removeUser(id);
   }
 }

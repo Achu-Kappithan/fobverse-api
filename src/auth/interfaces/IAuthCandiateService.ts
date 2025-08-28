@@ -15,7 +15,10 @@ import { userDto } from '../dto/user.dto';
 import { Response } from 'express';
 import { RegisterCandidateDto } from '../dto/register-candidate.dto';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
-import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
+import {
+  PaginatedResponse,
+  PlainResponse,
+} from '../../admin/interfaces/responce.interface';
 import { UserResponceDto } from '../../company/dtos/responce.allcompany';
 import {
   changePassDto,
@@ -47,7 +50,8 @@ export interface IAuthService {
     res: Response,
   ): Promise<LoginResponce<userDto>>;
   getAllUsers(
-    id: string,
+    companyId: string,
+    userId: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<UserResponceDto[]>>;
   createInternalUser(
@@ -60,6 +64,7 @@ export interface IAuthService {
     dto: UpdateInternalUserDto,
   ): Promise<UserResponceDto>;
   changePassword(id: string, dto: changePassDto): Promise<generalResponce>;
+  removeUser(id: string): Promise<PlainResponse>;
 }
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';

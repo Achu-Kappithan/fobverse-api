@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Patch,
@@ -30,6 +31,7 @@ import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { ERequest } from '../shared/interface/api.responce';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
+import { PlainResponse } from '../admin/interfaces/responce.interface';
 
 @Controller('company')
 export class CompanyController {
@@ -72,8 +74,12 @@ export class CompanyController {
     @Request() req: ERequest,
     @Query() parms: PaginationDto,
   ) {
-    const companyId = req.user?.companyId?.toString() ?? '';
-    return this._companyService.getInternalUsers(companyId, parms);
+    const user = req.user;
+    return this._companyService.getInternalUsers(
+      user!.companyId!.toString(),
+      user!._id.toString(),
+      parms,
+    );
   }
 
   @Get('userprofile')
@@ -123,5 +129,11 @@ export class CompanyController {
     @Query('id') id: string,
   ): Promise<comapnyResponceInterface<populateProfileDto>> {
     return this._companyService.getPublicPorfile(id);
+  }
+
+  @Delete('removeuser')
+  @UseGuards(AuthGuard('access_token'))
+  async removeUser(@Query('id') id: string): Promise<PlainResponse> {
+    return this._companyService.removeUser(id);
   }
 }
