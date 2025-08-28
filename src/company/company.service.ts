@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { IComapnyService } from './interface/profile.service.interface';
 import {
@@ -32,6 +33,8 @@ import {
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
+import { populateProfileDto } from './dtos/populatedprofile.res.dto';
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 
 @Injectable()
 export class CompanyService implements IComapnyService {
@@ -79,6 +82,7 @@ export class CompanyService implements IComapnyService {
       CompanyProfileResponseDto,
       {
         ...profiledata?.toObject(),
+        _id: profiledata?._id.toString(),
       },
       { excludeExtraneousValues: true },
     );
@@ -88,6 +92,48 @@ export class CompanyService implements IComapnyService {
     };
   }
 
+  // get Public Profile
+
+  async getPublicPorfile(
+    id: string,
+  ): Promise<comapnyResponceInterface<populateProfileDto>> {
+    const profiledata = await this._companyRepository.publicPorfile(id);
+
+    if (!profiledata) {
+      throw new NotFoundException('Company not found');
+    }
+
+    const mappedProfile = plainToInstance(
+      CompanyProfileResponseDto,
+      {
+        ...profiledata,
+        _id: profiledata._id.toString(),
+      },
+      { excludeExtraneousValues: true },
+    );
+
+    const mappedJobs = plainToInstance(
+      ResponseJobsDto,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      profiledata.jobs.map(({ companyId, ...job }) => ({
+        ...job,
+        _id: job._id.toString(),
+      })),
+      { excludeExtraneousValues: true },
+    );
+
+    const mappedData: populateProfileDto = {
+      company: mappedProfile,
+      jobs: mappedJobs,
+    };
+
+    console.log(mappedData);
+
+    return {
+      message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
+      data: mappedData,
+    };
+  }
   // updating profile  wiht new data
 
   async updatePorfile(

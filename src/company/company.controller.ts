@@ -29,6 +29,7 @@ import {
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { ERequest } from '../shared/interface/api.responce';
+import { populateProfileDto } from './dtos/populatedprofile.res.dto';
 
 @Controller('company')
 export class CompanyController {
@@ -120,7 +121,7 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async getPublicView(
     @Query('id') id: string,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
-    return this._companyService.getPorfile(id);
+  ): Promise<comapnyResponceInterface<populateProfileDto>> {
+    return this._companyService.getPublicPorfile(id);
   }
 }
