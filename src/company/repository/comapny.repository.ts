@@ -5,9 +5,10 @@ import {
 } from '../schema/company.profile.schema';
 import { IcompanyRepository } from '../interface/profile.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, UpdateResult } from 'mongoose';
+import { Model, Types, UpdateResult } from 'mongoose';
 import { InternalUserDto, TeamMemberDto } from '../dtos/update.profile.dtos';
 import { BaseRepository } from '../../shared/repositories/base.repository';
+import { populatedComapnyProfile } from '../types/repository.types';
 
 @Injectable()
 export class CompanyRepository
@@ -51,5 +52,21 @@ export class CompanyRepository
       { $push: { teamMembers: dto } },
       { new: true },
     );
+  }
+
+  async publicPorfile(id: string): Promise<populatedComapnyProfile> {
+    const objid = new Types.ObjectId(id);
+    const data = await this.profileModel.aggregate([
+      { $match: { _id: objid } },
+      {
+        $lookup: {
+          from: 'jobs',
+          localField: '_id',
+          foreignField: 'companyId',
+          as: 'jobs',
+        },
+      },
+    ]);
+    return data[0] as populatedComapnyProfile;
   }
 }

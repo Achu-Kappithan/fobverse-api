@@ -12,6 +12,8 @@ import { MESSAGES } from '../shared/constants/constants.messages';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
 import { Jobs } from './schema/jobs.schema';
+import { populatedjobResDto } from './dtos/populated.jobs.dto';
+import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
 
 @Injectable()
 export class JobsService implements IJobService {
@@ -144,6 +146,36 @@ export class JobsService implements IJobService {
     return {
       message: MESSAGES.COMPANY.GET_JOBDETAIS,
       data: mappedData,
+    };
+  }
+
+  async jobPublicView(id: string): Promise<ApiResponce<populatedjobResDto>> {
+    const data = await this._jobRepository.publicJobView(id);
+
+    const mappedJob = plainToInstance(
+      ResponseJobsDto,
+      {
+        ...data,
+        _id: data._id.toString(),
+      },
+      { excludeExtraneousValues: true },
+    );
+
+    const mappedProfile = plainToInstance(
+      CompanyProfileResponseDto,
+      data.profile.map((val) => ({
+        ...val,
+        _id: val._id.toString(),
+      })),
+      { excludeExtraneousValues: true },
+    );
+
+    return {
+      message: MESSAGES.COMPANY.GET_JOBDETAIS,
+      data: {
+        jobDetails: mappedJob,
+        profile: mappedProfile,
+      },
     };
   }
 

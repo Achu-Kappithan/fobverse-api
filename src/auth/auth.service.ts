@@ -63,8 +63,11 @@ import {
   UserResponceDto,
 } from '../company/dtos/responce.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import {
+  PaginatedResponse,
+  PlainResponse,
+} from '../admin/interfaces/responce.interface';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -776,7 +779,8 @@ export class AuthService implements IAuthService {
 
   // getUsers
   async getAllUsers(
-    id: string,
+    companyId: string,
+    userId: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<UserResponceDto[]>> {
     const { search, page = 1, limit = 6, filtervalue } = pagination;
@@ -793,11 +797,14 @@ export class AuthService implements IAuthService {
       filter.role = { $regex: `^${filtervalue}`, $options: 'i' };
     }
 
-    const companyId = new Types.ObjectId(id);
-    filter.companyId = companyId;
+    const companyObjId = new Types.ObjectId(companyId);
+    filter.companyId = companyObjId;
+
+    const userObjId = new Types.ObjectId(userId);
+    filter._id = { $ne: userObjId };
 
     this._logger.log(
-      `[AuthService] comapny id for get internal users :${id} Serchquery ${JSON.stringify(filter)} and filterQuery: ${filtervalue}`,
+      `[AuthService] comapny id for get internal users :${companyId} Serchquery ${JSON.stringify(filter)} and filterQuery: ${filtervalue}`,
     );
     const skip = (page - 1) * limit;
 
@@ -808,7 +815,13 @@ export class AuthService implements IAuthService {
         limit,
       },
     );
-    const plaindata = data.map((val) => val.toJSON());
+    const plaindata = data.map((val) => {
+      const user = val.toJSON();
+      return {
+        ...user,
+        _id: user._id.toString(),
+      };
+    });
 
     const mappedData = plainToInstance(UserResponceDto, plaindata);
     const totalPages = Math.ceil(total / limit);
@@ -880,6 +893,17 @@ export class AuthService implements IAuthService {
 
     return {
       message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS,
+    };
+  }
+
+  async removeUser(id: string): Promise<PlainResponse> {
+    const filter: FilterQuery<UserDocument> = {};
+    const userObjId = new Types.ObjectId(id);
+    filter._id = userObjId;
+    const data = await this._authRepository.delete(filter);
+    console.log(data);
+    return {
+      message: MESSAGES.COMPANY.USER_REMOVED,
     };
   }
 }

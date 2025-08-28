@@ -1,6 +1,8 @@
+import { PlainResponse } from '../../admin/interfaces/responce.interface';
 import { generalResponce } from '../../auth/interfaces/api-response.interface';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { CreateProfileDto } from '../dtos/create.profile.dto';
+import { populateProfileDto } from '../dtos/populatedprofile.res.dto';
 import {
   CompanyProfileResponseDto,
   UserResponceDto,
@@ -32,7 +34,8 @@ export interface IComapnyService {
   ): Promise<comapnyResponceInterface<UserResponceDto>>;
 
   getInternalUsers(
-    id: string,
+    comapanyId: string,
+    userId: string,
     pagination: PaginationDto,
   ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
 
@@ -51,6 +54,12 @@ export interface IComapnyService {
     id: string,
     dto: TeamMemberDto,
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
+
+  getPublicPorfile(
+    id: string,
+  ): Promise<comapnyResponceInterface<populateProfileDto>>;
+
+  removeUser(id: string): Promise<PlainResponse>;
 }
 
 export const COMPANY_SERVICE = 'COMPANY_SERVICE';

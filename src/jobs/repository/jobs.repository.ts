@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { IJobsRepository } from '../interfaces/jobs.repository.interface';
 import { Jobs, JobsDocument } from '../schema/jobs.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, UpdateResult } from 'mongoose';
+import { FilterQuery, Model, Types, UpdateResult } from 'mongoose';
 import { BaseRepository } from '../../shared/repositories/base.repository';
+import { populatedJobDetails } from '../types/repository.types';
 
 @Injectable()
 export class JobRepository
@@ -62,5 +63,25 @@ export class JobRepository
 
   async countDocuments(filter: FilterQuery<any> = {}): Promise<number> {
     return this.jobModel.countDocuments(filter).exec();
+  }
+
+  async publicJobView(id: string): Promise<populatedJobDetails> {
+    const data = await this.jobModel.aggregate([
+      {
+        $match: {
+          _id: new Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: 'companyprofiles',
+          localField: 'companyId',
+          foreignField: '_id',
+          as: 'profile',
+        },
+      },
+    ]);
+
+    return data[0] as populatedJobDetails;
   }
 }
