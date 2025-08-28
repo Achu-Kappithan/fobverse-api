@@ -56,4 +56,10 @@ export class JobsController {
   ): Promise<ApiResponce<ResponseJobsDto>> {
     return this._jobservices.updateJobDetails(id.toString(), dto);
   }
+
+  @Get('publicview')
+  @UseGuards(AuthGuard('access_token'))
+  async jobPublicView(@Query('id') id: string) {
+    return this._jobservices.jobPublicView(id);
+  }
 }

@@ -128,8 +128,6 @@ export class CompanyService implements IComapnyService {
       jobs: mappedJobs,
     };
 
-    console.log(mappedData);
-
     return {
       message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
       data: mappedData,
