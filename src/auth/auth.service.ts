@@ -162,6 +162,7 @@ export class AuthService implements IAuthService {
       email: user.email,
       role: user.role,
       profileId: user.companyId?.toString(),
+      name: user.name,
     };
 
     const RefreshPayload: JwtRefreshPayload = {
@@ -362,6 +363,7 @@ export class AuthService implements IAuthService {
       email: paylod.email,
       role: paylod.role,
       profileId: paylod?.companyId?.toString(),
+      name: paylod.name,
     };
 
     const newAccessToken =
@@ -474,6 +476,7 @@ export class AuthService implements IAuthService {
       email: user.email,
       role: user.role,
       profileId: user?.companyId?.toString(),
+      name: user.name,
     };
 
     const RefreshPayload: JwtRefreshPayload = {
@@ -692,6 +695,7 @@ export class AuthService implements IAuthService {
       email: user.email,
       role: user.role,
       profileId: user.companyId?.toString(),
+      name: user.name,
     };
 
     const RefreshPayload: JwtRefreshPayload = {

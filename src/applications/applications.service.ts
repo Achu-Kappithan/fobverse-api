@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -21,6 +22,10 @@ import { ApplicationResponceDto } from './dtos/application.responce';
 import { ApplicationDocument } from './schema/applications.schema';
 import { plainToInstance } from 'class-transformer';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
+import { CandidateService } from '../candiate/candidate.service';
+import { CANDIDATE_SERVICE } from '../candiate/interfaces/candidate-service.interface';
+import { CANDIDATE_REPOSITORY } from '../candiate/interfaces/candidate-repository.interface';
+import { CandidateRepository } from '../candiate/candidate.repository';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -28,6 +33,10 @@ export class ApplicationsService implements IApplicationService {
   constructor(
     @Inject(APPLICATION_REPOSITORY)
     private readonly _applicationRepository: IApplicationRepository,
+    @Inject(CANDIDATE_SERVICE)
+    private readonly _candiateService: CandidateService,
+    @Inject(CANDIDATE_REPOSITORY)
+    private readonly _candidateRepository: CandidateRepository,
   ) {}
 
   async createApplication(
@@ -44,6 +53,17 @@ export class ApplicationsService implements IApplicationService {
       jobId: jobid,
       companyId: companyObjId,
     };
+
+    if (!dto.resumeUrl) {
+      const data = await this._candidateRepository.findOne({
+        UserId: candidateObjId,
+      });
+      console.log('data user resume Url', data);
+      if (!data?.resumeUrl) {
+        throw new BadRequestException('Resume not found in Porfile');
+      }
+      updatedDto.resumeUrl = data.resumeUrl;
+    }
 
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,

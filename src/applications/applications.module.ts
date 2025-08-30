@@ -6,12 +6,14 @@ import { APPLICATION_REPOSITORY } from './interfaces/application.repository.inte
 import { ApplicationRepository } from './repository/applications.repository';
 import { APPLICATION_SERVICE } from './interfaces/application.service.interface';
 import { ApplicationsService } from './applications.service';
+import { CandiateModule } from '../candiate/candidate.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Applications.name, schema: ApplicationSchema },
     ]),
+    CandiateModule,
   ],
   controllers: [ApplicationsController],
   providers: [
