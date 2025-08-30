@@ -20,7 +20,7 @@ export interface IJobService {
     dto: JobsDto,
   ): Promise<ApiResponce<ResponseJobsDto>>;
 
-  jobPublicView(id: string): Promise<ApiResponce<populatedjobResDto>>;
+  populatedJobView(id: string): Promise<ApiResponce<populatedjobResDto>>;
 }
 
 export const JOBS_SERVICE = 'JOBS_SERVICE';

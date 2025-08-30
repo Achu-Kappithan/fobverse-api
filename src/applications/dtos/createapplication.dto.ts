@@ -27,5 +27,6 @@ export class CreateApplicationDto {
   experience: string;
 
   @IsString()
-  resumeUrl: string;
+  @IsOptional()
+  resumeUrl?: string;
 }

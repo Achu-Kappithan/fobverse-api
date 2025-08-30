@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -21,6 +22,11 @@ import { ApplicationResponceDto } from './dtos/application.responce';
 import { ApplicationDocument } from './schema/applications.schema';
 import { plainToInstance } from 'class-transformer';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
+import { CANDIDATE_REPOSITORY } from '../candiate/interfaces/candidate-repository.interface';
+import { CandidateRepository } from '../candiate/candidate.repository';
+import { JOBS_SERVICE } from '../jobs/interfaces/jobs.service.interface';
+import { JobsService } from '../jobs/jobs.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -28,6 +34,11 @@ export class ApplicationsService implements IApplicationService {
   constructor(
     @Inject(APPLICATION_REPOSITORY)
     private readonly _applicationRepository: IApplicationRepository,
+    @Inject(CANDIDATE_REPOSITORY)
+    private readonly _candidateRepository: CandidateRepository,
+    @Inject(JOBS_SERVICE)
+    private readonly _jobservice: JobsService,
+    private readonly _emailService: EmailService,
   ) {}
 
   async createApplication(
@@ -45,27 +56,51 @@ export class ApplicationsService implements IApplicationService {
       companyId: companyObjId,
     };
 
+    if (!dto.resumeUrl) {
+      const data = await this._candidateRepository.findOne({
+        UserId: candidateObjId,
+      });
+      if (!data?.resumeUrl) {
+        throw new BadRequestException('Resume not found in Porfile');
+      }
+      updatedDto.resumeUrl = data.resumeUrl;
+    }
+
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
     );
-    const application = await this._applicationRepository.findOne({
+    const previousapplication = await this._applicationRepository.findOne({
       candidateId: candidateObjId,
+      jobId: jobid,
     });
 
-    if (application) {
-      const jobid: string = application.jobId.toString();
+    this._logger.log(
+      `[ApplicationService] jobDetails of appliyed job ${JSON.stringify(previousapplication)}`,
+    );
+
+    if (previousapplication) {
+      const jobid: string = previousapplication.jobId.toString();
       if (jobid === dto.jobId) {
         throw new ConflictException(MESSAGES.APPLICATIONS.ALREDY_APPLYED);
       }
     }
 
     const data = await this._applicationRepository.create(updatedDto);
-    console.log(data);
+
+    const jobDetails = await this._jobservice.populatedJobView(
+      dto.jobId.toString(),
+    );
+    await this._emailService.sendApplicationSubmitedEmail(
+      updatedDto.email,
+      jobDetails.data!,
+    );
+
     if (!data) {
       throw new InternalServerErrorException(
         MESSAGES.APPLICATIONS.SUBMITION_FAILD,
       );
     }
+
     return {
       message: MESSAGES.APPLICATIONS.SUBMIT_APPLICATION,
     };
@@ -93,16 +128,12 @@ export class ApplicationsService implements IApplicationService {
     filter.companyId = new Types.ObjectId(companyId);
     filter.jobId = new Types.ObjectId(jobId);
 
-    console.log(filter);
-
     const skip = (page - 1) * limit;
     const { data, total } =
       await this._applicationRepository.findManyWithPagination(filter, {
         skip,
         limit,
       });
-
-    console.log(data, total);
 
     const plaindata = data.map((job) => {
       const jobData = job.toJSON();

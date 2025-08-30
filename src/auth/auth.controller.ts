@@ -88,9 +88,10 @@ export class AuthController {
   getCurrentUser(@Request() req: ERequest) {
     const user = req.user as CurrentUserDto;
     return {
-      id: user?.id,
+      id: user?.id.toString(),
       role: user?.role,
       email: user?.email,
+      name: user?.name,
       is_verified: user?.is_verified,
       profileImg: user?.profileImg,
       message: 'completed',

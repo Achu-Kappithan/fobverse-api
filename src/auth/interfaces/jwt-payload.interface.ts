@@ -3,6 +3,7 @@ export interface JwtAccessPayload {
   email: string;
   role: string;
   profileId?: string;
+  name?: string;
 }
 
 export interface JwtRefreshPayload {
