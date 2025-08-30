@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Mail from 'nodemailer/lib/mailer';
 import * as nodemailer from 'nodemailer';
+import { populatedjobResDto } from '../jobs/dtos/populated.jobs.dto';
 
 @Injectable()
 export class EmailService {
@@ -160,6 +161,60 @@ export class EmailService {
               </tr>
           </table>
       </div>`;
+
+    await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async sendApplicationSubmitedEmail(
+    to: string,
+    jobDetails: populatedjobResDto,
+  ): Promise<void> {
+    const subject = `Application Received for ${jobDetails.jobDetails.title} at ${jobDetails.profile[0]?.name}`;
+    const htmlContent = `
+        <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+                        <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 20px; text-align: center;">
+                        <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Application Successfully Submitted!</h2>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Hello,
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            This is to confirm that your application for the following position has been successfully submitted.
+                        </p>
+                        <div style="text-align: left; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px;">Job Details</h3>
+                            <p style="margin: 0; font-size: 16px;"><strong>Position:</strong> ${jobDetails.jobDetails.title}</p>
+                            <p style="margin: 5px 0 0 0; font-size: 16px;"><strong>Company:</strong> ${jobDetails.profile[0]?.name}</p>
+                            <p style="margin: 5px 0 0 0; font-size: 16px;"><strong>Location(s):</strong> ${jobDetails.jobDetails.location.join(', ')}</p>
+                            <p style="margin: 5px 0 0 0; font-size: 16px;"><strong>Job Type:</strong> ${jobDetails.jobDetails.jobType}</p>
+                        </div>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            The hiring team will review your application and will contact you if your qualifications meet their requirements.
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            Thank you for using Fobverse to find your next career opportunity.
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                        <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                            © 2025 Fobverse. All rights reserved.
+                        </p>
+                        <p style="color: #6b7280; font-size: 12px; margin: 5px 0;">
+                            <a href="https://fobverse.com" style="color: #a78bfa; text-decoration: none;">Visit our website</a>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    `;
 
     await this.sendEmail(to, subject, htmlContent);
   }

@@ -7,6 +7,8 @@ import { ApplicationRepository } from './repository/applications.repository';
 import { APPLICATION_SERVICE } from './interfaces/application.service.interface';
 import { ApplicationsService } from './applications.service';
 import { CandiateModule } from '../candiate/candidate.module';
+import { JobsModule } from '../jobs/jobs.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { CandiateModule } from '../candiate/candidate.module';
       { name: Applications.name, schema: ApplicationSchema },
     ]),
     CandiateModule,
+    JobsModule,
+    EmailModule,
   ],
   controllers: [ApplicationsController],
   providers: [

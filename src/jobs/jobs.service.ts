@@ -149,7 +149,7 @@ export class JobsService implements IJobService {
     };
   }
 
-  async jobPublicView(id: string): Promise<ApiResponce<populatedjobResDto>> {
+  async populatedJobView(id: string): Promise<ApiResponce<populatedjobResDto>> {
     const data = await this._jobRepository.publicJobView(id);
 
     const mappedJob = plainToInstance(
