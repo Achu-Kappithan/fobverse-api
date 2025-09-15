@@ -24,9 +24,15 @@ import { plainToInstance } from 'class-transformer';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { CANDIDATE_REPOSITORY } from '../candiate/interfaces/candidate-repository.interface';
 import { CandidateRepository } from '../candiate/candidate.repository';
-import { JOBS_SERVICE } from '../jobs/interfaces/jobs.service.interface';
-import { JobsService } from '../jobs/jobs.service';
+import {
+  IJobService,
+  JOBS_SERVICE,
+} from '../jobs/interfaces/jobs.service.interface';
 import { EmailService } from '../email/email.service';
+import {
+  ATS_SERVICE,
+  IAtsService,
+} from '../ats-sorting/interfaces/ats.service.interface';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -37,7 +43,9 @@ export class ApplicationsService implements IApplicationService {
     @Inject(CANDIDATE_REPOSITORY)
     private readonly _candidateRepository: CandidateRepository,
     @Inject(JOBS_SERVICE)
-    private readonly _jobservice: JobsService,
+    private readonly _jobservice: IJobService,
+    @Inject(ATS_SERVICE)
+    private readonly _atsService: IAtsService,
     private readonly _emailService: EmailService,
   ) {}
 
@@ -66,6 +74,28 @@ export class ApplicationsService implements IApplicationService {
       updatedDto.resumeUrl = data.resumeUrl;
     }
 
+    const parsedResumeText = await this._atsService.parsePdfFormUrl(
+      updatedDto.resumeUrl!,
+    );
+    // console.log(`resume text extracted ${parsedResumeText}`);
+
+    const jobDetails = await this._jobservice.populatedJobView(
+      dto.jobId.toString(),
+    );
+
+    this._logger.log(
+      `[applicationService]job discription feth${JSON.stringify(jobDetails)}`,
+    );
+
+    const atsScore = this._atsService.calculateScore(
+      jobDetails.data?.jobDetails,
+      parsedResumeText,
+    );
+
+    updatedDto.atsScore = Math.round(atsScore);
+
+    console.log('resume matching score is ', atsScore);
+
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
     );
@@ -87,9 +117,6 @@ export class ApplicationsService implements IApplicationService {
 
     const data = await this._applicationRepository.create(updatedDto);
 
-    const jobDetails = await this._jobservice.populatedJobView(
-      dto.jobId.toString(),
-    );
     await this._emailService.sendApplicationSubmitedEmail(
       updatedDto.email,
       jobDetails.data!,

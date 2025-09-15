@@ -9,6 +9,7 @@ import { ApplicationsService } from './applications.service';
 import { CandiateModule } from '../candiate/candidate.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { EmailModule } from '../email/email.module';
+import { AtsSortingModule } from '../ats-sorting/ats-sorting.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EmailModule } from '../email/email.module';
     CandiateModule,
     JobsModule,
     EmailModule,
+    AtsSortingModule,
   ],
   controllers: [ApplicationsController],
   providers: [
