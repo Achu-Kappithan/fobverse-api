@@ -30,6 +30,9 @@ export class Applications {
   @Prop({ required: true })
   phone: string;
 
+  @Prop({ required: true, default: 0 })
+  atsScore: number;
+
   @Prop({ enum: Stages, default: Stages.Default })
   Stages: Stages;
 

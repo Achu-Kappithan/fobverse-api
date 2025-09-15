@@ -74,11 +74,27 @@ export class ApplicationsService implements IApplicationService {
       updatedDto.resumeUrl = data.resumeUrl;
     }
 
-    const parsedResumeText = await this._atsService.parsePdfFromUrl(
+    const parsedResumeText = await this._atsService.parsePdfFormUrl(
       updatedDto.resumeUrl!,
     );
+    // console.log(`resume text extracted ${parsedResumeText}`);
 
-    console.log(`resume text extracted ${parsedResumeText}`);
+    const jobDetails = await this._jobservice.populatedJobView(
+      dto.jobId.toString(),
+    );
+
+    this._logger.log(
+      `[applicationService]job discription feth${JSON.stringify(jobDetails)}`,
+    );
+
+    const atsScore = this._atsService.calculateScore(
+      jobDetails.data?.jobDetails,
+      parsedResumeText,
+    );
+
+    updatedDto.atsScore = Math.round(atsScore);
+
+    console.log('resume matching score is ', atsScore);
 
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
@@ -101,9 +117,6 @@ export class ApplicationsService implements IApplicationService {
 
     const data = await this._applicationRepository.create(updatedDto);
 
-    const jobDetails = await this._jobservice.populatedJobView(
-      dto.jobId.toString(),
-    );
     await this._emailService.sendApplicationSubmitedEmail(
       updatedDto.email,
       jobDetails.data!,

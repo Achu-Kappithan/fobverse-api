@@ -18,6 +18,9 @@ export class CreateApplicationDto {
   @IsNotEmpty()
   phone: string;
 
+  @IsOptional()
+  atsScore?: number;
+
   @IsNotEmpty()
   @IsString()
   qualification: string;
