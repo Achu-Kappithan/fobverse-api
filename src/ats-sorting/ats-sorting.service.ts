@@ -42,7 +42,7 @@ export class AtsSortingService implements IAtsService {
     const outArray = processedText.terms().out('array');
     return stopword.removeStopwords(outArray);
   }
-  
+
   private calculateKeywordScore(
     jobDetails: ResponseJobsDto,
     resumeText: string,

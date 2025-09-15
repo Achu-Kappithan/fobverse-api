@@ -157,24 +157,27 @@ export class ApplicationsService implements IApplicationService {
 
     const skip = (page - 1) * limit;
     const { data, total } =
-      await this._applicationRepository.findManyWithPagination(filter, {
+      await this._applicationRepository.populatedApplicationList(filter, {
         skip,
         limit,
       });
 
-    const plaindata = data.map((job) => {
-      const jobData = job.toJSON();
+    console.log('data: ', JSON.stringify(data));
 
+    const plaindata = data.map((job) => {
       return {
-        ...jobData,
-        candidateId: jobData.candidateId.toString(),
-        _id: jobData._id.toString(),
+        ...job,
+        candidateId: job.candidateId.toString(),
+        _id: job._id.toString(),
+        profile: job.profile?.[0]?.profileUrl || null,
       };
     });
 
     const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
       excludeExtraneousValues: true,
     });
+
+    console.log(' mapped data ', mappedData);
 
     const totalPages = Math.ceil(total / limit);
 
