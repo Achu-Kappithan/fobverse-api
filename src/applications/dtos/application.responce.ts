@@ -41,6 +41,9 @@ export class ApplicationResponceDto {
   @Expose()
   createdAt: string;
 
+  @Expose()
+  profile: string;
+
   @Exclude()
   _v: string;
 }

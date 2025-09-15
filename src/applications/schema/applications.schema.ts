@@ -18,7 +18,7 @@ export class Applications {
   @Prop({ required: true, type: Types.ObjectId, ref: 'Jobs' })
   jobId: Types.ObjectId;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'CandidateProfile' })
+  @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
   candidateId: Types.ObjectId;
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'CompanyProfile' })
