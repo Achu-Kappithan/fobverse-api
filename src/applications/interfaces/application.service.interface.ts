@@ -5,6 +5,7 @@ import {
 import { PaginatedApplicationDto } from '../dtos/application.pagination.dto';
 import { ApplicationResponceDto } from '../dtos/application.responce';
 import { CreateApplicationDto } from '../dtos/createapplication.dto';
+import { updateAtsScoreDto } from '../dtos/update.atsScore.dto';
 
 export interface IApplicationService {
   createApplication(
@@ -16,6 +17,11 @@ export interface IApplicationService {
   getAllApplications(
     companyId: string,
     dto: PaginatedApplicationDto,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
+
+  updateAtsScore(
+    dto: updateAtsScoreDto,
+    companyId: string,
   ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
 }
 

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Patch,
   Post,
   Query,
   Request,
@@ -22,6 +23,7 @@ import { Request as ERequest } from 'express';
 import { UserDocument } from '../auth/schema/user.schema';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { ApplicationResponceDto } from './dtos/application.responce';
+import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -55,6 +57,19 @@ export class ApplicationsController {
     return this.applicationsService.getAllApplications(
       user.companyId!.toString(),
       dto,
+    );
+  }
+
+  @Patch('updateScore')
+  @UseGuards(AuthGuard('access_token'))
+  async updateAtsScore(
+    @Request() req: ERequest,
+    @Body() dto: updateAtsScoreDto,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+    const user = req.user as UserDocument;
+    return this.applicationsService.updateAtsScore(
+      dto,
+      user.companyId!.toString(),
     );
   }
 }

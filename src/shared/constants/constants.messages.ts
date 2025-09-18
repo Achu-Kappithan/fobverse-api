@@ -57,6 +57,7 @@ export const MESSAGES = {
     GET_JOBDETAIS: 'Job details successfully fetched',
     UPDATE_JOBS: 'Update job Details',
     USER_REMOVED: 'User Removed Successfully',
+    UPDATE_ATS_SCORE: 'Update ats Score Successfully',
   },
   CANDIDATE: {
     PROFILE_FETCH_SUCCESS: 'Candidate profile fetched successfully.',

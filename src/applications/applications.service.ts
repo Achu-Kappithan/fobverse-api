@@ -19,7 +19,7 @@ import { CreateApplicationDto } from './dtos/createapplication.dto';
 import { FilterQuery, Types } from 'mongoose';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { ApplicationResponceDto } from './dtos/application.responce';
-import { ApplicationDocument } from './schema/applications.schema';
+import { ApplicationDocument, Stages } from './schema/applications.schema';
 import { plainToInstance } from 'class-transformer';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { CANDIDATE_REPOSITORY } from '../candiate/interfaces/candidate-repository.interface';
@@ -33,6 +33,7 @@ import {
   ATS_SERVICE,
   IAtsService,
 } from '../ats-sorting/interfaces/ats.service.interface';
+import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -77,7 +78,6 @@ export class ApplicationsService implements IApplicationService {
     const parsedResumeText = await this._atsService.parsePdfFormUrl(
       updatedDto.resumeUrl!,
     );
-    // console.log(`resume text extracted ${parsedResumeText}`);
 
     const jobDetails = await this._jobservice.populatedJobView(
       dto.jobId.toString(),
@@ -115,6 +115,12 @@ export class ApplicationsService implements IApplicationService {
       }
     }
 
+    if (atsScore >= 60) {
+      updatedDto.Stages = Stages.Shortlisted;
+    } else {
+      updatedDto.Rejected = true;
+    }
+
     const data = await this._applicationRepository.create(updatedDto);
 
     await this._emailService.sendApplicationSubmitedEmail(
@@ -137,7 +143,7 @@ export class ApplicationsService implements IApplicationService {
     companyId: string,
     dto: PaginatedApplicationDto,
   ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
-    const { page = 1, limit = 6, search, filtervalue, jobId } = dto;
+    const { page = 1, limit = 4, search, filtervalue, jobId } = dto;
     this._logger.log(
       `[ApplicationService] request getall application with dto :${JSON.stringify(dto)} and comapayId is : ${companyId}`,
     );
@@ -162,14 +168,15 @@ export class ApplicationsService implements IApplicationService {
         limit,
       });
 
-    console.log('data: ', JSON.stringify(data));
-
     const plaindata = data.map((job) => {
       return {
         ...job,
         candidateId: job.candidateId.toString(),
         _id: job._id.toString(),
-        profile: job.profile?.[0]?.profileUrl || null,
+        profile: {
+          _id: job.profile?.[0]?._id.toString(),
+          profileImg: job.profile?.[0]?.profileUrl || null,
+        },
       };
     });
 
@@ -177,13 +184,78 @@ export class ApplicationsService implements IApplicationService {
       excludeExtraneousValues: true,
     });
 
-    console.log(' mapped data ', mappedData);
-
     const totalPages = Math.ceil(total / limit);
 
     return {
       data: mappedData,
       message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
+      currentPage: page,
+      totalItems: total,
+      totalPages: totalPages,
+      itemsPerPage: limit,
+    };
+  }
+
+  async updateAtsScore(
+    dto: updateAtsScoreDto,
+    companyId: string,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+    const page = 1;
+    const limit = 4;
+    this._logger.log(
+      `[applicationService] updateing new ats score to ${dto.newscore}`,
+    );
+    const ids = [companyId, dto.jobId];
+
+    const response = await this._applicationRepository.updateAtsScore(
+      ids,
+      dto.newscore,
+    );
+
+    if (!response.acknowledged) {
+      throw new Error('Failed to update ATS scores for the specified job.');
+    }
+
+    const filter: FilterQuery<ApplicationDocument> = {
+      companyId: new Types.ObjectId(companyId),
+      jobId: new Types.ObjectId(dto.jobId),
+      Stages: { $regex: `^${Stages.Shortlisted}`, $options: 'i' },
+    };
+
+    const skip = (page - 1) * limit;
+    const { data, total } =
+      await this._applicationRepository.populatedApplicationList(filter, {
+        skip,
+        limit,
+      });
+
+    if (!data || data.length === 0) {
+      return {
+        data: [],
+        message: MESSAGES.COMPANY.UPDATE_ATS_SCORE,
+        currentPage: page,
+        totalItems: 0,
+        totalPages: 0,
+        itemsPerPage: limit,
+      };
+    }
+
+    const plaindata = data.map((job) => ({
+      ...job,
+      candidateId: job.candidateId.toString(),
+      _id: job._id.toString(),
+      profile: job.profile?.[0]?.profileUrl || null,
+    }));
+
+    const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
+      excludeExtraneousValues: true,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mappedData,
+      message: MESSAGES.COMPANY.UPDATE_ATS_SCORE,
       currentPage: page,
       totalItems: total,
       totalPages: totalPages,

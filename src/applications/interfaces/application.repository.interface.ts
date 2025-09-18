@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, UpdateResult } from 'mongoose';
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { ApplicationDocument } from '../schema/applications.schema';
 import { populatedapplicationList } from '../types/repository.types';
@@ -13,5 +13,7 @@ export interface IApplicationRepository
       projection?: any;
     },
   ): Promise<{ data: populatedapplicationList[]; total: number }>;
+
+  updateAtsScore(ids: string[], minScore: number): Promise<UpdateResult>;
 }
 export const APPLICATION_REPOSITORY = 'APPLICATION_REPOSITORY';
