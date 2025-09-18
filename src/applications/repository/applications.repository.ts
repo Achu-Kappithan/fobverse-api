@@ -6,7 +6,13 @@ import {
   Applications,
 } from '../schema/applications.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, PipelineStage } from 'mongoose';
+import {
+  FilterQuery,
+  Model,
+  PipelineStage,
+  Types,
+  UpdateResult,
+} from 'mongoose';
 import { populatedapplicationList } from '../types/repository.types';
 
 @Injectable()
@@ -54,5 +60,30 @@ export class ApplicationRepository
 
     const data = details as populatedapplicationList[];
     return { data, total };
+  }
+
+  async updateAtsScore(ids: string[], minScore: number): Promise<UpdateResult> {
+    const objectIds = ids.map((id) => new Types.ObjectId(id));
+
+    return this.applicationModal.updateMany(
+      { companyId: objectIds[0], jobId: objectIds[1] },
+      [
+        {
+          $set: {
+            atsCriteria: minScore,
+            Stages: {
+              $cond: [
+                { $gte: ['$atsScore', minScore] },
+                'Shortlisted',
+                'default',
+              ],
+            },
+            Rejected: {
+              $cond: [{ $gte: ['$atsScore', minScore] }, false, true],
+            },
+          },
+        },
+      ],
+    );
   }
 }

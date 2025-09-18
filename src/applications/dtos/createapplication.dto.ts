@@ -1,5 +1,6 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Types } from 'mongoose';
+import { Stages } from '../schema/applications.schema';
 
 export class CreateApplicationDto {
   @IsNotEmpty()
@@ -20,6 +21,12 @@ export class CreateApplicationDto {
 
   @IsOptional()
   atsScore?: number;
+
+  @IsOptional()
+  Stages?: Stages;
+
+  @IsOptional()
+  Rejected?: boolean;
 
   @IsNotEmpty()
   @IsString()

@@ -33,6 +33,12 @@ export class ApplicationResponceDto {
   qualification: string;
 
   @Expose()
+  atsScore: number;
+
+  @Expose()
+  atsCriteria: number;
+
+  @Expose()
   experience: string;
 
   @Expose()

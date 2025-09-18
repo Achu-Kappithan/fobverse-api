@@ -33,11 +33,14 @@ export class Applications {
   @Prop({ required: true, default: 0 })
   atsScore: number;
 
+  @Prop({ default: 60 })
+  atsCriteria: number;
+
   @Prop({ enum: Stages, default: Stages.Default })
   Stages: Stages;
 
   @Prop({ default: false })
-  Rejected: false;
+  Rejected: boolean;
 
   @Prop({ default: true })
   applicationStatus: boolean;
