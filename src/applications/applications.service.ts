@@ -34,6 +34,8 @@ import {
   IAtsService,
 } from '../ats-sorting/interfaces/ats.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
+import { applicationResponce } from './interfaces/responce.interface';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -260,6 +262,39 @@ export class ApplicationsService implements IApplicationService {
       totalItems: total,
       totalPages: totalPages,
       itemsPerPage: limit,
+    };
+  }
+
+  async getjobDetails(
+    appId: string,
+    canId: string,
+  ): Promise<applicationResponce<ApplicationResponceDto>> {
+    console.log(appId, canId);
+    const data = await this._applicationRepository.getApplicationDetails(appId);
+    const mappedProfile = plainToInstance(CandidateProfileResponseDto, {
+      ...data.profile[0],
+      _id: data.profile[0]._id.toString(),
+      UserId: data.profile[0].UserId.toString(),
+    });
+    const mappedData = plainToInstance(
+      ApplicationResponceDto,
+      {
+        ...data,
+        _id: data._id.toString(),
+        jobId: data.jobId?.toString(),
+        candidateId: data.candidateId?.toString(),
+        companyId: data.companyId?.toString(),
+        profile: mappedProfile,
+      },
+      { excludeExtraneousValues: true },
+    );
+    this._logger.log(
+      `[applicationService] applicationDetails fetched ${JSON.stringify(mappedData)}`,
+    );
+
+    return {
+      message: MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
+      data: mappedData,
     };
   }
 }

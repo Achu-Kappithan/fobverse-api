@@ -76,5 +76,6 @@ export const MESSAGES = {
     SUBMIT_APPLICATION: 'Application Submited successfully',
     SUBMITION_FAILD: 'Creation Faild internalServer Error',
     ALREDY_APPLYED: 'Thsi job role is alredy applayied',
+    FETCH_APPLICATION_DETAILS: 'Application details fetch Successfully',
   },
 };

@@ -41,8 +41,8 @@ export class CandidateProfileResponseDto {
   portfolioLinks?: string;
 
   @Expose()
-  createdAt: Date;
+  createdAt?: Date;
 
   @Expose()
-  updatedAt: Date;
+  updatedAt?: Date;
 }

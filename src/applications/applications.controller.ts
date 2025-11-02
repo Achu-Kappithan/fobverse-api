@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Patch,
   Post,
   Query,
@@ -24,6 +25,7 @@ import { UserDocument } from '../auth/schema/user.schema';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { ApplicationResponceDto } from './dtos/application.responce';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
+import { applicationResponce } from './interfaces/responce.interface';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -71,5 +73,14 @@ export class ApplicationsController {
       dto,
       user.companyId!.toString(),
     );
+  }
+
+  @Get('applicationDetails/:appId/:canId')
+  @UseGuards(AuthGuard('access_token'))
+  async getApplicationDetails(
+    @Param('appId') appId: string,
+    @Param('canId') canId: string,
+  ): Promise<applicationResponce<ApplicationResponceDto>> {
+    return this.applicationsService.getjobDetails(appId, canId);
   }
 }
