@@ -15,5 +15,7 @@ export interface IApplicationRepository
   ): Promise<{ data: populatedapplicationList[]; total: number }>;
 
   updateAtsScore(ids: string[], minScore: number): Promise<UpdateResult>;
+
+  getApplicationDetails(appId: string): Promise<populatedapplicationList>;
 }
 export const APPLICATION_REPOSITORY = 'APPLICATION_REPOSITORY';

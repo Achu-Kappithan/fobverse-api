@@ -86,4 +86,24 @@ export class ApplicationRepository
       ],
     );
   }
+
+  async getApplicationDetails(
+    appId: string,
+  ): Promise<populatedapplicationList> {
+    const applicaton = await this.applicationModal.aggregate([
+      {
+        $match: { _id: new Types.ObjectId(appId) },
+      },
+      {
+        $lookup: {
+          from: 'candidateprofiles',
+          localField: 'candidateId',
+          foreignField: 'UserId',
+          as: 'profile',
+        },
+      },
+    ]);
+
+    return applicaton[0] as populatedapplicationList;
+  }
 }

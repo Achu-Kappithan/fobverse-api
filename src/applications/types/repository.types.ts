@@ -4,3 +4,7 @@ import { ApplicationDocument } from '../schema/applications.schema';
 export type populatedapplicationList = ApplicationDocument & {
   profile: CandidateProfileDocument[];
 };
+
+export type applicationPorfileDetails = ApplicationDocument & {
+  profile: CandidateProfileDocument[];
+};
