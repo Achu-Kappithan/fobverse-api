@@ -25,6 +25,7 @@ import {
   InternalUserDto,
   UpdateInternalUserDto,
 } from '../../company/dtos/update.profile.dtos';
+import { comapnyResponceInterface } from '../../company/interface/responce.interface';
 
 export interface IAuthService {
   validateUser(email: string, password: string, role: string): Promise<userDto>;
@@ -65,6 +66,9 @@ export interface IAuthService {
   ): Promise<UserResponceDto>;
   changePassword(id: string, dto: changePassDto): Promise<generalResponce>;
   removeUser(id: string): Promise<PlainResponse>;
+  getHrUsers(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
 }
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';

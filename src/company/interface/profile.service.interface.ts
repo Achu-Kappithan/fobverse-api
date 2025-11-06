@@ -60,6 +60,10 @@ export interface IComapnyService {
   ): Promise<comapnyResponceInterface<populateProfileDto>>;
 
   removeUser(id: string): Promise<PlainResponse>;
+
+  getHrUsers(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
 }
 
 export const COMPANY_SERVICE = 'COMPANY_SERVICE';

@@ -23,6 +23,8 @@ export interface IAuthRepository extends IBaseRepository<UserDocument> {
   findCompanyByEmail(email: string): Promise<PopulatedCompany>;
 
   findInternalUsers(companyId: Types.ObjectId): Promise<UserDocument[]>;
+
+  findHrUsers(companyId: Types.ObjectId): Promise<UserDocument[]>;
 }
 
 export const AUTH_REPOSITORY = 'AUTH_REPOSITORY';

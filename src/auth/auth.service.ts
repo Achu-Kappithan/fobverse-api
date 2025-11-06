@@ -68,6 +68,7 @@ import {
   PaginatedResponse,
   PlainResponse,
 } from '../admin/interfaces/responce.interface';
+import { comapnyResponceInterface } from '../company/interface/responce.interface';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -836,6 +837,27 @@ export class AuthService implements IAuthService {
       totalItems: total,
       totalPages: totalPages,
       itemsPerPage: limit,
+    };
+  }
+
+  // get hrUsers
+
+  async getHrUsers(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+    const companyObjId = new Types.ObjectId(companyId);
+    const data = await this._authRepository.findHrUsers(companyObjId);
+    const plaindata = data.map((val) => {
+      const user = val.toJSON();
+      return {
+        ...user,
+        _id: user._id.toString(),
+      };
+    });
+    const mappedData = plainToInstance(UserResponceDto, plaindata);
+    return {
+      message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
+      data: mappedData,
     };
   }
 

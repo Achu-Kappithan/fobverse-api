@@ -183,6 +183,15 @@ export class CompanyService implements IComapnyService {
     return await this._AuthService.getAllUsers(companyId, userId, pagination);
   }
 
+  // get Hr Users
+
+  async getHrUsers(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+    this.logger.log(`[companyService] fetch hr user of company ${companyId}`);
+    return await this._AuthService.getHrUsers(companyId);
+  }
+
   //getUserProfile
 
   async getUserProfile(

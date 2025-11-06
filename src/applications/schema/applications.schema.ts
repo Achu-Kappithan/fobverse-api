@@ -4,7 +4,8 @@ import { HydratedDocument, Types } from 'mongoose';
 export enum Stages {
   Default = 'default',
   Shortlisted = 'shortlisted',
-  Scheduled = 'scheduled',
+  Telephone = 'telephone',
+  Technical = 'technical_analysis',
   Hired = 'hired',
 }
 
