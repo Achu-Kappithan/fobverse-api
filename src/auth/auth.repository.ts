@@ -101,4 +101,11 @@ export class AuthRepository
       role: { $ne: UserRole.COMPANY_ADMIN },
     });
   }
+
+  async findHrUsers(companyId: Types.ObjectId): Promise<UserDocument[]> {
+    return this.userModel.find({
+      companyId: companyId,
+      role: { $eq: UserRole.HR_USER },
+    });
+  }
 }

@@ -82,6 +82,16 @@ export class CompanyController {
     );
   }
 
+  @Get('hrusers')
+  @UseGuards(AuthGuard('access_token'))
+  async getHrUsers(
+    @Request() req: ERequest,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+    const user = req.user;
+    const companyId = user?.companyId?.toString();
+    return await this._companyService.getHrUsers(companyId!);
+  }
+
   @Get('userprofile')
   @UseGuards(AuthGuard('access_token'))
   async getUserProfile(
