@@ -12,6 +12,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { JobsModule } from './jobs/jobs.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { AtsSortingModule } from './ats-sorting/ats-sorting.module';
+import { InterviewModule } from './interview/interview.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AtsSortingModule } from './ats-sorting/ats-sorting.module';
     JobsModule,
     ApplicationsModule,
     AtsSortingModule,
+    InterviewModule,
   ],
   controllers: [],
   providers: [],

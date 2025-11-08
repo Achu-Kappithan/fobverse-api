@@ -78,4 +78,7 @@ export const MESSAGES = {
     ALREDY_APPLYED: 'Thsi job role is alredy applayied',
     FETCH_APPLICATION_DETAILS: 'Application details fetch Successfully',
   },
+  INTERVIEW: {
+    SHEDULE: 'Interview Shedule Completed',
+  },
 };
