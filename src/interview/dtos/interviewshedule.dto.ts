@@ -20,4 +20,7 @@ export class interviewSheduleDto {
 
   @IsNotEmpty()
   scheduledTime: string;
+
+  @IsNotEmpty()
+  userEmail: string;
 }

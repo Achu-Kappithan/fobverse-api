@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Mail from 'nodemailer/lib/mailer';
 import * as nodemailer from 'nodemailer';
 import { populatedjobResDto } from '../jobs/dtos/populated.jobs.dto';
+import { ScheduleResponseDto } from '../interview/dtos/interview.responce.dto';
 
 @Injectable()
 export class EmailService {
@@ -215,6 +216,93 @@ export class EmailService {
             </table>
         </div>
     `;
+
+    await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async SendInterviewSheduledEmail(
+    to: string,
+    data: ScheduleResponseDto,
+  ): Promise<void> {
+    const subject = `Your ${data.stage} Interview Has Been Scheduled`;
+
+    const meetingSection = data.meetingLink
+      ? `
+      <p style="margin: 10px 0; font-size: 16px;">
+        <strong>Meeting Link:</strong> 
+        <a href="${data.meetingLink}" style="color: #7B3FE4; text-decoration: underline;">
+          Join Meeting
+        </a>
+      </p>
+    `
+      : `
+      <p style="margin: 10px 0; font-size: 16px;">
+        <strong>Meeting Mode:</strong> Offline / In-person
+      </p>
+    `;
+
+    const htmlContent = `
+    <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" 
+        width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+        
+        <tr>
+          <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+            <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding: 40px 20px; text-align: center;">
+            <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Your Interview Is Scheduled!</h2>
+
+            <p style="color: #6b7280; font-size: 16px; margin: 0 0 20px;">Hello,</p>
+
+            <p style="color: #6b7280; font-size: 16px; margin: 0 0 20px;">
+              We are pleased to inform you that your 
+              <strong>${data.stage}</strong> interview has been scheduled. Please find the details below:
+            </p>
+
+            <div style="text-align: left; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px;">Interview Details</h3>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>Stage:</strong> ${data.stage}
+              </p>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>Date:</strong> ${data.scheduledDate}
+              </p>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>Time:</strong> ${data.scheduledTime}
+              </p>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>HR:</strong> ${data.hrName}
+              </p>
+
+              ${meetingSection}
+            </div>
+
+            <p style="color: #6b7280; font-size: 14px;">
+              We wish you the best for your interview.  
+              Please ensure that you join on time.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+            <p style="color: #6b7280; font-size: 12px; margin: 0;">
+              © 2025 Fobverse. All rights reserved.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </div>
+  `;
 
     await this.sendEmail(to, subject, htmlContent);
   }

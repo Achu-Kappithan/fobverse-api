@@ -13,6 +13,9 @@ export class Interview {
   hrId: Types.ObjectId;
 
   @Prop({ required: true })
+  userEmail: string;
+
+  @Prop({ required: true })
   hrName: string;
 
   @Prop({ required: true, enum: Stages })
@@ -63,4 +66,4 @@ export class Interview {
   finalResult?: string;
 }
 
-export const InteviewSchema = SchemaFactory.createForClass(Interview);
+export const InterviewSchema = SchemaFactory.createForClass(Interview);

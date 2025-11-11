@@ -4,8 +4,17 @@ import { InterviewController } from './interview.controller';
 import { InterviewRepository } from './repository/interview.repository';
 import { INTERVIEW_REPOSITORY } from './interfaces/interview.repository.interface';
 import { INTERVIEW_SERVICE } from './interfaces/interview.service.interface';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Interview, InterviewSchema } from './schema/interview.schema';
+import { EmailModule } from '../email/email.module';
 
 @Module({
+  imports: [
+    MongooseModule.forFeature([
+      { name: Interview.name, schema: InterviewSchema },
+    ]),
+    EmailModule,
+  ],
   controllers: [InterviewController],
   providers: [
     {

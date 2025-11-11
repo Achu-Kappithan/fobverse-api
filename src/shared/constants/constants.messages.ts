@@ -80,5 +80,6 @@ export const MESSAGES = {
   },
   INTERVIEW: {
     SHEDULE: 'Interview Shedule Completed',
+    SHEDULED: 'This Interview  is alredy Sheduled',
   },
 };

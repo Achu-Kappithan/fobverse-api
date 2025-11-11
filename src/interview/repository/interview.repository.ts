@@ -1,9 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../shared/repositories/base.repository';
-import { InterviewDocument } from '../schema/interview.schema';
+import { Interview, InterviewDocument } from '../schema/interview.schema';
 import { IInterviewRepository } from '../interfaces/interview.repository.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class InterviewRepository
   extends BaseRepository<InterviewDocument>
-  implements IInterviewRepository {}
+  implements IInterviewRepository
+{
+  constructor(
+    @InjectModel(Interview.name)
+    private readonly InterviewModel: Model<InterviewDocument>,
+  ) {
+    super(InterviewModel);
+  }
+
+  async getStageDetails(
+    appId: string,
+    stage: string,
+  ): Promise<InterviewDocument | null> {
+    const applicationId = new Types.ObjectId(appId);
+    return this.InterviewModel.findOne({
+      applicationId,
+      stage,
+    });
+  }
+}
