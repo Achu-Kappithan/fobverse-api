@@ -297,4 +297,24 @@ export class ApplicationsService implements IApplicationService {
       data: mappedData,
     };
   }
+
+  async updateStatus(
+    appId: string,
+    nextStage: string,
+    interviewResult: string,
+  ): Promise<ApplicationDocument | null> {
+    const applicationId = new Types.ObjectId(appId);
+
+    if (interviewResult === 'Pass') {
+      return this._applicationRepository.update(
+        { _id: applicationId },
+        { stage: nextStage },
+      );
+    } else {
+      return this._applicationRepository.update(
+        { _id: applicationId },
+        { Rejected: true },
+      );
+    }
+  }
 }

@@ -27,4 +27,18 @@ export class InterviewRepository
       stage,
     });
   }
+
+  async updateFeedback(
+    appId: string,
+    stage: string,
+    data: { overallFeedback: string; finalResult: string },
+  ): Promise<InterviewDocument | null> {
+    const applicationId = new Types.ObjectId(appId);
+
+    return this.InterviewModel.findOneAndUpdate(
+      { applicationId, stage },
+      { $set: data },
+      { new: true },
+    );
+  }
 }

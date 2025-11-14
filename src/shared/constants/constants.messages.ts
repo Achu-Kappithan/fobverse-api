@@ -81,5 +81,8 @@ export const MESSAGES = {
   INTERVIEW: {
     SHEDULE: 'Interview Shedule Completed',
     SHEDULED: 'This Interview  is alredy Sheduled',
+    STAGE_GET: 'Stage details sucessfully fetched',
+    FAILD_GET: 'Errro regading fetching Stage details',
+    FEEDBACK_UPDATED: 'Feedback successfully updated',
   },
 };

@@ -7,6 +7,12 @@ export interface IInterviewRepository
     applicationId: string,
     stage: string,
   ): Promise<InterviewDocument | null>;
+
+  updateFeedback(
+    appId: string,
+    stage: string,
+    data: any,
+  ): Promise<InterviewDocument | null>;
 }
 
 export const INTERVIEW_REPOSITORY = 'INTERVIEW_REPOSITORY';

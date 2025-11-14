@@ -24,3 +24,17 @@ export class interviewSheduleDto {
   @IsNotEmpty()
   userEmail: string;
 }
+
+export class updateFeedbackDto {
+  @IsNotEmpty()
+  applicationId: string;
+
+  @IsNotEmpty()
+  stage: string;
+
+  @IsNotEmpty()
+  feedback: string;
+
+  @IsNotEmpty()
+  status: string;
+}
