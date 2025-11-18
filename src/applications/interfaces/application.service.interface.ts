@@ -6,6 +6,7 @@ import { PaginatedApplicationDto } from '../dtos/application.pagination.dto';
 import { ApplicationResponceDto } from '../dtos/application.responce';
 import { CreateApplicationDto } from '../dtos/createapplication.dto';
 import { updateAtsScoreDto } from '../dtos/update.atsScore.dto';
+import { ApplicationDocument } from '../schema/applications.schema';
 import { applicationResponce } from './responce.interface';
 
 export interface IApplicationService {
@@ -29,6 +30,12 @@ export interface IApplicationService {
     appId: string,
     canId: string,
   ): Promise<applicationResponce<ApplicationResponceDto>>;
+
+  updateStatus(
+    appId: string,
+    nextStage?: string,
+    interviewResult?: string,
+  ): Promise<ApplicationDocument | null>;
 }
 
 export const APPLICATION_SERVICE = 'APPLICATION_SERVICE';
