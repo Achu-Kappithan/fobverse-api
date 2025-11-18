@@ -2,6 +2,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Stages } from '../../applications/schema/applications.schema';
 
+export enum ReviewStatus {
+  Scheduled = 'Scheduled',
+  Completed = 'Completed',
+  Cancelled = 'Cancelled',
+  Rescheduled = 'Rescheduled',
+}
+
 export type InterviewDocument = HydratedDocument<Interview>;
 
 @Schema({ timestamps: true })
@@ -32,8 +39,8 @@ export class Interview {
 
   @Prop({
     required: true,
-    enum: ['Scheduled', 'Completed', 'Cancelled', 'Rescheduled'],
-    default: 'Scheduled',
+    enum: ReviewStatus,
+    default: ReviewStatus.Scheduled,
   })
   status: string;
 

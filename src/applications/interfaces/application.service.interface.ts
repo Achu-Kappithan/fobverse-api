@@ -33,8 +33,8 @@ export interface IApplicationService {
 
   updateStatus(
     appId: string,
-    nextStage: string,
-    interviewResult: string,
+    nextStage?: string,
+    interviewResult?: string,
   ): Promise<ApplicationDocument | null>;
 }
 

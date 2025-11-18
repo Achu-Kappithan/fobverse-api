@@ -25,6 +25,8 @@ import {
   IApplicationService,
 } from '../applications/interfaces/application.service.interface';
 import { Stages } from '../applications/schema/applications.schema';
+import { ReviewStatus } from './schema/interview.schema';
+import { CancelInterviewDto } from './dtos/cancelInterview.dto';
 
 @Injectable()
 export class InterviewService implements IInterviewService {
@@ -61,8 +63,84 @@ export class InterviewService implements IInterviewService {
       _id: data._id.toString(),
       hrId: data.hrId.toString(),
     });
-    console.log(mappedData);
-    await this._EmailService.SendInterviewSheduledEmail(
+    await this._EmailService.SendInterviewEmail(
+      dto.userEmail,
+      mappedData,
+      'Scheduled',
+    );
+
+    return {
+      message: MESSAGES.INTERVIEW.SHEDULE,
+      data: mappedData,
+    };
+  }
+
+  async reSheduleInterview(
+    dto: interviewSheduleDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    const applicationObjId = new Types.ObjectId(dto.applicationId);
+    const hrObjectId = new Types.ObjectId(dto.hrId);
+    const updatedDto = {
+      ...dto,
+      applicationId: applicationObjId,
+      hrId: hrObjectId,
+      status: ReviewStatus.Rescheduled,
+    };
+    const filter = {
+      applicationId: applicationObjId,
+      stage: dto.stage,
+    };
+    const data = await this._interviewRepository.update(filter, updatedDto);
+    const mappedData = plainToInstance(ScheduleResponseDto, {
+      ...data!.toJSON(),
+      _id: data!._id.toString(),
+      hrId: data!.hrId.toString(),
+    });
+    await this._EmailService.SendInterviewEmail(
+      dto.userEmail,
+      mappedData,
+      'Rescheduled',
+    );
+
+    return {
+      message: MESSAGES.INTERVIEW.SHEDULE,
+      data: mappedData,
+    };
+  }
+
+  async cancelIntterview(
+    dto: CancelInterviewDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    const applicationObjId = new Types.ObjectId(dto.applicationId);
+    const filter = {
+      applicationId: applicationObjId,
+      stage: dto.stage,
+    };
+
+    const data = await this._interviewRepository.update(filter, {
+      status: ReviewStatus.Cancelled,
+    });
+
+    if (!data) {
+      throw new InternalServerErrorException('Cannot Update  the status');
+    }
+
+    const udpatedStatus = await this._applicationService.updateStatus(
+      dto.applicationId,
+    );
+
+    if (!udpatedStatus) {
+      throw new InternalServerErrorException(
+        MESSAGES.INTERVIEW.UPDATE_STATUS_FAILD,
+      );
+    }
+
+    const mappedData = plainToInstance(ScheduleResponseDto, {
+      ...data.toJSON(),
+      _id: data._id.toString(),
+      hrId: data.hrId.toString(),
+    });
+    await this._EmailService.SendInterviewCancelledEmail(
       dto.userEmail,
       mappedData,
     );
@@ -114,9 +192,7 @@ export class InterviewService implements IInterviewService {
     );
 
     if (!data) {
-      throw new NotFoundException(
-        'Interview not found for the provided application and stage',
-      );
+      throw new NotFoundException(MESSAGES.INTERVIEW.UPDATE_FEEDBACK_FAILD);
     }
 
     const applicationUpdate = await this._applicationService.updateStatus(
@@ -125,11 +201,9 @@ export class InterviewService implements IInterviewService {
       dto.status,
     );
 
-    console.log(applicationUpdate);
-
     if (!applicationUpdate) {
       throw new InternalServerErrorException(
-        'Failed to update application stage',
+        MESSAGES.INTERVIEW.UPDATE_STAGE_FAILD,
       );
     }
 

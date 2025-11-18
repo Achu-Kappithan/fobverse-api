@@ -1,4 +1,5 @@
 import { ApiResponce } from '../../shared/interface/api.responce';
+import { CancelInterviewDto } from '../dtos/cancelInterview.dto';
 import { ScheduleResponseDto } from '../dtos/interview.responce.dto';
 import {
   interviewSheduleDto,
@@ -17,6 +18,14 @@ export interface IInterviewService {
 
   updateFeedback(
     dto: updateFeedbackDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>>;
+
+  reSheduleInterview(
+    dto: interviewSheduleDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>>;
+
+  cancelIntterview(
+    dto: CancelInterviewDto,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 }
 

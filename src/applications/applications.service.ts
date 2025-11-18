@@ -300,15 +300,15 @@ export class ApplicationsService implements IApplicationService {
 
   async updateStatus(
     appId: string,
-    nextStage: string,
-    interviewResult: string,
+    nextStage?: string,
+    interviewResult?: string,
   ): Promise<ApplicationDocument | null> {
     const applicationId = new Types.ObjectId(appId);
 
     if (interviewResult === 'Pass') {
       return this._applicationRepository.update(
         { _id: applicationId },
-        { stage: nextStage },
+        { Stages: nextStage },
       );
     } else {
       return this._applicationRepository.update(

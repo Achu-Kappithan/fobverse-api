@@ -3,7 +3,9 @@ import {
   Controller,
   Get,
   Inject,
+  Patch,
   Post,
+  Put,
   Query,
   Request,
   UseGuards,
@@ -19,6 +21,7 @@ import {
 } from './dtos/interviewshedule.dto';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { ScheduleResponseDto } from './dtos/interview.responce.dto';
+import { CancelInterviewDto } from './dtos/cancelInterview.dto';
 
 @Controller('interview')
 export class InterviewController {
@@ -30,6 +33,22 @@ export class InterviewController {
   @UseGuards(AuthGuard('access_token'))
   async sheduleInterview(@Body() dto: interviewSheduleDto) {
     return await this._interviewService.sheduleInterview(dto);
+  }
+
+  @Put('reshedule')
+  @UseGuards(AuthGuard('access_token'))
+  async reSheduleInterview(
+    @Body() dto: interviewSheduleDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    return this._interviewService.reSheduleInterview(dto);
+  }
+
+  @Patch('cancelinterview')
+  @UseGuards(AuthGuard('access_token'))
+  async cancelInterview(
+    @Body() dto: CancelInterviewDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    return this._interviewService.cancelIntterview(dto);
   }
 
   @Get('getstagedetails')

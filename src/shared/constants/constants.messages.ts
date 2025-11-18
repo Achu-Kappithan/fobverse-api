@@ -84,5 +84,8 @@ export const MESSAGES = {
     STAGE_GET: 'Stage details sucessfully fetched',
     FAILD_GET: 'Errro regading fetching Stage details',
     FEEDBACK_UPDATED: 'Feedback successfully updated',
+    UPDATE_FEEDBACK_FAILD: 'Faild to Update the Feedback',
+    UPDATE_STATUS_FAILD: 'Failed to update application status',
+    UPDATE_STAGE_FAILD: 'Failed to update Stage',
   },
 };

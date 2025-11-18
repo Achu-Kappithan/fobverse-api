@@ -220,11 +220,20 @@ export class EmailService {
     await this.sendEmail(to, subject, htmlContent);
   }
 
-  async SendInterviewSheduledEmail(
+  async SendInterviewEmail(
     to: string,
     data: ScheduleResponseDto,
+    type: 'Scheduled' | 'Rescheduled',
   ): Promise<void> {
-    const subject = `Your ${data.stage} Interview Has Been Scheduled`;
+    const subject =
+      type === 'Scheduled'
+        ? `Your ${data.stage} Interview Has Been Scheduled`
+        : `Your ${data.stage} Interview Has Been Rescheduled`;
+
+    const greetingMessage =
+      type === 'Scheduled'
+        ? `We are pleased to inform you that your <strong>${data.stage}</strong> interview has been scheduled.`
+        : `Your <strong>${data.stage}</strong> interview has been <strong>rescheduled</strong>. Please find your updated details below.`;
 
     const meetingSection = data.meetingLink
       ? `
@@ -254,13 +263,14 @@ export class EmailService {
 
         <tr>
           <td style="padding: 40px 20px; text-align: center;">
-            <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Your Interview Is Scheduled!</h2>
+            <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">
+              ${type === 'Scheduled' ? 'Your Interview Is Scheduled!' : 'Your Interview Has Been Rescheduled!'}
+            </h2>
 
             <p style="color: #6b7280; font-size: 16px; margin: 0 0 20px;">Hello,</p>
 
             <p style="color: #6b7280; font-size: 16px; margin: 0 0 20px;">
-              We are pleased to inform you that your 
-              <strong>${data.stage}</strong> interview has been scheduled. Please find the details below:
+              ${greetingMessage}
             </p>
 
             <div style="text-align: left; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;">
@@ -286,12 +296,107 @@ export class EmailService {
             </div>
 
             <p style="color: #6b7280; font-size: 14px;">
-              We wish you the best for your interview.  
-              Please ensure that you join on time.
+              ${
+                type === 'Scheduled'
+                  ? 'We wish you the best for your interview. Please ensure that you join on time.'
+                  : 'Please make sure to attend the interview at the new schedule provided above.'
+              }
             </p>
           </td>
         </tr>
 
+        <tr>
+          <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+            <p style="color: #6b7280; font-size: 12px; margin: 0;">
+              © 2025 Fobverse. All rights reserved.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </div>
+  `;
+
+    await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async SendInterviewCancelledEmail(
+    to: string,
+    data: ScheduleResponseDto,
+  ): Promise<void> {
+    const subject = `Update on Your ${data.stage} Interview Status`;
+
+    const htmlContent = `
+    <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" 
+        width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+        
+        <!-- Header -->
+        <tr>
+          <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+            <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding: 40px 20px; text-align: center;">
+            <h2 style="color: #dc2626; font-size: 20px; margin-bottom: 20px;">
+              Interview Cancelled & Application Update
+            </h2>
+
+            <p style="color: #6b7280; font-size: 16px; margin-bottom: 15px;">
+              Hello,
+            </p>
+
+            <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+              We regret to inform you that your 
+              <strong>${data.stage}</strong> interview scheduled on 
+              <strong>${data.scheduledDate}</strong> at 
+              <strong>${data.scheduledTime}</strong> has been 
+              <span style="color: #dc2626; font-weight: bold;">cancelled</span>.
+            </p>
+
+            <div style="text-align: left; padding: 20px; border: 1px solid #f3f4f6; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px;">Interview Details</h3>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>Stage:</strong> ${data.stage}
+              </p>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>Date:</strong> ${data.scheduledDate}
+              </p>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>Time:</strong> ${data.scheduledTime}
+              </p>
+
+              <p style="margin: 10px 0; font-size: 16px;">
+                <strong>HR:</strong> ${data.hrName}
+              </p>
+            </div>
+
+            <p style="color: #6b7280; font-size: 15px; margin-bottom: 15px;">
+              After careful consideration, we regret to inform you that you were not selected to move forward in the hiring process at this time.
+            </p>
+
+            <p style="color: #6b7280; font-size: 15px; margin-bottom: 20px;">
+              We truly appreciate the time and effort you put into your application and interest in joining Fobverse. 
+              We encourage you to apply again in the future if another opportunity aligns with your skills and experience.
+            </p>
+
+            <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">
+              Thank you once again for your interest, and we wish you all the best in your career ahead.
+            </p>
+
+            <p style="color: #1f2937; font-size: 15px; font-weight: bold;">
+              – The Fobverse Team
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
         <tr>
           <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
             <p style="color: #6b7280; font-size: 12px; margin: 0;">
