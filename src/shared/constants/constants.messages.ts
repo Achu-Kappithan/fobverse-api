@@ -80,6 +80,7 @@ export const MESSAGES = {
   },
   INTERVIEW: {
     SHEDULE: 'Interview Shedule Completed',
+    CANCEL_INTERVIEW: 'Interview Cancelled',
     SHEDULED: 'This Interview  is alredy Sheduled',
     STAGE_GET: 'Stage details sucessfully fetched',
     FAILD_GET: 'Errro regading fetching Stage details',

@@ -13,6 +13,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { AtsSortingModule } from './ats-sorting/ats-sorting.module';
 import { InterviewModule } from './interview/interview.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { InterviewModule } from './interview/interview.module';
     ApplicationsModule,
     AtsSortingModule,
     InterviewModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

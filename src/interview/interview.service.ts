@@ -146,7 +146,7 @@ export class InterviewService implements IInterviewService {
     );
 
     return {
-      message: MESSAGES.INTERVIEW.SHEDULE,
+      message: MESSAGES.INTERVIEW.CANCEL_INTERVIEW,
       data: mappedData,
     };
   }
