@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { Types } from 'mongoose';
 import { Stages } from '../../applications/schema/applications.schema';
 
@@ -23,6 +23,9 @@ export class interviewSheduleDto {
 
   @IsNotEmpty()
   userEmail: string;
+
+  @IsOptional()
+  candidateId: string;
 }
 
 export class updateFeedbackDto {

@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -27,20 +28,30 @@ import {
 import { Stages } from '../applications/schema/applications.schema';
 import { ReviewStatus } from './schema/interview.schema';
 import { CancelInterviewDto } from './dtos/cancelInterview.dto';
+import {
+  InotificationService,
+  NOTIFICATION_SERVICE,
+} from '../notification/interfaces/notification.service.interface';
 
 @Injectable()
 export class InterviewService implements IInterviewService {
+  logger = new Logger(InterviewService.name);
   constructor(
     @Inject(INTERVIEW_REPOSITORY)
     private readonly _interviewRepository: IInterviewRepository,
     @Inject(APPLICATION_SERVICE)
     private readonly _applicationService: IApplicationService,
+    @Inject(NOTIFICATION_SERVICE)
+    private readonly _notificationService: InotificationService,
     private readonly _EmailService: EmailService,
   ) {}
 
   async sheduleInterview(
     dto: interviewSheduleDto,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
+    this.logger.log(
+      `[interviewService] data get in the frondend for sheduling interview ${JSON.stringify(dto)}`,
+    );
     const currentData = await this._interviewRepository.getStageDetails(
       dto.applicationId.toString(),
       dto.stage,
@@ -78,6 +89,9 @@ export class InterviewService implements IInterviewService {
   async reSheduleInterview(
     dto: interviewSheduleDto,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
+    this.logger.log(
+      `[interviewService] data get in the frondend for resheduling interview ${JSON.stringify(dto)}`,
+    );
     const applicationObjId = new Types.ObjectId(dto.applicationId);
     const hrObjectId = new Types.ObjectId(dto.hrId);
     const updatedDto = {
@@ -100,6 +114,10 @@ export class InterviewService implements IInterviewService {
       dto.userEmail,
       mappedData,
       'Rescheduled',
+    );
+    await this._notificationService.createInterviewRescheduledNotification(
+      dto.candidateId,
+      { date: dto.scheduledDate, time: dto.scheduledTime },
     );
 
     return {
@@ -146,7 +164,7 @@ export class InterviewService implements IInterviewService {
     );
 
     return {
-      message: MESSAGES.INTERVIEW.SHEDULE,
+      message: MESSAGES.INTERVIEW.CANCEL_INTERVIEW,
       data: mappedData,
     };
   }

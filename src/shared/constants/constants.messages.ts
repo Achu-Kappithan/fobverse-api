@@ -80,6 +80,7 @@ export const MESSAGES = {
   },
   INTERVIEW: {
     SHEDULE: 'Interview Shedule Completed',
+    CANCEL_INTERVIEW: 'Interview Cancelled',
     SHEDULED: 'This Interview  is alredy Sheduled',
     STAGE_GET: 'Stage details sucessfully fetched',
     FAILD_GET: 'Errro regading fetching Stage details',
@@ -87,5 +88,10 @@ export const MESSAGES = {
     UPDATE_FEEDBACK_FAILD: 'Faild to Update the Feedback',
     UPDATE_STATUS_FAILD: 'Failed to update application status',
     UPDATE_STAGE_FAILD: 'Failed to update Stage',
+  },
+
+  NOTIFICATION: {
+    FETCH_UNREAD_COUNT: 'Interview Notification',
+    FETCH_NOTIFICATIONS: 'Fetch Notifications',
   },
 };
