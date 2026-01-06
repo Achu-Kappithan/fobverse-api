@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Interview, InterviewSchema } from './schema/interview.schema';
 import { EmailModule } from '../email/email.module';
 import { ApplicationsModule } from '../applications/applications.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ApplicationsModule } from '../applications/applications.module';
       { name: Interview.name, schema: InterviewSchema },
     ]),
     EmailModule,
+    NotificationModule,
     ApplicationsModule,
   ],
   controllers: [InterviewController],

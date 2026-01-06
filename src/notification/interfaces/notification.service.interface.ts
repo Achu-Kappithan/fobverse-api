@@ -1,7 +1,21 @@
-import { IBaseRepository } from '../../shared/interface/base-repository.interface';
-import { notificationDocument } from '../schema/notification.schema';
+import { ApiResponce } from '../../shared/interface/api.responce';
+import { notificationResponceDto } from '../dtos/notification.responce.dto';
 
-export interface InotificationRepository
-  extends IBaseRepository<notificationDocument> {}
+export interface InotificationService {
+  createInterviewRescheduledNotification(candidateId: string, interview: any);
 
-export const NOTIFICATION_REPOSITORY = 'NOTIFICATION_REPOSITORY';
+  createInterviewCancelledNotification(
+    candidateId: string,
+    interviewId: string,
+  );
+
+  getCandidateNotifications(
+    candidateId: string,
+  ): Promise<ApiResponce<notificationResponceDto[]>>;
+
+  getUnreadCount(candidateId: string): Promise<ApiResponce<{ count: number }>>;
+
+  markAsRead(notificationId: string);
+}
+
+export const NOTIFICATION_SERVICE = 'NOTIFICATION_SERVICE';

@@ -18,16 +18,15 @@ export class notification {
   notificationType: notificationType;
 
   @Prop({ required: true })
-  tittle: string;
+  title: string;
 
   @Prop({ required: true })
   message: string;
 
   @Prop({ type: Object })
   meta?: {
-    interviewId: Types.ObjectId;
-    date: Date;
-    time: string;
+    date?: string;
+    time?: string;
   };
 
   @Prop({ default: false })

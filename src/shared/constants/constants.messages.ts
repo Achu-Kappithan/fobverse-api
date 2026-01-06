@@ -89,4 +89,9 @@ export const MESSAGES = {
     UPDATE_STATUS_FAILD: 'Failed to update application status',
     UPDATE_STAGE_FAILD: 'Failed to update Stage',
   },
+
+  NOTIFICATION: {
+    FETCH_UNREAD_COUNT: 'Interview Notification',
+    FETCH_NOTIFICATIONS: 'Fetch Notifications',
+  },
 };

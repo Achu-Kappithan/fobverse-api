@@ -3,9 +3,11 @@ import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { notification, notificationSchema } from './schema/notification.schema';
-import { NOTIFICATION_SERVICE } from './interfaces/notification.repository.interface';
-import { NOTIFICATION_REPOSITORY } from './interfaces/notification.service.interface';
+import { NOTIFICATION_SERVICE } from './interfaces/notification.service.interface';
+import { NOTIFICATION_REPOSITORY } from './interfaces/notification.repository.interface';
 import { notificationRepository } from './repository/notification.repository';
+import { NotificationGateWay } from './notification.gateway';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { notificationRepository } from './repository/notification.repository';
       provide: NOTIFICATION_REPOSITORY,
       useClass: notificationRepository,
     },
+    NotificationGateWay,
+    JwtService,
   ],
   exports: [NOTIFICATION_SERVICE],
 })
