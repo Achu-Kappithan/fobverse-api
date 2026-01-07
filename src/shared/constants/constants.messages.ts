@@ -93,5 +93,6 @@ export const MESSAGES = {
   NOTIFICATION: {
     FETCH_UNREAD_COUNT: 'Interview Notification',
     FETCH_NOTIFICATIONS: 'Fetch Notifications',
+    UPDATED: 'Update Successfully Complted',
   },
 };

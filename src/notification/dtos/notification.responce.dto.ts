@@ -9,7 +9,7 @@ export class notificationResponceDto {
   @Expose()
   notificationType: notificationType;
   @Expose()
-  tittle: string;
+  title: string;
   @Expose()
   message: string;
   @Expose()
