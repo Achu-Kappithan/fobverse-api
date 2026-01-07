@@ -1,4 +1,12 @@
-import { Controller, Get, Inject, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import {
   InotificationService,
   NOTIFICATION_SERVICE,
@@ -33,5 +41,19 @@ export class NotificationController {
     console.log('user data get from the jwt', user);
 
     return await this._notificationService.getUnreadCount(user.id);
+  }
+
+  @Patch(':id/markasread')
+  @UseGuards(AuthGuard('access_token'))
+  async markAsRead(@Param('id') notificationId: string) {
+    console.log(notificationId);
+    return this._notificationService.markAsRead(notificationId);
+  }
+
+  @Patch('markallread')
+  @UseGuards(AuthGuard('access_token'))
+  async markAllAsRead(@Request() req: Erequest) {
+    const user = req.user as { id: string };
+    return this._notificationService.markAllAsRead(user.id);
   }
 }

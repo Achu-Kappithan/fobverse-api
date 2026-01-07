@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InotificationService } from './interfaces/notification.service.interface';
 import {
   InotificationRepository,
@@ -11,6 +16,7 @@ import { ApiResponce } from '../shared/interface/api.responce';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { plainToInstance } from 'class-transformer';
 import { notificationResponceDto } from './dtos/notification.responce.dto';
+import { PlainResponse } from '../admin/interfaces/responce.interface';
 
 @Injectable()
 export class NotificationService implements InotificationService {
@@ -61,11 +67,14 @@ export class NotificationService implements InotificationService {
   ): Promise<ApiResponce<notificationResponceDto[]>> {
     const data =
       await this._notificationRepository.findByRecipient(candidateId);
-    const plaindata = data.map((val) => ({
-      ...val,
-      _id: val._id.toString(),
-      candidateId: val.candidateId.toString(),
-    }));
+    const plaindata = data.map((val) => {
+      const obj = val.toObject();
+      return {
+        ...obj,
+        _id: obj._id.toString(),
+        candidateId: obj.candidateId.toString(),
+      };
+    });
 
     const mappedData = plainToInstance(notificationResponceDto, plaindata, {
       excludeExtraneousValues: true,
@@ -88,12 +97,36 @@ export class NotificationService implements InotificationService {
     };
   }
 
-  markAsRead(notificationId: string) {
-    return this._notificationRepository.update(
+  async markAsRead(
+    notificationId: string,
+  ): Promise<ApiResponce<notificationResponceDto>> {
+    const data = await this._notificationRepository.update(
       { _id: notificationId },
       {
         isRead: true,
       },
     );
+    const mappedData = plainToInstance(notificationResponceDto, {
+      ...data,
+      _id: data?._id.toString(),
+      candidateId: data?.candidateId.toString(),
+    });
+    return {
+      message: MESSAGES.NOTIFICATION.UPDATED,
+      data: mappedData,
+    };
+  }
+
+  async markAllAsRead(candidateId: string): Promise<PlainResponse> {
+    const result =
+      await this._notificationRepository.markAsAllRead(candidateId);
+    console.log('all read updation result', result);
+
+    if (!result.acknowledged) {
+      throw new InternalServerErrorException();
+    }
+    return {
+      message: MESSAGES.NOTIFICATION.UPDATED,
+    };
   }
 }

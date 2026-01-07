@@ -6,7 +6,7 @@ import {
 } from '../schema/notification.schema';
 import { InotificationRepository } from '../interfaces/notification.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, UpdateResult } from 'mongoose';
 
 @Injectable()
 export class notificationRepository
@@ -21,8 +21,9 @@ export class notificationRepository
   }
 
   async findByRecipient(recipientId: string): Promise<notificationDocument[]> {
+    const candidateObjId = new Types.ObjectId(recipientId);
     return await this.notificationModel
-      .find({ recipientId })
+      .find({ candidateId: candidateObjId })
       .sort({ createdAt: -1 })
       .exec();
   }
@@ -33,5 +34,13 @@ export class notificationRepository
       candidateId: CandidateObjId,
       isRead: false,
     });
+  }
+
+  async markAsAllRead(candidateId: string): Promise<UpdateResult> {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    return this.notificationModel.updateMany(
+      { candidateId: candidateObjId },
+      { isRead: true },
+    );
   }
 }
