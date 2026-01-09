@@ -16,12 +16,13 @@ import {
 } from './interfaces/interview.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import {
-  interviewSheduleDto,
-  updateFeedbackDto,
+  ScheduleTelephoneInterviewDto,
+  UpdateFeedbackDto,
 } from './dtos/interviewshedule.dto';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { ScheduleResponseDto } from './dtos/interview.responce.dto';
 import { CancelInterviewDto } from './dtos/cancelInterview.dto';
+import { Request as ERequest } from 'express';
 
 @Controller('interview')
 export class InterviewController {
@@ -31,16 +32,25 @@ export class InterviewController {
   ) {}
   @Post('shedule')
   @UseGuards(AuthGuard('access_token'))
-  async sheduleInterview(@Body() dto: interviewSheduleDto) {
-    return await this._interviewService.sheduleInterview(dto);
+  async sheduleInterview(
+    @Body() dto: ScheduleTelephoneInterviewDto,
+    @Request() req: ERequest,
+  ) {
+    const scheduledBy = req.user as { id: string };
+    return await this._interviewService.sheduleTelyInterview(
+      dto,
+      scheduledBy.id,
+    );
   }
 
   @Put('reshedule')
   @UseGuards(AuthGuard('access_token'))
   async reSheduleInterview(
-    @Body() dto: interviewSheduleDto,
+    @Body() dto: ScheduleTelephoneInterviewDto,
+    @Request() req: ERequest,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
-    return this._interviewService.reSheduleInterview(dto);
+    const scheduledBy = req.user as { id: string };
+    return this._interviewService.reSheduleTelyInterview(dto, scheduledBy.id);
   }
 
   @Patch('cancelinterview')
@@ -63,8 +73,10 @@ export class InterviewController {
   @Post('updatefeedback')
   @UseGuards(AuthGuard('access_token'))
   async updateFeedback(
-    @Body() data: updateFeedbackDto,
+    @Body() data: UpdateFeedbackDto,
+    @Request() req: ERequest,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
-    return this._interviewService.updateFeedback(data);
+    const interviewer = req.user as { id: string };
+    return this._interviewService.updateTelyFeedback(data, interviewer.id);
   }
 }

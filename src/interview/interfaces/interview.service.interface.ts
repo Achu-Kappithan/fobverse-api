@@ -2,13 +2,14 @@ import { ApiResponce } from '../../shared/interface/api.responce';
 import { CancelInterviewDto } from '../dtos/cancelInterview.dto';
 import { ScheduleResponseDto } from '../dtos/interview.responce.dto';
 import {
-  interviewSheduleDto,
-  updateFeedbackDto,
+  ScheduleTelephoneInterviewDto,
+  UpdateFeedbackDto,
 } from '../dtos/interviewshedule.dto';
 
 export interface IInterviewService {
-  sheduleInterview(
-    dto: interviewSheduleDto,
+  sheduleTelyInterview(
+    dto: ScheduleTelephoneInterviewDto,
+    scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
   getStageDetails(
@@ -16,12 +17,14 @@ export interface IInterviewService {
     stage: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
-  updateFeedback(
-    dto: updateFeedbackDto,
+  updateTelyFeedback(
+    dto: UpdateFeedbackDto,
+    interviewerId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
-  reSheduleInterview(
-    dto: interviewSheduleDto,
+  reSheduleTelyInterview(
+    dto: ScheduleTelephoneInterviewDto,
+    scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
   cancelIntterview(

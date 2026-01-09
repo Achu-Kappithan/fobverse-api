@@ -11,8 +11,9 @@ import {
   INTERVIEW_REPOSITORY,
 } from './interfaces/interview.repository.interface';
 import {
-  interviewSheduleDto,
-  updateFeedbackDto,
+  EvaluatorDto,
+  ScheduleTelephoneInterviewDto,
+  UpdateFeedbackDto,
 } from './dtos/interviewshedule.dto';
 import { IInterviewService } from './interfaces/interview.service.interface';
 import { Types } from 'mongoose';
@@ -25,8 +26,7 @@ import {
   APPLICATION_SERVICE,
   IApplicationService,
 } from '../applications/interfaces/application.service.interface';
-import { Stages } from '../applications/schema/applications.schema';
-import { ReviewStatus } from './schema/interview.schema';
+import { finalResult, ReviewStatus } from './schema/interview.schema';
 import { CancelInterviewDto } from './dtos/cancelInterview.dto';
 import {
   InotificationService,
@@ -46,8 +46,9 @@ export class InterviewService implements IInterviewService {
     private readonly _EmailService: EmailService,
   ) {}
 
-  async sheduleInterview(
-    dto: interviewSheduleDto,
+  async sheduleTelyInterview(
+    dto: ScheduleTelephoneInterviewDto,
+    scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     this.logger.log(
       `[interviewService] data get in the frondend for sheduling interview ${JSON.stringify(dto)}`,
@@ -62,17 +63,34 @@ export class InterviewService implements IInterviewService {
     }
 
     const applicationObjId = new Types.ObjectId(dto.applicationId);
-    const hrObjectId = new Types.ObjectId(dto.hrId);
+    const scheduledByObjId = new Types.ObjectId(scheduledBy);
+    const evaluatorObj = dto.evaluator[0] as EvaluatorDto;
+
+    const evaluators = [
+      {
+        interviewerId: evaluatorObj.interviewerId
+          ? new Types.ObjectId(evaluatorObj.interviewerId)
+          : undefined,
+        interviewerName: evaluatorObj.interviewerName,
+      },
+    ];
+
     const updatedDto = {
-      ...dto,
       applicationId: applicationObjId,
-      hrId: hrObjectId,
+      scheduledBy: scheduledByObjId,
+      userEmail: dto.userEmail,
+      stage: dto.stage,
+      scheduledDate: dto.scheduledDate,
+      scheduledTime: dto.scheduledTime,
+      evaluators,
     };
+
     const data = await this._interviewRepository.create(updatedDto);
     const mappedData = plainToInstance(ScheduleResponseDto, {
       ...data.toJSON(),
       _id: data._id.toString(),
-      hrId: data.hrId.toString(),
+      scheduledBy: data.scheduledBy.toString(),
+      applicationId: data.applicationId.toString(),
     });
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
@@ -86,18 +104,34 @@ export class InterviewService implements IInterviewService {
     };
   }
 
-  async reSheduleInterview(
-    dto: interviewSheduleDto,
+  async reSheduleTelyInterview(
+    dto: ScheduleTelephoneInterviewDto,
+    scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     this.logger.log(
       `[interviewService] data get in the frondend for resheduling interview ${JSON.stringify(dto)}`,
     );
     const applicationObjId = new Types.ObjectId(dto.applicationId);
-    const hrObjectId = new Types.ObjectId(dto.hrId);
+    const scheduledByObjId = new Types.ObjectId(scheduledBy);
+    const evaluatorObj = dto.evaluator[0] as EvaluatorDto;
+
+    const evaluators = [
+      {
+        interviewerId: evaluatorObj.interviewerId
+          ? new Types.ObjectId(evaluatorObj.interviewerId)
+          : undefined,
+        interviewerName: evaluatorObj.interviewerName,
+      },
+    ];
+
     const updatedDto = {
-      ...dto,
       applicationId: applicationObjId,
-      hrId: hrObjectId,
+      scheduledBy: scheduledByObjId,
+      userEmail: dto.userEmail,
+      stage: dto.stage,
+      scheduledDate: dto.scheduledDate,
+      scheduledTime: dto.scheduledTime,
+      evaluators,
       status: ReviewStatus.Rescheduled,
     };
     const filter = {
@@ -108,20 +142,17 @@ export class InterviewService implements IInterviewService {
     const mappedData = plainToInstance(ScheduleResponseDto, {
       ...data!.toJSON(),
       _id: data!._id.toString(),
-      hrId: data!.hrId.toString(),
+      scheduledBy: data!.scheduledBy.toString(),
+      applicationId: data?.applicationId.toString(),
     });
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
       mappedData,
       'Rescheduled',
     );
-    await this._notificationService.createInterviewRescheduledNotification(
-      dto.candidateId,
-      { date: dto.scheduledDate, time: dto.scheduledTime },
-    );
 
     return {
-      message: MESSAGES.INTERVIEW.SHEDULE,
+      message: MESSAGES.INTERVIEW.RE_SHEDULE,
       data: mappedData,
     };
   }
@@ -137,6 +168,7 @@ export class InterviewService implements IInterviewService {
 
     const data = await this._interviewRepository.update(filter, {
       status: ReviewStatus.Cancelled,
+      finalResult: finalResult.Fail,
     });
 
     if (!data) {
@@ -156,7 +188,8 @@ export class InterviewService implements IInterviewService {
     const mappedData = plainToInstance(ScheduleResponseDto, {
       ...data.toJSON(),
       _id: data._id.toString(),
-      hrId: data.hrId.toString(),
+      scheduledBy: data.scheduledBy.toString(),
+      applicationId: data.applicationId.toString(),
     });
     await this._EmailService.SendInterviewCancelledEmail(
       dto.userEmail,
@@ -185,7 +218,7 @@ export class InterviewService implements IInterviewService {
     const mappedData = plainToInstance(ScheduleResponseDto, {
       ...data?.toJSON(),
       _id: data._id.toString(),
-      hrId: data.hrId.toString(),
+      scheduledBy: data.scheduledBy.toString(),
     });
 
     return {
@@ -194,42 +227,36 @@ export class InterviewService implements IInterviewService {
     };
   }
 
-  async updateFeedback(
-    dto: updateFeedbackDto,
+  async updateTelyFeedback(
+    dto: UpdateFeedbackDto,
+    interviewerId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
-    const newdata = {
-      overallFeedback: dto.feedback,
-      finalResult: dto.status,
-      status: 'Completed',
-    };
+    const interview = await this._interviewRepository.findById(dto.interviewId);
 
-    const data = await this._interviewRepository.updateFeedback(
-      dto.applicationId,
-      dto.stage,
-      newdata,
-    );
-
-    if (!data) {
-      throw new NotFoundException(MESSAGES.INTERVIEW.UPDATE_FEEDBACK_FAILD);
+    if (!interview) {
+      throw new NotFoundException(MESSAGES.INTERVIEW.FAILD_GET);
     }
 
-    const applicationUpdate = await this._applicationService.updateStatus(
-      dto.applicationId,
-      Stages.Technical,
-      dto.status,
+    const evaluatorIndex = interview.evaluators.findIndex(
+      (evaluator) => evaluator.interviewerId?.toString() === interviewerId,
     );
 
-    if (!applicationUpdate) {
-      throw new InternalServerErrorException(
-        MESSAGES.INTERVIEW.UPDATE_STAGE_FAILD,
-      );
+    if (evaluatorIndex === -1) {
+      throw new NotFoundException('Evaluator not found in this interview');
     }
+
+    interview.evaluators[evaluatorIndex].feedback = dto.feedback;
+    interview.evaluators[evaluatorIndex].result = dto.result;
+
+    const updatedInterview = await interview.save();
 
     const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data?.toJSON(),
-      _id: data?._id.toString(),
-      hrId: data?.hrId.toString(),
+      ...updatedInterview?.toJSON(),
+      _id: updatedInterview?._id.toString(),
+      scheduledBy: updatedInterview?.scheduledBy.toString(),
+      applicationId: updatedInterview.applicationId.toString(),
     });
+
     return {
       message: MESSAGES.INTERVIEW.FEEDBACK_UPDATED,
       data: mappedData,
