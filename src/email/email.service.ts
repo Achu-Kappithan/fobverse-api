@@ -288,10 +288,6 @@ export class EmailService {
                 <strong>Time:</strong> ${data.scheduledTime}
               </p>
 
-              <p style="margin: 10px 0; font-size: 16px;">
-                <strong>HR:</strong> ${data.hrName}
-              </p>
-
               ${meetingSection}
             </div>
 
@@ -370,10 +366,6 @@ export class EmailService {
 
               <p style="margin: 10px 0; font-size: 16px;">
                 <strong>Time:</strong> ${data.scheduledTime}
-              </p>
-
-              <p style="margin: 10px 0; font-size: 16px;">
-                <strong>HR:</strong> ${data.hrName}
               </p>
             </div>
 

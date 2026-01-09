@@ -19,10 +19,10 @@ export class ScheduleResponseDto {
   applicationId: string;
 
   @Exclude()
-  hrId: string;
+  scheduledBy: string;
 
   @Expose()
-  hrName: string;
+  userEmail: string;
 
   @Expose()
   stage: string;
@@ -41,7 +41,7 @@ export class ScheduleResponseDto {
 
   @Expose()
   @Type(() => PanelDto)
-  panel: PanelDto[];
+  evaluators: PanelDto[];
 
   @Expose()
   overallFeedback?: string;

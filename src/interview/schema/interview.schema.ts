@@ -9,6 +9,31 @@ export enum ReviewStatus {
   Rescheduled = 'Rescheduled',
 }
 
+export enum finalResult {
+  Fail = 'Fail',
+  Pass = 'Pass',
+  Pending = 'Pending',
+}
+
+@Schema({ _id: false })
+class Evaluator {
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
+  interviewerId?: Types.ObjectId;
+
+  @Prop({ required: true })
+  interviewerName: string;
+
+  @Prop()
+  feedback?: string;
+
+  @Prop({
+    type: String,
+    enum: ['Pass', 'Fail', 'Neutral', 'Pending'],
+    default: 'Pending',
+  })
+  result?: string;
+}
+
 export type InterviewDocument = HydratedDocument<Interview>;
 
 @Schema({ timestamps: true })
@@ -17,13 +42,10 @@ export class Interview {
   applicationId: Types.ObjectId;
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
-  hrId: Types.ObjectId;
+  scheduledBy: Types.ObjectId;
 
   @Prop({ required: true })
   userEmail: string;
-
-  @Prop({ required: true })
-  hrName: string;
 
   @Prop({ required: true, enum: Stages })
   stage: Stages;
@@ -44,32 +66,13 @@ export class Interview {
   })
   status: string;
 
-  @Prop({
-    type: [
-      {
-        interviewerId: { type: Types.ObjectId, ref: 'User', required: false },
-        interviewerName: { type: String, required: true },
-        feedback: { type: String },
-        result: {
-          type: String,
-          enum: ['Pass', 'Fail', 'Neutral', 'Pending'],
-          default: 'Pending',
-        },
-      },
-    ],
-    default: [],
-  })
-  panel: {
-    interviewerId?: Types.ObjectId;
-    interviewerName: string;
-    feedback?: string;
-    result?: string;
-  }[];
+  @Prop({ type: [Evaluator], default: [] })
+  evaluators: Evaluator[];
 
   @Prop()
   overallFeedback?: string;
 
-  @Prop({ enum: ['Pass', 'Fail', 'Pending'], default: 'Pending' })
+  @Prop({ enum: finalResult, default: finalResult.Pending })
   finalResult?: string;
 }
 

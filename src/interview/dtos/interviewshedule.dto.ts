@@ -1,19 +1,41 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
-import { Types } from 'mongoose';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { Stages } from '../../applications/schema/applications.schema';
 
-export class interviewSheduleDto {
-  @IsNotEmpty()
-  hrName: string;
+export class EvaluatorDto {
+  @IsOptional()
+  interviewerId?: string;
 
   @IsNotEmpty()
+  @IsString()
+  interviewerName: string;
+
+  @IsOptional()
+  @IsString()
+  feedback?: string;
+
+  @IsOptional()
+  @IsEnum(['Pass', 'Fail', 'Neutral', 'Pending'])
+  result?: string;
+}
+
+export class ScheduleTelephoneInterviewDto {
+  @IsNotEmpty()
+  applicationId: string;
+
+  @IsNotEmpty()
+  @IsEnum(Stages)
   stage: Stages;
 
   @IsNotEmpty()
-  applicationId: string | Types.ObjectId;
-
-  @IsNotEmpty()
-  hrId: string | Types.ObjectId;
+  userEmail: string;
 
   @IsNotEmpty()
   scheduledDate: string;
@@ -22,22 +44,46 @@ export class interviewSheduleDto {
   scheduledTime: string;
 
   @IsNotEmpty()
-  userEmail: string;
-
-  @IsOptional()
-  candidateId: string;
+  evaluator: EvaluatorDto;
 }
 
-export class updateFeedbackDto {
+export class ScheduleTechnicalInterviewDto {
   @IsNotEmpty()
   applicationId: string;
 
   @IsNotEmpty()
-  stage: string;
+  @IsEnum(Stages)
+  stage: Stages;
+
+  @IsNotEmpty()
+  userEmail: string;
+
+  @IsNotEmpty()
+  scheduledDate: string;
+
+  @IsNotEmpty()
+  scheduledTime: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EvaluatorDto)
+  evaluators: EvaluatorDto[];
+
+  @IsOptional()
+  meetingLink?: string;
+}
+
+export class UpdateFeedbackDto {
+  @IsNotEmpty()
+  interviewId: string;
 
   @IsNotEmpty()
   feedback: string;
 
-  @IsNotEmpty()
-  status: string;
+  @IsEnum(['Pass', 'Fail', 'Neutral'])
+  result: string;
+
+  @IsOptional()
+  @IsString()
+  overallFeedback?: string;
 }
