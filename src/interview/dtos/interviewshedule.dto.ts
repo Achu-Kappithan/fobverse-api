@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Stages } from '../../applications/schema/applications.schema';
+import { finalResult } from '../schema/interview.schema';
 
 export class EvaluatorDto {
   @IsOptional()
@@ -86,4 +87,15 @@ export class UpdateFeedbackDto {
   @IsOptional()
   @IsString()
   overallFeedback?: string;
+}
+
+export class UpdateFinalResultDto {
+  @IsNotEmpty()
+  interviewId: string;
+
+  @IsNotEmpty()
+  finalResult: finalResult;
+
+  @IsNotEmpty()
+  finalFeedback: string;
 }

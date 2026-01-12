@@ -14,6 +14,7 @@ import {
   EvaluatorDto,
   ScheduleTelephoneInterviewDto,
   UpdateFeedbackDto,
+  UpdateFinalResultDto,
 } from './dtos/interviewshedule.dto';
 import { IInterviewService } from './interfaces/interview.service.interface';
 import { Types } from 'mongoose';
@@ -242,11 +243,43 @@ export class InterviewService implements IInterviewService {
     );
 
     if (evaluatorIndex === -1) {
-      throw new NotFoundException('Evaluator not found in this interview');
+      throw new NotFoundException('Unautharized person for updateFeedback');
     }
 
     interview.evaluators[evaluatorIndex].feedback = dto.feedback;
     interview.evaluators[evaluatorIndex].result = dto.result;
+
+    const updatedInterview = await interview.save();
+
+    const mappedData = plainToInstance(ScheduleResponseDto, {
+      ...updatedInterview?.toJSON(),
+      _id: updatedInterview?._id.toString(),
+      scheduledBy: updatedInterview?.scheduledBy.toString(),
+      applicationId: updatedInterview.applicationId.toString(),
+    });
+
+    return {
+      message: MESSAGES.INTERVIEW.FEEDBACK_UPDATED,
+      data: mappedData,
+    };
+  }
+
+  async updateFinalResult(
+    dto: UpdateFinalResultDto,
+    hrId: string,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    const interview = await this._interviewRepository.findById(dto.interviewId);
+
+    if (!interview) {
+      throw new NotFoundException(MESSAGES.INTERVIEW.FAILD_GET);
+    }
+
+    if (interview.scheduledBy.toHexString() !== hrId) {
+      throw new ConflictException('Unautharized Person for updation');
+    }
+
+    interview.finalResult = dto.finalResult;
+    interview.overallFeedback = dto.finalFeedback;
 
     const updatedInterview = await interview.save();
 

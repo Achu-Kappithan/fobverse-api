@@ -18,6 +18,7 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   ScheduleTelephoneInterviewDto,
   UpdateFeedbackDto,
+  UpdateFinalResultDto,
 } from './dtos/interviewshedule.dto';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { ScheduleResponseDto } from './dtos/interview.responce.dto';
@@ -78,5 +79,16 @@ export class InterviewController {
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     const interviewer = req.user as { id: string };
     return this._interviewService.updateTelyFeedback(data, interviewer.id);
+  }
+
+  @Post('finalize-result')
+  @UseGuards(AuthGuard('access_token'))
+  async updateFinalResult(
+    @Body() dto: UpdateFinalResultDto,
+
+    @Request() req: ERequest,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    const hrId = req.user as { id: string };
+    return this._interviewService.updateFinalResult(dto, hrId.id);
   }
 }

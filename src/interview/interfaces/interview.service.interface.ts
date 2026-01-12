@@ -4,6 +4,7 @@ import { ScheduleResponseDto } from '../dtos/interview.responce.dto';
 import {
   ScheduleTelephoneInterviewDto,
   UpdateFeedbackDto,
+  UpdateFinalResultDto,
 } from '../dtos/interviewshedule.dto';
 
 export interface IInterviewService {
@@ -29,6 +30,11 @@ export interface IInterviewService {
 
   cancelIntterview(
     dto: CancelInterviewDto,
+  ): Promise<ApiResponce<ScheduleResponseDto>>;
+
+  updateFinalResult(
+    dto: UpdateFinalResultDto,
+    hrId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 }
 
