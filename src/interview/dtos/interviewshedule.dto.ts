@@ -27,28 +27,7 @@ export class EvaluatorDto {
   result?: string;
 }
 
-export class ScheduleTelephoneInterviewDto {
-  @IsNotEmpty()
-  applicationId: string;
-
-  @IsNotEmpty()
-  @IsEnum(Stages)
-  stage: Stages;
-
-  @IsNotEmpty()
-  userEmail: string;
-
-  @IsNotEmpty()
-  scheduledDate: string;
-
-  @IsNotEmpty()
-  scheduledTime: string;
-
-  @IsNotEmpty()
-  evaluator: EvaluatorDto;
-}
-
-export class ScheduleTechnicalInterviewDto {
+export class ScheduleInterviewDto {
   @IsNotEmpty()
   applicationId: string;
 

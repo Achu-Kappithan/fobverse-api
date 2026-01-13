@@ -108,4 +108,11 @@ export class AuthRepository
       role: { $eq: UserRole.HR_USER },
     });
   }
+
+  async findInterviewers(companyId: Types.ObjectId): Promise<UserDocument[]> {
+    return this.userModel.find({
+      companyId: companyId,
+      role: { $eq: UserRole.INTERVIEWER_USER },
+    });
+  }
 }

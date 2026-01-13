@@ -16,7 +16,7 @@ import {
 } from './interfaces/interview.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import {
-  ScheduleTelephoneInterviewDto,
+  ScheduleInterviewDto,
   UpdateFeedbackDto,
   UpdateFinalResultDto,
 } from './dtos/interviewshedule.dto';
@@ -34,24 +34,21 @@ export class InterviewController {
   @Post('shedule')
   @UseGuards(AuthGuard('access_token'))
   async sheduleInterview(
-    @Body() dto: ScheduleTelephoneInterviewDto,
+    @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
   ) {
     const scheduledBy = req.user as { id: string };
-    return await this._interviewService.sheduleTelyInterview(
-      dto,
-      scheduledBy.id,
-    );
+    return await this._interviewService.sheduleInterview(dto, scheduledBy.id);
   }
 
   @Put('reshedule')
   @UseGuards(AuthGuard('access_token'))
   async reSheduleInterview(
-    @Body() dto: ScheduleTelephoneInterviewDto,
+    @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     const scheduledBy = req.user as { id: string };
-    return this._interviewService.reSheduleTelyInterview(dto, scheduledBy.id);
+    return this._interviewService.reSheduleInterview(dto, scheduledBy.id);
   }
 
   @Patch('cancelinterview')

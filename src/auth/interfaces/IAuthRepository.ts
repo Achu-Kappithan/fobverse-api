@@ -25,6 +25,8 @@ export interface IAuthRepository extends IBaseRepository<UserDocument> {
   findInternalUsers(companyId: Types.ObjectId): Promise<UserDocument[]>;
 
   findHrUsers(companyId: Types.ObjectId): Promise<UserDocument[]>;
+
+  findInterviewers(companyId: Types.ObjectId): Promise<UserDocument[]>;
 }
 
 export const AUTH_REPOSITORY = 'AUTH_REPOSITORY';

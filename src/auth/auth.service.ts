@@ -861,6 +861,25 @@ export class AuthService implements IAuthService {
     };
   }
 
+  async getInterviewers(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+    const companyObjId = new Types.ObjectId(companyId);
+    const data = await this._authRepository.findInterviewers(companyObjId);
+    const plaindata = data.map((val) => {
+      const user = val.toJSON();
+      return {
+        ...user,
+        _id: user._id.toString(),
+      };
+    });
+    const mappedData = plainToInstance(UserResponceDto, plaindata);
+    return {
+      message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
+      data: mappedData,
+    };
+  }
+
   //get UserProfile
 
   async getUserProfile(id: string): Promise<UserResponceDto> {
