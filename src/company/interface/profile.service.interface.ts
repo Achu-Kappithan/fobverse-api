@@ -64,6 +64,10 @@ export interface IComapnyService {
   getHrUsers(
     companyId: string,
   ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
+
+  getInterviewers(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
 }
 
 export const COMPANY_SERVICE = 'COMPANY_SERVICE';

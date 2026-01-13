@@ -2,14 +2,14 @@ import { ApiResponce } from '../../shared/interface/api.responce';
 import { CancelInterviewDto } from '../dtos/cancelInterview.dto';
 import { ScheduleResponseDto } from '../dtos/interview.responce.dto';
 import {
-  ScheduleTelephoneInterviewDto,
+  ScheduleInterviewDto,
   UpdateFeedbackDto,
   UpdateFinalResultDto,
 } from '../dtos/interviewshedule.dto';
 
 export interface IInterviewService {
-  sheduleTelyInterview(
-    dto: ScheduleTelephoneInterviewDto,
+  sheduleInterview(
+    dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
@@ -23,8 +23,8 @@ export interface IInterviewService {
     interviewerId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
-  reSheduleTelyInterview(
-    dto: ScheduleTelephoneInterviewDto,
+  reSheduleInterview(
+    dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 

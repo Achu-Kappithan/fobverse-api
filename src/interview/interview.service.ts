@@ -11,8 +11,7 @@ import {
   INTERVIEW_REPOSITORY,
 } from './interfaces/interview.repository.interface';
 import {
-  EvaluatorDto,
-  ScheduleTelephoneInterviewDto,
+  ScheduleInterviewDto,
   UpdateFeedbackDto,
   UpdateFinalResultDto,
 } from './dtos/interviewshedule.dto';
@@ -47,8 +46,8 @@ export class InterviewService implements IInterviewService {
     private readonly _EmailService: EmailService,
   ) {}
 
-  async sheduleTelyInterview(
-    dto: ScheduleTelephoneInterviewDto,
+  async sheduleInterview(
+    dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     this.logger.log(
@@ -65,16 +64,13 @@ export class InterviewService implements IInterviewService {
 
     const applicationObjId = new Types.ObjectId(dto.applicationId);
     const scheduledByObjId = new Types.ObjectId(scheduledBy);
-    const evaluatorObj = dto.evaluator[0] as EvaluatorDto;
 
-    const evaluators = [
-      {
-        interviewerId: evaluatorObj.interviewerId
-          ? new Types.ObjectId(evaluatorObj.interviewerId)
-          : undefined,
-        interviewerName: evaluatorObj.interviewerName,
-      },
-    ];
+    const evaluators = dto.evaluators.map((ev) => ({
+      interviewerId: ev.interviewerId
+        ? new Types.ObjectId(ev.interviewerId)
+        : undefined,
+      interviewerName: ev.interviewerName,
+    }));
 
     const updatedDto = {
       applicationId: applicationObjId,
@@ -105,8 +101,8 @@ export class InterviewService implements IInterviewService {
     };
   }
 
-  async reSheduleTelyInterview(
-    dto: ScheduleTelephoneInterviewDto,
+  async reSheduleInterview(
+    dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     this.logger.log(
@@ -114,16 +110,13 @@ export class InterviewService implements IInterviewService {
     );
     const applicationObjId = new Types.ObjectId(dto.applicationId);
     const scheduledByObjId = new Types.ObjectId(scheduledBy);
-    const evaluatorObj = dto.evaluator[0] as EvaluatorDto;
 
-    const evaluators = [
-      {
-        interviewerId: evaluatorObj.interviewerId
-          ? new Types.ObjectId(evaluatorObj.interviewerId)
-          : undefined,
-        interviewerName: evaluatorObj.interviewerName,
-      },
-    ];
+    const evaluators = dto.evaluators.map((ev) => ({
+      interviewerId: ev.interviewerId
+        ? new Types.ObjectId(ev.interviewerId)
+        : undefined,
+      interviewerName: ev.interviewerName,
+    }));
 
     const updatedDto = {
       applicationId: applicationObjId,
@@ -146,6 +139,7 @@ export class InterviewService implements IInterviewService {
       scheduledBy: data!.scheduledBy.toString(),
       applicationId: data?.applicationId.toString(),
     });
+
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
       mappedData,
