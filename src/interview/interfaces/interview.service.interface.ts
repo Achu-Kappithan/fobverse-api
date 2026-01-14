@@ -18,7 +18,7 @@ export interface IInterviewService {
     stage: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
 
-  updateTelyFeedback(
+  updateFeedback(
     dto: UpdateFeedbackDto,
     interviewerId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;

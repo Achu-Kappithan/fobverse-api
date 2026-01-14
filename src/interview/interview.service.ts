@@ -222,7 +222,7 @@ export class InterviewService implements IInterviewService {
     };
   }
 
-  async updateTelyFeedback(
+  async updateFeedback(
     dto: UpdateFeedbackDto,
     interviewerId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {

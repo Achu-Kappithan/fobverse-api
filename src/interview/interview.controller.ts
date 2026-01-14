@@ -75,7 +75,7 @@ export class InterviewController {
     @Request() req: ERequest,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     const interviewer = req.user as { id: string };
-    return this._interviewService.updateTelyFeedback(data, interviewer.id);
+    return this._interviewService.updateFeedback(data, interviewer.id);
   }
 
   @Post('finalize-result')
