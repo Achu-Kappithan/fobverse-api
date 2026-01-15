@@ -41,9 +41,32 @@ export class InterviewController {
     return await this._interviewService.sheduleInterview(dto, scheduledBy.id);
   }
 
+  @Post('telephone/shedule')
+  @UseGuards(AuthGuard('access_token'))
+  async sheduleTelyInterview(
+    @Body() dto: ScheduleInterviewDto,
+    @Request() req: ERequest,
+  ) {
+    const scheduledBy = req.user as { id: string };
+    return await this._interviewService.sheduleTelyInterview(
+      dto,
+      scheduledBy.id,
+    );
+  }
+
   @Put('reshedule')
   @UseGuards(AuthGuard('access_token'))
   async reSheduleInterview(
+    @Body() dto: ScheduleInterviewDto,
+    @Request() req: ERequest,
+  ): Promise<ApiResponce<ScheduleResponseDto>> {
+    const scheduledBy = req.user as { id: string };
+    return this._interviewService.reSheduleTelyInterview(dto, scheduledBy.id);
+  }
+
+  @Put('telephone/reshedule')
+  @UseGuards(AuthGuard('access_token'))
+  async reSheduleTelyInterview(
     @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
   ): Promise<ApiResponce<ScheduleResponseDto>> {

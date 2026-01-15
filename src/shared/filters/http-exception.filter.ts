@@ -12,7 +12,7 @@ import { ErrorApiResponse } from '../responses/api.response';
 interface ErrorDetails {
   validationErrors?: string[];
   originalErrorMessage?: string;
-  [key: string]: unknown; // allow additional props
+  [key: string]: unknown;
 }
 
 @Catch()
