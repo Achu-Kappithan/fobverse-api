@@ -9,11 +9,19 @@ import { Interview, InterviewSchema } from './schema/interview.schema';
 import { EmailModule } from '../email/email.module';
 import { ApplicationsModule } from '../applications/applications.module';
 import { NotificationModule } from '../notification/notification.module';
+import { VideoCallGateway } from './videocall.gateway';
+import {
+  VideoCallRoom,
+  VideoCallRoomSchema,
+} from './schema/video-call-room.schema';
+import { VideoCallRoomRepository } from './repository/video-call-room.repository';
+import { VIDEO_CALL_ROOM_REPOSITORY } from './interfaces/video-call-room.repository.interface';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Interview.name, schema: InterviewSchema },
+      { name: VideoCallRoom.name, schema: VideoCallRoomSchema },
     ]),
     EmailModule,
     NotificationModule,
@@ -29,6 +37,11 @@ import { NotificationModule } from '../notification/notification.module';
       provide: INTERVIEW_SERVICE,
       useClass: InterviewService,
     },
+    {
+      provide: VIDEO_CALL_ROOM_REPOSITORY,
+      useClass: VideoCallRoomRepository,
+    },
+    VideoCallGateway,
   ],
 })
 export class InterviewModule {}

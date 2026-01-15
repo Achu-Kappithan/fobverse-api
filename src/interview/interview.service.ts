@@ -32,6 +32,12 @@ import {
   InotificationService,
   NOTIFICATION_SERVICE,
 } from '../notification/interfaces/notification.service.interface';
+import {
+  IVideoCallRoomRepository,
+  VIDEO_CALL_ROOM_REPOSITORY,
+} from './interfaces/video-call-room.repository.interface';
+import { VideoCallRoomDocument } from './schema/video-call-room.schema';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class InterviewService implements IInterviewService {
@@ -43,6 +49,8 @@ export class InterviewService implements IInterviewService {
     private readonly _applicationService: IApplicationService,
     @Inject(NOTIFICATION_SERVICE)
     private readonly _notificationService: InotificationService,
+    @Inject(VIDEO_CALL_ROOM_REPOSITORY)
+    private readonly _videoCallRoomRepository: IVideoCallRoomRepository,
     private readonly _EmailService: EmailService,
   ) {}
 
@@ -72,6 +80,17 @@ export class InterviewService implements IInterviewService {
       interviewerName: ev.interviewerName,
     }));
 
+    const roomId = randomUUID();
+    const videoRoom: VideoCallRoomDocument =
+      await this._videoCallRoomRepository.create({
+        roomId,
+        interviewId: applicationObjId,
+        participants: [],
+        isActive: true,
+      });
+
+    console.log('video room data ', videoRoom);
+
     const updatedDto = {
       applicationId: applicationObjId,
       scheduledBy: scheduledByObjId,
@@ -79,6 +98,8 @@ export class InterviewService implements IInterviewService {
       stage: dto.stage,
       scheduledDate: dto.scheduledDate,
       scheduledTime: dto.scheduledTime,
+      meetingLink: `/video-interview/${roomId}`,
+      videoRoomId: videoRoom._id,
       evaluators,
     };
 
@@ -118,6 +139,31 @@ export class InterviewService implements IInterviewService {
       interviewerName: ev.interviewerName,
     }));
 
+    const filter = {
+      applicationId: applicationObjId,
+      stage: dto.stage,
+    };
+    const existingInterview = await this._interviewRepository.getStageDetails(
+      dto.applicationId.toString(),
+      dto.stage,
+    );
+
+    let meetingLink = dto.meetingLink;
+    let videoRoomId = existingInterview?.videoRoomId;
+
+    if (!videoRoomId) {
+      const roomId = randomUUID();
+      const videoRoom: VideoCallRoomDocument =
+        await this._videoCallRoomRepository.create({
+          roomId,
+          interviewId: applicationObjId,
+          participants: [],
+          isActive: true,
+        });
+      meetingLink = `/video-interview/${roomId}`;
+      videoRoomId = videoRoom._id;
+    }
+
     const updatedDto = {
       applicationId: applicationObjId,
       scheduledBy: scheduledByObjId,
@@ -125,13 +171,12 @@ export class InterviewService implements IInterviewService {
       stage: dto.stage,
       scheduledDate: dto.scheduledDate,
       scheduledTime: dto.scheduledTime,
+      meetingLink,
+      videoRoomId,
       evaluators,
       status: ReviewStatus.Rescheduled,
     };
-    const filter = {
-      applicationId: applicationObjId,
-      stage: dto.stage,
-    };
+
     const data = await this._interviewRepository.update(filter, updatedDto);
     const mappedData = plainToInstance(ScheduleResponseDto, {
       ...data!.toJSON(),

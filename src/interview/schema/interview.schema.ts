@@ -59,6 +59,9 @@ export class Interview {
   @Prop()
   meetingLink?: string;
 
+  @Prop({ type: Types.ObjectId, ref: 'VideoCallRoom' })
+  videoRoomId?: Types.ObjectId;
+
   @Prop({
     required: true,
     enum: ReviewStatus,
