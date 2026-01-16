@@ -369,11 +369,20 @@ export class InterviewService implements IInterviewService {
       throw new InternalServerErrorException(MESSAGES.INTERVIEW.FAILD_GET);
     }
 
+    const plainData = data.toObject ? data.toObject() : data;
+
     const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data?.toJSON(),
-      _id: data._id.toString(),
-      scheduledBy: data.scheduledBy.toString(),
+      ...plainData,
+      _id: plainData._id.toString(),
+      applicationId: plainData.applicationId?.toString(),
+      scheduledBy: plainData.scheduledBy?.toString(),
+      evaluators: plainData.evaluators?.map((evaluator) => ({
+        ...evaluator,
+        interviewerId: evaluator.interviewerId?.toString(),
+      })),
     });
+
+    console.log('Mapped Data (UUU):', mappedData);
 
     return {
       message: MESSAGES.INTERVIEW.STAGE_GET,
@@ -433,8 +442,21 @@ export class InterviewService implements IInterviewService {
 
     interview.finalResult = dto.finalResult;
     interview.overallFeedback = dto.finalFeedback;
+    interview.status = ReviewStatus.Completed;
 
     const updatedInterview = await interview.save();
+
+    const updatedApplication = await this._applicationService.updateStatus(
+      dto.applicationId,
+      dto.nextStage,
+      dto.finalResult,
+    );
+
+    if (!updatedApplication) {
+      throw new InternalServerErrorException(
+        MESSAGES.INTERVIEW.UPDATE_STATUS_FAILD,
+      );
+    }
 
     const mappedData = plainToInstance(ScheduleResponseDto, {
       ...updatedInterview?.toJSON(),
