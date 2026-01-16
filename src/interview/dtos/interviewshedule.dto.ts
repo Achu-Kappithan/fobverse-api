@@ -73,7 +73,13 @@ export class UpdateFinalResultDto {
   interviewId: string;
 
   @IsNotEmpty()
+  applicationId: string;
+
+  @IsNotEmpty()
   finalResult: finalResult;
+
+  @IsNotEmpty()
+  nextStage: string;
 
   @IsNotEmpty()
   finalFeedback: string;

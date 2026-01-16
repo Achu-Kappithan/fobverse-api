@@ -36,6 +36,16 @@ export interface IInterviewService {
     dto: UpdateFinalResultDto,
     hrId: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
+
+  sheduleTelyInterview(
+    dto: ScheduleInterviewDto,
+    scheduledBy: string,
+  ): Promise<ApiResponce<ScheduleResponseDto>>;
+
+  reSheduleTelyInterview(
+    dto: ScheduleInterviewDto,
+    scheduledBy: string,
+  ): Promise<ApiResponce<ScheduleResponseDto>>;
 }
 
 export const INTERVIEW_SERVICE = 'INTERVIEW_SERVICE';
