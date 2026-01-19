@@ -15,10 +15,10 @@ export class ScheduleResponseDto {
   @Expose()
   _id: string;
 
-  @Exclude()
+  @Expose()
   applicationId: string;
 
-  @Exclude()
+  @Expose()
   scheduledBy: string;
 
   @Expose()
