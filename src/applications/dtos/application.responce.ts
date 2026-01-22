@@ -50,6 +50,9 @@ export class ApplicationResponceDto {
   @Expose()
   profile: string;
 
+  @Expose()
+  updatedAt: string;
+
   @Exclude()
   _v: string;
 }

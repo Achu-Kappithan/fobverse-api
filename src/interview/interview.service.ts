@@ -19,6 +19,7 @@ import { IInterviewService } from './interfaces/interview.service.interface';
 import { Types } from 'mongoose';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { ScheduleResponseDto } from './dtos/interview.responce.dto';
+import { AllStagesResponseDto } from './dtos/all-stages-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { EmailService } from '../email/email.service';
@@ -38,6 +39,7 @@ import {
 } from './interfaces/video-call-room.repository.interface';
 import { VideoCallRoomDocument } from './schema/video-call-room.schema';
 import { randomUUID } from 'crypto';
+import { Stages } from '../applications/schema/applications.schema';
 
 @Injectable()
 export class InterviewService implements IInterviewService {
@@ -382,11 +384,64 @@ export class InterviewService implements IInterviewService {
       })),
     });
 
-    console.log('Mapped Data (UUU):', mappedData);
-
     return {
       message: MESSAGES.INTERVIEW.STAGE_GET,
       data: mappedData,
+    };
+  }
+
+  async getAllStagesByApplicationId(
+    applicationId: string,
+  ): Promise<ApiResponce<AllStagesResponseDto>> {
+    this.logger.log(
+      `[interviewService] Fetching all stages for applicationId: ${applicationId}`,
+    );
+
+    const atsStageResponse = await this._applicationService.getjobDetails(
+      applicationId,
+      '',
+    );
+
+    const interviews =
+      await this._interviewRepository.findAllByApplicationId(applicationId);
+
+    let shortlistedStage: ScheduleResponseDto | null = null;
+    let techStage: ScheduleResponseDto | null = null;
+
+    interviews.forEach((interview) => {
+      const plainData = interview.toObject ? interview.toObject() : interview;
+
+      const mappedInterview = plainToInstance(ScheduleResponseDto, {
+        ...plainData,
+        _id: plainData._id.toString(),
+        applicationId: plainData.applicationId?.toString(),
+        scheduledBy: plainData.scheduledBy?.toString(),
+        evaluators: plainData.evaluators?.map((evaluator) => ({
+          ...evaluator,
+          interviewerId: evaluator.interviewerId?.toString(),
+        })),
+      });
+
+      if (interview.stage === Stages.Shortlisted) {
+        shortlistedStage = mappedInterview;
+      } else if (interview.stage === Stages.Technical) {
+        techStage = mappedInterview;
+      }
+    });
+
+    const allStagesData: AllStagesResponseDto = {
+      atsStage: atsStageResponse.data,
+      shortlistedStage,
+      techStage,
+    };
+
+    this.logger.log(
+      `[interviewService] Successfully fetched all stages for applicationId: ${applicationId}`,
+    );
+
+    return {
+      message: 'All stages fetched successfully',
+      data: allStagesData,
     };
   }
 
