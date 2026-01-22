@@ -28,6 +28,13 @@ export class InterviewRepository
     });
   }
 
+  async findAllByApplicationId(appId: string): Promise<InterviewDocument[]> {
+    const applicationId = new Types.ObjectId(appId);
+    return this.InterviewModel.find({
+      applicationId,
+    });
+  }
+
   async updateFeedback(
     appId: string,
     stage: string,

@@ -24,6 +24,7 @@ import { ApiResponce } from '../shared/interface/api.responce';
 import { ScheduleResponseDto } from './dtos/interview.responce.dto';
 import { CancelInterviewDto } from './dtos/cancelInterview.dto';
 import { Request as ERequest } from 'express';
+import { AllStagesResponseDto } from './dtos/all-stages-response.dto';
 
 @Controller('interview')
 export class InterviewController {
@@ -89,6 +90,16 @@ export class InterviewController {
     @Query('stage') stage: string,
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     return await this._interviewService.getStageDetails(applicationId, stage);
+  }
+
+  @Get('all-stages')
+  @UseGuards(AuthGuard('access_token'))
+  async getAllStages(
+    @Query('applicationId') applicationId: string,
+  ): Promise<ApiResponce<AllStagesResponseDto>> {
+    return await this._interviewService.getAllStagesByApplicationId(
+      applicationId,
+    );
   }
 
   @Post('updatefeedback')

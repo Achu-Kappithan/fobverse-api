@@ -8,6 +8,8 @@ export interface IInterviewRepository
     stage: string,
   ): Promise<InterviewDocument | null>;
 
+  findAllByApplicationId(applicationId: string): Promise<InterviewDocument[]>;
+
   updateFeedback(
     appId: string,
     stage: string,
