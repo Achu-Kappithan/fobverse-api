@@ -5,6 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { IApplicationService } from './interfaces/application.service.interface';
 import {
@@ -36,7 +37,7 @@ import {
 } from '../ats-sorting/interfaces/ats.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 import { applicationResponce } from './interfaces/responce.interface';
-import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { populatedapplicationList } from './types/repository.types';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -171,23 +172,9 @@ export class ApplicationsService implements IApplicationService {
         limit,
       });
 
-      console.logf(data)
+    console.log(data);
 
-    const plaindata = data.map((job) => {
-      return {
-        ...job,
-        candidateId: job.candidateId.toString(),
-        _id: job._id.toString(),
-        profile: {
-          _id: job.profile?.[0]?._id.toString(),
-          profileImg:
-            job.profile?.[0]?.profileUrl ||
-            job.candidateUser?.profileImg ||
-            null,
-        },
-        jobDetails: job.jobDetails,
-      };
-    });
+    const plaindata = data.map((job) => this._mapToPlainObject(job));
 
     const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
       excludeExtraneousValues: true,
@@ -233,28 +220,13 @@ export class ApplicationsService implements IApplicationService {
         limit,
       });
 
-      console.log(data)
+    console.log(data);
 
-    const plaindata = data.map((job) => {
-      return {
-        ...job,
-        candidateId: job.candidateId.toString(),
-        _id: job._id.toString(),
-        profile: {
-          _id: job.profile?.[0]?._id.toString(),
-          profileImg:
-            job.profile?.[0]?.profileUrl ||
-            job.candidateUser?.profileImg ||
-            null,
-        },
-        jobDetails: job.jobDetails,
-      };
-    });
+    const plaindata = data.map((job) => this._mapToPlainObject(job));
 
     const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
       excludeExtraneousValues: true,
     });
-
 
     const totalPages = Math.ceil(total / limit);
 
@@ -312,13 +284,7 @@ export class ApplicationsService implements IApplicationService {
       };
     }
 
-    const plaindata = data.map((job) => ({
-      ...job,
-      candidateId: job.candidateId.toString(),
-      _id: job._id.toString(),
-      profile:
-        job.profile?.[0]?.profileUrl || job.candidateUser?.profileImg || null,
-    }));
+    const plaindata = data.map((job) => this._mapToPlainObject(job));
 
     const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
       excludeExtraneousValues: true,
@@ -342,23 +308,14 @@ export class ApplicationsService implements IApplicationService {
   ): Promise<applicationResponce<ApplicationResponceDto>> {
     console.log(appId, canId);
     const data = await this._applicationRepository.getApplicationDetails(appId);
-    const mappedProfile = plainToInstance(CandidateProfileResponseDto, {
-      ...data.profile[0],
-      _id: data.profile[0]._id.toString(),
-      UserId: data.profile[0].UserId.toString(),
+    if (!data) {
+      throw new NotFoundException('Application not found');
+    }
+    const plainData = this._mapToPlainObject(data);
+
+    const mappedData = plainToInstance(ApplicationResponceDto, plainData, {
+      excludeExtraneousValues: true,
     });
-    const mappedData = plainToInstance(
-      ApplicationResponceDto,
-      {
-        ...data,
-        _id: data._id.toString(),
-        jobId: data.jobId?.toString(),
-        candidateId: data.candidateId?.toString(),
-        companyId: data.companyId?.toString(),
-        profile: mappedProfile,
-      },
-      { excludeExtraneousValues: true },
-    );
     this._logger.log(
       `[applicationService] applicationDetails fetched ${JSON.stringify(mappedData)}`,
     );
@@ -379,7 +336,7 @@ export class ApplicationsService implements IApplicationService {
     if (interviewResult === 'Pass') {
       return this._applicationRepository.update(
         { _id: applicationId },
-        { Stages: nextStage },
+        { Stages: nextStage as Stages },
       );
     } else {
       return this._applicationRepository.update(
@@ -387,5 +344,21 @@ export class ApplicationsService implements IApplicationService {
         { Rejected: true },
       );
     }
+  }
+
+  private _mapToPlainObject(job: populatedapplicationList) {
+    return {
+      ...job,
+      _id: job._id.toString(),
+      candidateId: job.candidateId.toString(),
+      jobId: job.jobId.toString(),
+      companyId: job.companyId.toString(),
+      profile: {
+        _id: job.profile?._id?.toString() || null,
+        profileImg:
+          job.profile?.profileUrl || job.candidateUser?.profileImg || null,
+      },
+      jobDetails: job.jobDetails,
+    };
   }
 }

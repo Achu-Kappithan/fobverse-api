@@ -1,5 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Stages } from '../schema/applications.schema';
+import { ResponseJobsDto } from '../../jobs/dtos/responce.job.dto';
 
 class ApplicationProfileDto {
   @Expose()
@@ -14,7 +15,7 @@ export class ApplicationResponceDto {
   _id: string;
 
   @Exclude()
-  compannyId: string;
+  companyId: string;
 
   @Expose()
   candidateId: string;
@@ -63,7 +64,8 @@ export class ApplicationResponceDto {
   updatedAt: string;
 
   @Expose()
-  jobDetails: any;
+  @Type(() => ResponseJobsDto)
+  jobDetails: ResponseJobsDto;
 
   @Exclude()
   _v: string;

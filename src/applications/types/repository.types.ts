@@ -1,9 +1,10 @@
 import { CandidateProfileDocument } from '../../candiate/schema/candidate.profile.schema';
 import { ApplicationDocument } from '../schema/applications.schema';
+import { JobsDocument } from '../../jobs/schema/jobs.schema';
 
 export type populatedapplicationList = ApplicationDocument & {
   profile?: CandidateProfileDocument;
-  jobDetails?: any;
+  jobDetails?: JobsDocument;
   candidateUser?: {
     _id: string;
     profileImg?: string;
@@ -13,6 +14,6 @@ export type populatedapplicationList = ApplicationDocument & {
 
 export type applicationPorfileDetails = ApplicationDocument & {
   profile?: CandidateProfileDocument;
-  jobDetails?: any;
+  jobDetails?: JobsDocument;
   candidateUser?: any;
 };

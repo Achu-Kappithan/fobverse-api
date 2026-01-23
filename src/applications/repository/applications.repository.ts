@@ -14,6 +14,7 @@ import {
   UpdateResult,
 } from 'mongoose';
 import { populatedapplicationList } from '../types/repository.types';
+import { AggregateResult } from '../interfaces/responce.interface';
 
 @Injectable()
 export class ApplicationRepository
@@ -94,7 +95,9 @@ export class ApplicationRepository
       },
     });
 
-    const [result] = await this.applicationModal.aggregate(pipeline).exec();
+    const [result] = await this.applicationModal
+      .aggregate<AggregateResult>(pipeline)
+      .exec();
 
     const data = result?.data || [];
     const total = result?.metadata?.[0]?.total || 0;
