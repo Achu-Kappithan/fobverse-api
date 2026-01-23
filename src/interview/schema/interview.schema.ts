@@ -80,3 +80,6 @@ export class Interview {
 }
 
 export const InterviewSchema = SchemaFactory.createForClass(Interview);
+
+// Multikey index for efficient queries on evaluator interviews
+InterviewSchema.index({ 'evaluators.interviewerId': 1 });

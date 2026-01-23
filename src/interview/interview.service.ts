@@ -525,4 +525,42 @@ export class InterviewService implements IInterviewService {
       data: mappedData,
     };
   }
+
+  async getUserSchedules(
+    userId: string,
+    status?: ReviewStatus,
+  ): Promise<ApiResponce<ScheduleResponseDto[]>> {
+    this.logger.log(
+      `[interviewService] Fetching schedules for user: ${userId}, status: ${status || 'all'}`,
+    );
+
+    const interviews =
+      await this._interviewRepository.findSchedulesByInterviewer(
+        userId,
+        status,
+      );
+
+    const mappedData = interviews.map((interview) => {
+      const plainData = interview.toObject ? interview.toObject() : interview;
+      return plainToInstance(ScheduleResponseDto, {
+        ...plainData,
+        _id: plainData._id.toString(),
+        applicationId: plainData.applicationId?.toString(),
+        scheduledBy: plainData.scheduledBy?.toString(),
+        evaluators: plainData.evaluators?.map((evaluator) => ({
+          ...evaluator,
+          interviewerId: evaluator.interviewerId?.toString(),
+        })),
+      });
+    });
+
+    this.logger.log(
+      `[interviewService] Successfully fetched ${mappedData.length} schedules for user: ${userId}`,
+    );
+
+    return {
+      message: 'User schedules fetched successfully',
+      data: mappedData,
+    };
+  }
 }

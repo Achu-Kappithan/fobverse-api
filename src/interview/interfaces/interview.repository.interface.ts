@@ -1,5 +1,5 @@
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
-import { InterviewDocument } from '../schema/interview.schema';
+import { InterviewDocument, ReviewStatus } from '../schema/interview.schema';
 
 export interface IInterviewRepository
   extends IBaseRepository<InterviewDocument> {
@@ -15,6 +15,11 @@ export interface IInterviewRepository
     stage: string,
     data: any,
   ): Promise<InterviewDocument | null>;
+
+  findSchedulesByInterviewer(
+    interviewerId: string,
+    status?: ReviewStatus,
+  ): Promise<InterviewDocument[]>;
 }
 
 export const INTERVIEW_REPOSITORY = 'INTERVIEW_REPOSITORY';

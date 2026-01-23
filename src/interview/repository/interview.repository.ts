@@ -48,4 +48,23 @@ export class InterviewRepository
       { new: true },
     );
   }
+
+  async findSchedulesByInterviewer(
+    interviewerId: string,
+    status?: string,
+  ): Promise<InterviewDocument[]> {
+    const userId = new Types.ObjectId(interviewerId);
+    const query: Record<string, any> = {
+      'evaluators.interviewerId': userId,
+    };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return this.InterviewModel.find(query)
+      .populate('applicationId', 'candidateName jobTitle')
+      .sort({ scheduledDate: 1, scheduledTime: 1 })
+      .exec();
+  }
 }

@@ -25,6 +25,7 @@ import { ScheduleResponseDto } from './dtos/interview.responce.dto';
 import { CancelInterviewDto } from './dtos/cancelInterview.dto';
 import { Request as ERequest } from 'express';
 import { AllStagesResponseDto } from './dtos/all-stages-response.dto';
+import { ReviewStatus } from './schema/interview.schema';
 
 @Controller('interview')
 export class InterviewController {
@@ -121,5 +122,15 @@ export class InterviewController {
   ): Promise<ApiResponce<ScheduleResponseDto>> {
     const hrId = req.user as { id: string };
     return this._interviewService.updateFinalResult(dto, hrId.id);
+  }
+
+  @Get('my-schedules')
+  @UseGuards(AuthGuard('access_token'))
+  async getMySchedules(
+    @Query('status') status: ReviewStatus | undefined,
+    @Request() req: ERequest,
+  ): Promise<ApiResponce<ScheduleResponseDto[]>> {
+    const user = req.user as { id: string };
+    return this._interviewService.getUserSchedules(user.id, status);
   }
 }
