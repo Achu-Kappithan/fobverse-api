@@ -2,9 +2,17 @@ import { CandidateProfileDocument } from '../../candiate/schema/candidate.profil
 import { ApplicationDocument } from '../schema/applications.schema';
 
 export type populatedapplicationList = ApplicationDocument & {
-  profile: CandidateProfileDocument[];
+  profile?: CandidateProfileDocument;
+  jobDetails?: any;
+  candidateUser?: {
+    _id: string;
+    profileImg?: string;
+    [key: string]: any;
+  };
 };
 
 export type applicationPorfileDetails = ApplicationDocument & {
-  profile: CandidateProfileDocument[];
+  profile?: CandidateProfileDocument;
+  jobDetails?: any;
+  candidateUser?: any;
 };

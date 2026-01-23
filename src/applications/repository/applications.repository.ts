@@ -46,19 +46,58 @@ export class ApplicationRepository
           as: 'profile',
         },
       },
+      {
+        $lookup: {
+          from: 'jobs',
+          localField: 'jobId',
+          foreignField: '_id',
+          as: 'jobDetails',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'candidateId',
+          foreignField: '_id',
+          as: 'candidateUser',
+        },
+      },
+      {
+        $unwind: {
+          path: '$profile',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: '$candidateUser',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: '$jobDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
     ];
 
     pipeline.push({ $sort: options?.sort || { createdAt: -1 } });
 
-    if (options?.skip !== undefined) pipeline.push({ $skip: options.skip });
-    if (options?.limit !== undefined) pipeline.push({ $limit: options.limit });
+    pipeline.push({
+      $facet: {
+        metadata: [{ $count: 'total' }],
+        data: [
+          ...(options?.skip !== undefined ? [{ $skip: options.skip }] : []),
+          ...(options?.limit !== undefined ? [{ $limit: options.limit }] : []),
+        ],
+      },
+    });
 
-    const [details, total] = await Promise.all([
-      this.applicationModal.aggregate(pipeline).exec(),
-      this.applicationModal.countDocuments(filter).exec(),
-    ]);
+    const [result] = await this.applicationModal.aggregate(pipeline).exec();
 
-    const data = details as populatedapplicationList[];
+    const data = result?.data || [];
+    const total = result?.metadata?.[0]?.total || 0;
     return { data, total };
   }
 
@@ -100,6 +139,12 @@ export class ApplicationRepository
           localField: 'candidateId',
           foreignField: 'UserId',
           as: 'profile',
+        },
+      },
+      {
+        $unwind: {
+          path: '$profile',
+          preserveNullAndEmptyArrays: true,
         },
       },
     ]);
