@@ -1,12 +1,21 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { Stages } from '../schema/applications.schema';
+import { ResponseJobsDto } from '../../jobs/dtos/responce.job.dto';
+
+class ApplicationProfileDto {
+  @Expose()
+  _id: string | null;
+
+  @Expose()
+  profileImg: string | null;
+}
 
 export class ApplicationResponceDto {
   @Expose()
   _id: string;
 
   @Exclude()
-  compannyId: string;
+  companyId: string;
 
   @Expose()
   candidateId: string;
@@ -20,7 +29,7 @@ export class ApplicationResponceDto {
   @Expose()
   Rejected: boolean;
 
-  @Exclude()
+  @Expose()
   jobId: string;
 
   @Expose()
@@ -48,10 +57,15 @@ export class ApplicationResponceDto {
   createdAt: string;
 
   @Expose()
-  profile: string;
+  @Type(() => ApplicationProfileDto)
+  profile: ApplicationProfileDto;
 
   @Expose()
   updatedAt: string;
+
+  @Expose()
+  @Type(() => ResponseJobsDto)
+  jobDetails: ResponseJobsDto;
 
   @Exclude()
   _v: string;

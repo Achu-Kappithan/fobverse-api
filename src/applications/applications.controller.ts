@@ -23,6 +23,7 @@ import {
 import { Request as ERequest } from 'express';
 import { UserDocument } from '../auth/schema/user.schema';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { ApplicationResponceDto } from './dtos/application.responce';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 import { applicationResponce } from './interfaces/responce.interface';
@@ -57,6 +58,19 @@ export class ApplicationsController {
   ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
     const user = req.user as UserDocument;
     return this.applicationsService.getAllApplications(
+      user.companyId!.toString(),
+      dto,
+    );
+  }
+
+  @Get('all-applicants')
+  @UseGuards(AuthGuard('access_token'))
+  async getCompanyApplicants(
+    @Query() dto: PaginationDto,
+    @Request() req: ERequest,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+    const user = req.user as UserDocument;
+    return this.applicationsService.getCompanyApplicants(
       user.companyId!.toString(),
       dto,
     );

@@ -3,6 +3,7 @@ import {
   PlainResponse,
 } from '../../admin/interfaces/responce.interface';
 import { PaginatedApplicationDto } from '../dtos/application.pagination.dto';
+import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { ApplicationResponceDto } from '../dtos/application.responce';
 import { CreateApplicationDto } from '../dtos/createapplication.dto';
 import { updateAtsScoreDto } from '../dtos/update.atsScore.dto';
@@ -19,6 +20,11 @@ export interface IApplicationService {
   getAllApplications(
     companyId: string,
     dto: PaginatedApplicationDto,
+  ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
+
+  getCompanyApplicants(
+    companyId: string,
+    dto: PaginationDto,
   ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
 
   updateAtsScore(
