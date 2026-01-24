@@ -80,3 +80,5 @@ export class Interview {
 }
 
 export const InterviewSchema = SchemaFactory.createForClass(Interview);
+
+InterviewSchema.index({ 'evaluators.interviewerId': 1 });

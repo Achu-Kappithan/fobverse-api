@@ -48,4 +48,16 @@ export class ScheduleResponseDto {
 
   @Expose()
   finalResult?: string;
+
+  @Expose()
+  candidateName?: string;
+
+  @Expose()
+  jobTitle?: string;
+
+  @Expose()
+  jobId?: string;
+
+  @Expose()
+  candidateId?: string;
 }

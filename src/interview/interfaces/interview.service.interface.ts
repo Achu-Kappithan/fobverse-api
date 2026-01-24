@@ -7,6 +7,7 @@ import {
   UpdateFinalResultDto,
 } from '../dtos/interviewshedule.dto';
 import { AllStagesResponseDto } from '../dtos/all-stages-response.dto';
+import { ReviewStatus } from '../schema/interview.schema';
 
 export interface IInterviewService {
   sheduleInterview(
@@ -51,6 +52,11 @@ export interface IInterviewService {
     dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponce<ScheduleResponseDto>>;
+
+  getUserSchedules(
+    userId: string,
+    status?: ReviewStatus,
+  ): Promise<ApiResponce<ScheduleResponseDto[]>>;
 }
 
 export const INTERVIEW_SERVICE = 'INTERVIEW_SERVICE';

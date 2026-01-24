@@ -525,4 +525,61 @@ export class InterviewService implements IInterviewService {
       data: mappedData,
     };
   }
+
+  async getUserSchedules(
+    userId: string,
+    status?: ReviewStatus,
+  ): Promise<ApiResponce<ScheduleResponseDto[]>> {
+    this.logger.log(
+      `[interviewService] Fetching schedules for user: ${userId}, status: ${status || 'all'}`,
+    );
+
+    const interviews =
+      await this._interviewRepository.findSchedulesByInterviewer(
+        userId,
+        status,
+      );
+
+    const mappedData = interviews.map((interview) => {
+      const interviewObj = interview.toObject();
+
+      const application = interviewObj.applicationId as unknown as {
+        _id: Types.ObjectId;
+        name: string;
+        candidateId: Types.ObjectId;
+        jobId: {
+          _id: Types.ObjectId;
+          title: string;
+        };
+      };
+
+      return plainToInstance(ScheduleResponseDto, {
+        ...interviewObj,
+        _id: interviewObj._id.toString(),
+        applicationId:
+          application?._id?.toString() ||
+          (interviewObj.applicationId instanceof Types.ObjectId
+            ? interviewObj.applicationId.toString()
+            : undefined),
+        candidateName: application?.name,
+        jobTitle: application?.jobId?.title,
+        jobId: application?.jobId?._id?.toString(),
+        candidateId: application?.candidateId?.toString(),
+        scheduledBy: interviewObj.scheduledBy?.toString(),
+        evaluators: interviewObj.evaluators?.map((evaluator) => ({
+          ...evaluator,
+          interviewerId: evaluator.interviewerId?.toString(),
+        })),
+      });
+    });
+
+    this.logger.log(
+      `[interviewService] Successfully fetched ${mappedData.length} schedules for user: ${userId}`,
+    );
+
+    return {
+      message: 'User schedules fetched successfully',
+      data: mappedData,
+    };
+  }
 }
