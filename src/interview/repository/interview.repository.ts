@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../shared/repositories/base.repository';
-import { Interview, InterviewDocument } from '../schema/interview.schema';
+import {
+  Interview,
+  InterviewDocument,
+  ReviewStatus,
+} from '../schema/interview.schema';
 import { IInterviewRepository } from '../interfaces/interview.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -51,7 +55,7 @@ export class InterviewRepository
 
   async findSchedulesByInterviewer(
     interviewerId: string,
-    status?: string,
+    status?: ReviewStatus,
   ): Promise<InterviewDocument[]> {
     const userId = new Types.ObjectId(interviewerId);
     const query: Record<string, any> = {
@@ -63,7 +67,14 @@ export class InterviewRepository
     }
 
     return this.InterviewModel.find(query)
-      .populate('applicationId', 'candidateName jobTitle')
+      .populate({
+        path: 'applicationId',
+        select: 'name jobId candidateId',
+        populate: {
+          path: 'jobId',
+          select: 'title',
+        },
+      })
       .sort({ scheduledDate: 1, scheduledTime: 1 })
       .exec();
   }

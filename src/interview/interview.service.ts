@@ -541,13 +541,32 @@ export class InterviewService implements IInterviewService {
       );
 
     const mappedData = interviews.map((interview) => {
-      const plainData = interview.toObject ? interview.toObject() : interview;
+      const interviewObj = interview.toObject();
+
+      const application = interviewObj.applicationId as unknown as {
+        _id: Types.ObjectId;
+        name: string;
+        candidateId: Types.ObjectId;
+        jobId: {
+          _id: Types.ObjectId;
+          title: string;
+        };
+      };
+
       return plainToInstance(ScheduleResponseDto, {
-        ...plainData,
-        _id: plainData._id.toString(),
-        applicationId: plainData.applicationId?.toString(),
-        scheduledBy: plainData.scheduledBy?.toString(),
-        evaluators: plainData.evaluators?.map((evaluator) => ({
+        ...interviewObj,
+        _id: interviewObj._id.toString(),
+        applicationId:
+          application?._id?.toString() ||
+          (interviewObj.applicationId instanceof Types.ObjectId
+            ? interviewObj.applicationId.toString()
+            : undefined),
+        candidateName: application?.name,
+        jobTitle: application?.jobId?.title,
+        jobId: application?.jobId?._id?.toString(),
+        candidateId: application?.candidateId?.toString(),
+        scheduledBy: interviewObj.scheduledBy?.toString(),
+        evaluators: interviewObj.evaluators?.map((evaluator) => ({
           ...evaluator,
           interviewerId: evaluator.interviewerId?.toString(),
         })),
