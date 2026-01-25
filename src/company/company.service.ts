@@ -25,7 +25,7 @@ import {
   UpdateInternalUserDto,
   UpdateProfileDto,
 } from './dtos/update.profile.dtos';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import {
   AUTH_SERVICE,
   IAuthService,
@@ -35,7 +35,11 @@ import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
 import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
-import { PlainResponse } from '../admin/interfaces/responce.interface';
+import {
+  PaginatedResponse,
+  PlainResponse,
+} from '../admin/interfaces/responce.interface';
+import { CompanyProfileDocument } from './schema/company.profile.schema';
 
 @Injectable()
 export class CompanyService implements IComapnyService {
@@ -261,5 +265,46 @@ export class CompanyService implements IComapnyService {
 
   async removeUser(id: string): Promise<PlainResponse> {
     return await this._AuthService.removeUser(id);
+  }
+
+  async getAllCompanies(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
+    const { page = 1, limit = 6, search } = pagination;
+    const skip = (page - 1) * limit;
+
+    const filter: FilterQuery<CompanyProfileDocument> = {};
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { industry: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const { data: companies, total } =
+      await this._companyRepository.findManyWithPagination(filter, {
+        limit,
+        skip,
+      });
+
+    const mappedData = plainToInstance(
+      CompanyProfileResponseDto,
+      companies.map((company) => ({
+        ...company.toObject(),
+        _id: company._id.toString(),
+      })),
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
+      data: mappedData,
+      totalItems: total,
+      currentPage: page,
+      itemsPerPage: limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

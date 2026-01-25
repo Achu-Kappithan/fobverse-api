@@ -17,6 +17,9 @@ import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 import { Request as ERequest } from 'express';
 import { CandidateResponceInterface } from './interfaces/responce.interface';
 import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
+import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
+import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 
 @Controller('candidate')
 export class CandiateController {
@@ -50,5 +53,13 @@ export class CandiateController {
     @Query('id') id: string,
   ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>> {
     return this._candiateService.publicView(id);
+  }
+
+  @Get('all-companies')
+  @UseGuards(AuthGuard('access_token'))
+  async getAllCompanies(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
+    return this._candiateService.getAllCompanies(pagination);
   }
 }
