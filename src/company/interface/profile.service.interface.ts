@@ -15,6 +15,7 @@ import {
   UpdateProfileDto,
 } from '../dtos/update.profile.dtos';
 import { comapnyResponceInterface } from './responce.interface';
+import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
 
 export interface IComapnyService {
   createProfile(dto: CreateProfileDto): Promise<CompanyProfileResponseDto>;
@@ -68,6 +69,10 @@ export interface IComapnyService {
   getInterviewers(
     companyId: string,
   ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
+
+  getAllCompanies(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>>;
 }
 
 export const COMPANY_SERVICE = 'COMPANY_SERVICE';

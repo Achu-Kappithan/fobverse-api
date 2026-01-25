@@ -5,7 +5,7 @@ import {
 } from '../schema/company.profile.schema';
 import { IcompanyRepository } from '../interface/profile.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, UpdateResult } from 'mongoose';
+import { Model, Types, UpdateResult, FilterQuery } from 'mongoose';
 import { InternalUserDto, TeamMemberDto } from '../dtos/update.profile.dtos';
 import { BaseRepository } from '../../shared/repositories/base.repository';
 import { populatedComapnyProfile } from '../types/repository.types';

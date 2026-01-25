@@ -1,3 +1,4 @@
+import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import {
   Inject,
   Injectable,
@@ -18,6 +19,12 @@ import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
+import {
+  COMPANY_SERVICE,
+  IComapnyService,
+} from '../company/interface/profile.service.interface';
+import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+import { PaginationDto } from '../shared/dtos/pagination.dto';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -26,21 +33,20 @@ export class CandidateService implements ICandidateService {
   constructor(
     @Inject(CANDIDATE_REPOSITORY)
     private readonly _candidateRepository: ICandidateRepository,
+    @Inject(COMPANY_SERVICE)
+    private readonly _companyService: IComapnyService,
   ) {}
 
-  // find User ByEmail
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
     this._logger.debug(`Finding user by email: ${email}`);
     return this._candidateRepository.findByEmail(email);
   }
 
-  // find Candidate ById
   async findById(id: string): Promise<CandidateProfileDocument | null> {
     this._logger.debug(`Finding user by Id:${id}`);
     return this._candidateRepository.findById(id);
   }
 
-  // for Creating CanidateProfile
   async createPorfile(
     dto: CreateCandidateProfileDto,
   ): Promise<CandidateProfileResponseDto> {
@@ -63,7 +69,6 @@ export class CandidateService implements ICandidateService {
     return mappedData;
   }
 
-  // for finding All candidate List
   async findAllCandidate(): Promise<CandidateProfileDocument[] | null> {
     return await this._candidateRepository.findAll();
   }
@@ -90,8 +95,6 @@ export class CandidateService implements ICandidateService {
       data: mappedData,
     };
   }
-
-  // for Update CandidateProfile
 
   async updateProfile(
     dto: UpdateCandidateProfileDto,
@@ -145,5 +148,11 @@ export class CandidateService implements ICandidateService {
       message: MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
       data: mappedData,
     };
+  }
+
+  async getAllCompanies(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
+    return this._companyService.getAllCompanies(pagination);
   }
 }
