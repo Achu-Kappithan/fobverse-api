@@ -6,6 +6,8 @@ import { CandidateResponceInterface } from './responce.interface';
 import { CompanyProfileResponseDto } from '../../company/dtos/responce.allcompany';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
+import { CandidateApplicationResponseDto } from '../../applications/dtos/candidate-application.response.dto';
+import { CandidateApplicationsQueryDto } from '../../applications/dtos/candidate-applications-query.dto';
 
 export interface ICandidateService {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
@@ -28,6 +30,11 @@ export interface ICandidateService {
   getAllCompanies(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>>;
+
+  getMyApplications(
+    candidateId: string,
+    dto: CandidateApplicationsQueryDto,
+  ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>>;
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';

@@ -20,6 +20,8 @@ import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
 import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { CandidateApplicationResponseDto } from '../applications/dtos/candidate-application.response.dto';
+import { CandidateApplicationsQueryDto } from '../applications/dtos/candidate-applications-query.dto';
 
 @Controller('candidate')
 export class CandiateController {
@@ -61,5 +63,15 @@ export class CandiateController {
     @Query() pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._candiateService.getAllCompanies(pagination);
+  }
+
+  @Get('my-applications')
+  @UseGuards(AuthGuard('access_token'))
+  async getMyApplications(
+    @Request() req: ERequest,
+    @Query() dto: CandidateApplicationsQueryDto,
+  ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
+    const user = req.user as { id: string };
+    return this._candiateService.getMyApplications(user.id, dto);
   }
 }

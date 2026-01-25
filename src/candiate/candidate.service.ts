@@ -25,6 +25,12 @@ import {
 } from '../company/interface/profile.service.interface';
 import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
+import {
+  APPLICATION_SERVICE,
+  IApplicationService,
+} from '../applications/interfaces/application.service.interface';
+import { CandidateApplicationResponseDto } from '../applications/dtos/candidate-application.response.dto';
+import { CandidateApplicationsQueryDto } from '../applications/dtos/candidate-applications-query.dto';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -35,6 +41,8 @@ export class CandidateService implements ICandidateService {
     private readonly _candidateRepository: ICandidateRepository,
     @Inject(COMPANY_SERVICE)
     private readonly _companyService: IComapnyService,
+    @Inject(APPLICATION_SERVICE)
+    private readonly _applicationService: IApplicationService,
   ) {}
 
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
@@ -154,5 +162,18 @@ export class CandidateService implements ICandidateService {
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._companyService.getAllCompanies(pagination);
+  }
+
+  async getMyApplications(
+    candidateId: string,
+    dto: CandidateApplicationsQueryDto,
+  ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
+    this._logger.log(
+      `[CandidateService] Fetching applications for candidate: ${candidateId}`,
+    );
+    return await this._applicationService.getCandidateApplications(
+      candidateId,
+      dto,
+    );
   }
 }

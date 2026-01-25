@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CANDIDATE_REPOSITORY } from './interfaces/candidate-repository.interface';
 import { CANDIDATE_SERVICE } from './interfaces/candidate-service.interface';
@@ -10,6 +10,7 @@ import { CandidateRepository } from './candidate.repository';
 import { CandidateService } from './candidate.service';
 import { CandiateController } from './candidate.controller';
 import { CompanyModule } from '../company/company.module';
+import { ApplicationsModule } from '../applications/applications.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CompanyModule } from '../company/company.module';
       { name: CandidateProfile.name, schema: CandidateProfileSchema },
     ]),
     CompanyModule,
+    forwardRef(() => ApplicationsModule),
   ],
   providers: [
     {

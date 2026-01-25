@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ApplicationsController } from './applications.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Applications, ApplicationSchema } from './schema/applications.schema';
@@ -16,7 +16,7 @@ import { AtsSortingModule } from '../ats-sorting/ats-sorting.module';
     MongooseModule.forFeature([
       { name: Applications.name, schema: ApplicationSchema },
     ]),
-    CandiateModule,
+    forwardRef(() => CandiateModule),
     JobsModule,
     EmailModule,
     AtsSortingModule,

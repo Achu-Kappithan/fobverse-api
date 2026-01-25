@@ -37,7 +37,11 @@ import {
 } from '../ats-sorting/interfaces/ats.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 import { applicationResponce } from './interfaces/responce.interface';
-import { populatedapplicationList } from './types/repository.types';
+import {
+  populatedapplicationList,
+  CandidateApplicationAggregation,
+} from './types/repository.types';
+import { CandidateApplicationResponseDto } from './dtos/candidate-application.response.dto';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -344,6 +348,68 @@ export class ApplicationsService implements IApplicationService {
         { Rejected: true },
       );
     }
+  }
+
+  async getCandidateApplications(
+    candidateId: string,
+    dto: PaginationDto,
+  ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
+    const { page = 1, limit = 10, search, filtervalue } = dto;
+
+    this._logger.log(
+      `[ApplicationService] Fetching applications for candidate: ${candidateId} with filters: ${JSON.stringify(dto)}`,
+    );
+
+    const skip = (page - 1) * limit;
+
+    const { data, total } =
+      await this._applicationRepository.getCandidateApplications(
+        candidateId,
+        { search, filtervalue },
+        { skip, limit, sort: { createdAt: -1 } },
+      );
+
+    this._logger.log(
+      `[ApplicationService] Found ${total} applications for candidate`,
+    );
+
+    const plainData = data.map((app: CandidateApplicationAggregation) => ({
+      _id: app._id.toString(),
+      jobId: app.jobId.toString(),
+      companyId: app.companyId.toString(),
+      candidateId: app.candidateId.toString(),
+      applicationStatus: app.applicationStatus,
+      Stages: app.Stages as Stages,
+      Rejected: app.Rejected,
+      createdAt: app.createdAt.toString(),
+      updatedAt: app.updatedAt.toString(),
+      atsScore: app.atsScore,
+      resumeUrl: app.resumeUrl,
+      companyName: app.companyDetails?.name ?? 'N/A',
+      companyLogo: app.companyDetails?.logoUrl ?? null,
+      jobRole: app.jobDetails?.title ?? 'N/A',
+      jobLocation: app.jobDetails?.location ?? [],
+      jobType: app.jobDetails?.jobType ?? 'N/A',
+    }));
+
+    const mappedData = plainToInstance(
+      CandidateApplicationResponseDto,
+      plainData,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mappedData,
+      message: MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
+      currentPage: page,
+      totalItems: total,
+      totalPages: totalPages,
+      itemsPerPage: limit,
+    };
   }
 
   private _mapToPlainObject(job: populatedapplicationList) {
