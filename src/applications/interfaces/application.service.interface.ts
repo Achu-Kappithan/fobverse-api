@@ -5,6 +5,7 @@ import {
 import { PaginatedApplicationDto } from '../dtos/application.pagination.dto';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { ApplicationResponceDto } from '../dtos/application.responce';
+import { ApplicationDetailsResponseDto } from '../dtos/application-details.response.dto';
 import { CreateApplicationDto } from '../dtos/createapplication.dto';
 import { updateAtsScoreDto } from '../dtos/update.atsScore.dto';
 import { ApplicationDocument } from '../schema/applications.schema';
@@ -37,7 +38,7 @@ export interface IApplicationService {
   getjobDetails(
     appId: string,
     canId: string,
-  ): Promise<applicationResponce<ApplicationResponceDto>>;
+  ): Promise<applicationResponce<ApplicationDetailsResponseDto>>;
 
   updateStatus(
     appId: string,

@@ -20,6 +20,7 @@ import { CreateApplicationDto } from './dtos/createapplication.dto';
 import { FilterQuery, Types } from 'mongoose';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { ApplicationDocument, Stages } from './schema/applications.schema';
 import { plainToInstance } from 'class-transformer';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
@@ -309,17 +310,21 @@ export class ApplicationsService implements IApplicationService {
   async getjobDetails(
     appId: string,
     canId: string,
-  ): Promise<applicationResponce<ApplicationResponceDto>> {
+  ): Promise<applicationResponce<ApplicationDetailsResponseDto>> {
     console.log(appId, canId);
     const data = await this._applicationRepository.getApplicationDetails(appId);
     if (!data) {
       throw new NotFoundException('Application not found');
     }
-    const plainData = this._mapToPlainObject(data);
+    const plainData = this._mapToDetailedPlainObject(data);
 
-    const mappedData = plainToInstance(ApplicationResponceDto, plainData, {
-      excludeExtraneousValues: true,
-    });
+    const mappedData = plainToInstance(
+      ApplicationDetailsResponseDto,
+      plainData,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
     this._logger.log(
       `[applicationService] applicationDetails fetched ${JSON.stringify(mappedData)}`,
     );
@@ -423,6 +428,31 @@ export class ApplicationsService implements IApplicationService {
         _id: job.profile?._id?.toString() || null,
         profileImg:
           job.profile?.profileUrl || job.candidateUser?.profileImg || null,
+      },
+      jobDetails: job.jobDetails,
+    };
+  }
+
+  private _mapToDetailedPlainObject(job: populatedapplicationList) {
+    return {
+      ...job,
+      _id: job._id.toString(),
+      candidateId: job.candidateId.toString(),
+      jobId: job.jobId.toString(),
+      companyId: job.companyId.toString(),
+      profile: {
+        _id: job.profile?._id?.toString() || '',
+        name: job.profile?.name || '',
+        aboutme: job.profile?.aboutme || null,
+        profileUrl: job.profile?.profileUrl || null,
+        coverUrl: job.profile?.coverUrl || null,
+        contactInfo: job.profile?.contactInfo || [],
+        education: job.profile?.education || [],
+        skills: job.profile?.skills || [],
+        experience: job.profile?.experience || [],
+        resumeUrl: job.profile?.resumeUrl || null,
+        portfolioLinks: job.profile?.portfolioLinks || [],
+        isActive: job.profile?.isActive ?? true,
       },
       jobDetails: job.jobDetails,
     };

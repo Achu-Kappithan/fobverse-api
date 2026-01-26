@@ -58,6 +58,5 @@ export class Applications {
 
 export const ApplicationSchema = SchemaFactory.createForClass(Applications);
 
-// Indexes for performance optimization
 ApplicationSchema.index({ candidateId: 1 });
 ApplicationSchema.index({ candidateId: 1, Stages: 1 });
