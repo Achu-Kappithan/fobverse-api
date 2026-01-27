@@ -11,6 +11,7 @@ import { CandidateService } from './candidate.service';
 import { CandiateController } from './candidate.controller';
 import { CompanyModule } from '../company/company.module';
 import { ApplicationsModule } from '../applications/applications.module';
+import { InterviewModule } from '../interview/interview.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ApplicationsModule } from '../applications/applications.module';
     ]),
     CompanyModule,
     forwardRef(() => ApplicationsModule),
+    forwardRef(() => InterviewModule),
   ],
   providers: [
     {

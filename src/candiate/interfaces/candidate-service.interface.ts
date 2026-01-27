@@ -8,6 +8,7 @@ import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
 import { CandidateApplicationResponseDto } from '../../applications/dtos/candidate-application.response.dto';
 import { CandidateApplicationsQueryDto } from '../../applications/dtos/candidate-applications-query.dto';
+import { AllStagesResponseDto } from '../../interview/dtos/all-stages-response.dto';
 
 export interface ICandidateService {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
@@ -35,6 +36,10 @@ export interface ICandidateService {
     candidateId: string,
     dto: CandidateApplicationsQueryDto,
   ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>>;
+
+  getApplicationStages(
+    applicationId: string,
+  ): Promise<CandidateResponceInterface<AllStagesResponseDto>>;
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';
