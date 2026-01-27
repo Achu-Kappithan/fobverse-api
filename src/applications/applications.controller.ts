@@ -25,6 +25,7 @@ import { UserDocument } from '../auth/schema/user.schema';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 import { applicationResponce } from './interfaces/responce.interface';
 
@@ -94,7 +95,7 @@ export class ApplicationsController {
   async getApplicationDetails(
     @Param('appId') appId: string,
     @Param('canId') canId: string,
-  ): Promise<applicationResponce<ApplicationResponceDto>> {
+  ): Promise<applicationResponce<ApplicationDetailsResponseDto>> {
     return this.applicationsService.getjobDetails(appId, canId);
   }
 }

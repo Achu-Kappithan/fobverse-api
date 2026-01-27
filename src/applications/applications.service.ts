@@ -20,6 +20,7 @@ import { CreateApplicationDto } from './dtos/createapplication.dto';
 import { FilterQuery, Types } from 'mongoose';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { ApplicationDocument, Stages } from './schema/applications.schema';
 import { plainToInstance } from 'class-transformer';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
@@ -37,7 +38,11 @@ import {
 } from '../ats-sorting/interfaces/ats.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 import { applicationResponce } from './interfaces/responce.interface';
-import { populatedapplicationList } from './types/repository.types';
+import {
+  populatedapplicationList,
+  CandidateApplicationAggregation,
+} from './types/repository.types';
+import { CandidateApplicationResponseDto } from './dtos/candidate-application.response.dto';
 
 @Injectable()
 export class ApplicationsService implements IApplicationService {
@@ -305,17 +310,21 @@ export class ApplicationsService implements IApplicationService {
   async getjobDetails(
     appId: string,
     canId: string,
-  ): Promise<applicationResponce<ApplicationResponceDto>> {
+  ): Promise<applicationResponce<ApplicationDetailsResponseDto>> {
     console.log(appId, canId);
     const data = await this._applicationRepository.getApplicationDetails(appId);
     if (!data) {
       throw new NotFoundException('Application not found');
     }
-    const plainData = this._mapToPlainObject(data);
+    const plainData = this._mapToDetailedPlainObject(data);
 
-    const mappedData = plainToInstance(ApplicationResponceDto, plainData, {
-      excludeExtraneousValues: true,
-    });
+    const mappedData = plainToInstance(
+      ApplicationDetailsResponseDto,
+      plainData,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
     this._logger.log(
       `[applicationService] applicationDetails fetched ${JSON.stringify(mappedData)}`,
     );
@@ -346,6 +355,68 @@ export class ApplicationsService implements IApplicationService {
     }
   }
 
+  async getCandidateApplications(
+    candidateId: string,
+    dto: PaginationDto,
+  ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
+    const { page = 1, limit = 10, search, filtervalue } = dto;
+
+    this._logger.log(
+      `[ApplicationService] Fetching applications for candidate: ${candidateId} with filters: ${JSON.stringify(dto)}`,
+    );
+
+    const skip = (page - 1) * limit;
+
+    const { data, total } =
+      await this._applicationRepository.getCandidateApplications(
+        candidateId,
+        { search, filtervalue },
+        { skip, limit, sort: { createdAt: -1 } },
+      );
+
+    this._logger.log(
+      `[ApplicationService] Found ${total} applications for candidate`,
+    );
+
+    const plainData = data.map((app: CandidateApplicationAggregation) => ({
+      _id: app._id.toString(),
+      jobId: app.jobId.toString(),
+      companyId: app.companyId.toString(),
+      candidateId: app.candidateId.toString(),
+      applicationStatus: app.applicationStatus,
+      Stages: app.Stages as Stages,
+      Rejected: app.Rejected,
+      createdAt: app.createdAt.toString(),
+      updatedAt: app.updatedAt.toString(),
+      atsScore: app.atsScore,
+      resumeUrl: app.resumeUrl,
+      companyName: app.companyDetails?.name ?? 'N/A',
+      companyLogo: app.companyDetails?.logoUrl ?? null,
+      jobRole: app.jobDetails?.title ?? 'N/A',
+      jobLocation: app.jobDetails?.location ?? [],
+      jobType: app.jobDetails?.jobType ?? 'N/A',
+    }));
+
+    const mappedData = plainToInstance(
+      CandidateApplicationResponseDto,
+      plainData,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mappedData,
+      message: MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
+      currentPage: page,
+      totalItems: total,
+      totalPages: totalPages,
+      itemsPerPage: limit,
+    };
+  }
+
   private _mapToPlainObject(job: populatedapplicationList) {
     return {
       ...job,
@@ -357,6 +428,31 @@ export class ApplicationsService implements IApplicationService {
         _id: job.profile?._id?.toString() || null,
         profileImg:
           job.profile?.profileUrl || job.candidateUser?.profileImg || null,
+      },
+      jobDetails: job.jobDetails,
+    };
+  }
+
+  private _mapToDetailedPlainObject(job: populatedapplicationList) {
+    return {
+      ...job,
+      _id: job._id.toString(),
+      candidateId: job.candidateId.toString(),
+      jobId: job.jobId.toString(),
+      companyId: job.companyId.toString(),
+      profile: {
+        _id: job.profile?._id?.toString() || '',
+        name: job.profile?.name || '',
+        aboutme: job.profile?.aboutme || null,
+        profileUrl: job.profile?.profileUrl || null,
+        coverUrl: job.profile?.coverUrl || null,
+        contactInfo: job.profile?.contactInfo || [],
+        education: job.profile?.education || [],
+        skills: job.profile?.skills || [],
+        experience: job.profile?.experience || [],
+        resumeUrl: job.profile?.resumeUrl || null,
+        portfolioLinks: job.profile?.portfolioLinks || [],
+        isActive: job.profile?.isActive ?? true,
       },
       jobDetails: job.jobDetails,
     };

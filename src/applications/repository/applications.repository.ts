@@ -154,4 +154,85 @@ export class ApplicationRepository
 
     return applicaton[0] as populatedapplicationList;
   }
+
+  async getCandidateApplications(
+    candidateId: string,
+    filter: {
+      search?: string;
+      filtervalue?: string;
+    },
+    options: {
+      limit?: number;
+      skip?: number;
+      sort?: Record<string, -1 | 1>;
+    },
+  ): Promise<{ data: any[]; total: number }> {
+    const pipeline: PipelineStage[] = [
+      { $match: { candidateId: new Types.ObjectId(candidateId) } },
+
+      {
+        $lookup: {
+          from: 'jobs',
+          localField: 'jobId',
+          foreignField: '_id',
+          as: 'jobDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$jobDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $lookup: {
+          from: 'companyprofiles',
+          localField: 'companyId',
+          foreignField: '_id',
+          as: 'companyDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$companyDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    if (filter.filtervalue) {
+      pipeline.push({
+        $match: { Stages: { $regex: `^${filter.filtervalue}`, $options: 'i' } },
+      });
+    }
+
+    if (filter.search) {
+      pipeline.push({
+        $match: {
+          'jobDetails.title': { $regex: filter.search, $options: 'i' },
+        },
+      });
+    }
+
+    pipeline.push({ $sort: options.sort || { createdAt: -1 } });
+
+    pipeline.push({
+      $facet: {
+        metadata: [{ $count: 'total' }],
+        data: [
+          ...(options.skip !== undefined ? [{ $skip: options.skip }] : []),
+          ...(options.limit !== undefined ? [{ $limit: options.limit }] : []),
+        ],
+      },
+    });
+
+    const [result] = await this.applicationModal
+      .aggregate<AggregateResult>(pipeline)
+      .exec();
+
+    const data = result?.data || [];
+    const total = result?.metadata?.[0]?.total || 0;
+    return { data, total };
+  }
 }

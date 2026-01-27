@@ -25,6 +25,17 @@ import {
 } from '../company/interface/profile.service.interface';
 import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
+import {
+  APPLICATION_SERVICE,
+  IApplicationService,
+} from '../applications/interfaces/application.service.interface';
+import { CandidateApplicationResponseDto } from '../applications/dtos/candidate-application.response.dto';
+import { CandidateApplicationsQueryDto } from '../applications/dtos/candidate-applications-query.dto';
+import {
+  IInterviewService,
+  INTERVIEW_SERVICE,
+} from '../interview/interfaces/interview.service.interface';
+import { AllStagesResponseDto } from '../interview/dtos/all-stages-response.dto';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -35,6 +46,10 @@ export class CandidateService implements ICandidateService {
     private readonly _candidateRepository: ICandidateRepository,
     @Inject(COMPANY_SERVICE)
     private readonly _companyService: IComapnyService,
+    @Inject(APPLICATION_SERVICE)
+    private readonly _applicationService: IApplicationService,
+    @Inject(INTERVIEW_SERVICE)
+    private readonly _interviewService: IInterviewService,
   ) {}
 
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
@@ -154,5 +169,37 @@ export class CandidateService implements ICandidateService {
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._companyService.getAllCompanies(pagination);
+  }
+
+  async getMyApplications(
+    candidateId: string,
+    dto: CandidateApplicationsQueryDto,
+  ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
+    this._logger.log(
+      `[CandidateService] Fetching applications for candidate: ${candidateId}`,
+    );
+    return await this._applicationService.getCandidateApplications(
+      candidateId,
+      dto,
+    );
+  }
+
+  async getApplicationStages(
+    applicationId: string,
+  ): Promise<CandidateResponceInterface<AllStagesResponseDto>> {
+    this._logger.log(
+      `[CandidateService] Fetching all stages for applicationId: ${applicationId}`,
+    );
+    const stages =
+      await this._interviewService.getAllStagesByApplicationId(applicationId);
+
+    if (!stages.data) {
+      throw new NotFoundException('Stages data not found');
+    }
+
+    return {
+      message: stages.message,
+      data: stages.data,
+    };
   }
 }
