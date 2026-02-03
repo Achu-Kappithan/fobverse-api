@@ -403,4 +403,180 @@ export class EmailService {
 
     await this.sendEmail(to, subject, htmlContent);
   }
+
+  async SendApplicationShortlistedEmail(
+    to: string,
+    jobTitle: string,
+    companyName: string,
+  ): Promise<void> {
+    const subject = `Great News! Your Application for ${jobTitle} at ${companyName}`;
+    const htmlContent = `
+        <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+                        <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 20px; text-align: center;">
+                        <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">You've Been Shortlisted!</h2>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Hello,
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            We have exciting news! Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has been shortlisted.
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            The hiring team will reach out to you shortly regarding the next steps in the interview process. Please keep an eye on your email and Fobverse notifications.
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            Best of luck!
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                        <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                            © 2025 Fobverse. All rights reserved.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    `;
+    await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async SendApplicationRejectedEmail(
+    to: string,
+    jobTitle: string,
+    companyName: string,
+  ): Promise<void> {
+    const subject = `Update on Your Application for ${jobTitle} at ${companyName}`;
+    const htmlContent = `
+        <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+                        <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 20px; text-align: center;">
+                        <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Application Update</h2>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Hello,
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Thank you for your interest in the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            After careful review of your application, we regret to inform you that we will not be moving forward with your candidacy at this time. We appreciate the time you took to apply and wish you the best in your job search.
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            The Fobverse Team
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                        <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                            © 2025 Fobverse. All rights reserved.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    `;
+    await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async SendInterviewPassedEmail(
+    to: string,
+    stage: string,
+    companyName: string,
+  ): Promise<void> {
+    const subject = `Update on Your ${stage} Interview - Fobverse`;
+    const htmlContent = `
+        <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+                        <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 20px; text-align: center;">
+                        <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Great News!</h2>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Hello,
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            We are happy to inform you that you have successfully cleared the <strong>${stage}</strong> interview with <strong>${companyName}</strong>.
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            The hiring team will reach out to you shortly with the next steps.
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            Keep up the great work!
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                        <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                            © 2025 Fobverse. All rights reserved.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    `;
+    await this.sendEmail(to, subject, htmlContent);
+  }
+
+  async SendInterviewFailedEmail(
+    to: string,
+    stage: string,
+    companyName: string,
+  ): Promise<void> {
+    const subject = `Update on Your Interview with ${companyName}`;
+    const htmlContent = `
+        <div style="background-color: #f3f4f6; padding: 20px; font-family: Arial, Helvetica, sans-serif;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #7B3FE4;">
+                        <h1 style="color: #ffffff; font-size: 24px; margin: 0;">Fobverse</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 20px; text-align: center;">
+                        <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Update on Interview Result</h2>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Hello,
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            Thank you for participating in the <strong>${stage}</strong> interview for <strong>${companyName}</strong>.
+                        </p>
+                        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">
+                            After careful consideration, we regret to inform you that we will not be moving forward with your candidacy at this time. We appreciate the effort you put into the process and encourage you to apply for other roles in the future.
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            Best regards,<br>The Fobverse Team
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                        <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                            © 2025 Fobverse. All rights reserved.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    `;
+    await this.sendEmail(to, subject, htmlContent);
+  }
 }

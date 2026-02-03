@@ -36,6 +36,10 @@ import {
   ATS_SERVICE,
   IAtsService,
 } from '../ats-sorting/interfaces/ats.service.interface';
+import {
+  InotificationService,
+  NOTIFICATION_SERVICE,
+} from '../notification/interfaces/notification.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
 import { applicationResponce } from './interfaces/responce.interface';
 import {
@@ -56,6 +60,8 @@ export class ApplicationsService implements IApplicationService {
     private readonly _jobservice: IJobService,
     @Inject(ATS_SERVICE)
     private readonly _atsService: IAtsService,
+    @Inject(NOTIFICATION_SERVICE)
+    private readonly _notificationService: InotificationService,
     private readonly _emailService: EmailService,
   ) {}
 
@@ -135,6 +141,11 @@ export class ApplicationsService implements IApplicationService {
     await this._emailService.sendApplicationSubmitedEmail(
       updatedDto.email,
       jobDetails.data!,
+    );
+
+    await this._notificationService.createApplicationSubmittedNotification(
+      id,
+      jobDetails.data!.jobDetails.title,
     );
 
     if (!data) {
@@ -336,16 +347,55 @@ export class ApplicationsService implements IApplicationService {
   ): Promise<ApplicationDocument | null> {
     const applicationId = new Types.ObjectId(appId);
 
-    if (interviewResult === 'Pass') {
-      return this._applicationRepository.update(
+    const application = await this._applicationRepository.findById(appId);
+    if (!application) return null;
+
+    const jobDetails = await this._jobservice.populatedJobView(
+      application.jobId.toString(),
+    );
+    const jobData = jobDetails.data as unknown as {
+      profile?: { name: string }[];
+      jobDetails?: { title: string };
+    };
+    const companyName = jobData?.profile?.[0]?.name || 'the company';
+    const jobTitle = jobData?.jobDetails?.title || 'the position';
+
+    if (interviewResult === 'Pass' || nextStage === Stages.Shortlisted) {
+      const updated = await this._applicationRepository.update(
         { _id: applicationId },
-        { Stages: nextStage as Stages },
+        { Stages: (nextStage as Stages) || Stages.Shortlisted },
       );
+
+      if (updated) {
+        await this._notificationService.createApplicationShortlistedNotification(
+          application.candidateId.toString(),
+          jobTitle,
+        );
+        await this._emailService.SendApplicationShortlistedEmail(
+          application.email,
+          jobTitle,
+          companyName,
+        );
+      }
+      return updated;
     } else {
-      return this._applicationRepository.update(
+      const updated = await this._applicationRepository.update(
         { _id: applicationId },
         { Rejected: true },
       );
+
+      if (updated) {
+        await this._notificationService.createApplicationRejectedNotification(
+          application.candidateId.toString(),
+          jobTitle,
+        );
+        await this._emailService.SendApplicationRejectedEmail(
+          application.email,
+          jobTitle,
+          companyName,
+        );
+      }
+      return updated;
     }
   }
 

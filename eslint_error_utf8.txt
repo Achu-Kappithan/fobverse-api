@@ -1,0 +1,47 @@
+﻿node.exe : 
+(node:20096) 
+ESLintIgnoreWarning: 
+The ".eslintignore" 
+file is no longer 
+supported. Switch to 
+using the "ignores" 
+property in 
+"eslint.config.js": h
+ttps://eslint.org/doc
+s/latest/use/configur
+e/migration-guide#ign
+oring-files
+At C:\Program Files\n
+odejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ((node:2   
+ 0096) ES...#igno    
+ring-files:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+(Use `node 
+--trace-warnings 
+...` to show where 
+the warning was 
+created)
+
+C:\Users\achuzz\Desktop\fobverse-api\fobverse\src\applications\applications.service.ts
+  356:11  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  356:24  error    Insert `ÔÅÄ┬À┬À┬À┬À┬À`                                                         prettier/prettier
+  356:51  error    Unsafe member access .profile on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  373:11  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  391:11  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+
+Ô£û 5 problems (3 errors, 2 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

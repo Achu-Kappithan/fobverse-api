@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types, UpdateResult } from 'mongoose';
 import { BaseRepository } from '../../shared/repositories/base.repository';
 import { populatedJobDetails } from '../types/repository.types';
+import { ProjectionType } from 'mongoose';
 
 @Injectable()
 export class JobRepository
@@ -33,7 +34,7 @@ export class JobRepository
       limit?: number;
       skip: number;
       sort?: Record<string, -1 | 1>;
-      projection?: any;
+      projection?: ProjectionType<JobsDocument>;
     },
   ): Promise<{ data: JobsDocument[]; total: number }> {
     const query = this.jobModel

@@ -1,6 +1,9 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Stages } from '../schema/applications.schema';
-import { ResponseJobsDto } from '../../jobs/dtos/responce.job.dto';
+import {
+  populatedcompanyId,
+  ResponseJobsDto,
+} from '../../jobs/dtos/responce.job.dto';
 
 class ContactItemDto {
   @Expose()
@@ -105,6 +108,10 @@ export class ApplicationDetailsResponseDto {
   @Expose()
   @Type(() => ResponseJobsDto)
   jobDetails: ResponseJobsDto;
+
+  @Expose()
+  @Type(() => populatedcompanyId)
+  company: populatedcompanyId;
 
   @Exclude()
   _v: string;
