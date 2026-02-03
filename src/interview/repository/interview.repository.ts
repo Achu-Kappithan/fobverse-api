@@ -78,4 +78,33 @@ export class InterviewRepository
       .sort({ scheduledDate: 1, scheduledTime: 1 })
       .exec();
   }
+
+  async getUpcomingInterviewsForCompany(
+    companyId: string,
+    limitCount: number,
+  ): Promise<InterviewDocument[]> {
+    return this.InterviewModel.aggregate([
+      {
+        $match: {
+          status: ReviewStatus.Scheduled,
+        },
+      },
+      {
+        $lookup: {
+          from: 'applications',
+          localField: 'applicationId',
+          foreignField: '_id',
+          as: 'application',
+        },
+      },
+      { $unwind: '$application' },
+      {
+        $match: {
+          'application.companyId': new Types.ObjectId(companyId),
+        },
+      },
+      { $sort: { scheduledDate: 1, scheduledTime: 1 } },
+      { $limit: limitCount },
+    ]).exec() as unknown as Promise<InterviewDocument[]>;
+  }
 }

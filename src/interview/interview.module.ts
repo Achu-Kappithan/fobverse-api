@@ -43,6 +43,6 @@ import { VIDEO_CALL_ROOM_REPOSITORY } from './interfaces/video-call-room.reposit
     },
     VideoCallGateway,
   ],
-  exports: [INTERVIEW_SERVICE],
+  exports: [INTERVIEW_SERVICE, INTERVIEW_REPOSITORY],
 })
 export class InterviewModule {}

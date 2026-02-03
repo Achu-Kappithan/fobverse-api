@@ -66,7 +66,35 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     return { data, total };
   }
 
-  async countDocuments(filter: FilterQuery<T> = {}): Promise<number> {
+  async count(filter: FilterQuery<T> = {}): Promise<number> {
     return this.model.countDocuments(filter).exec();
+  }
+
+  async aggregate(pipeline: any[]): Promise<any[]> {
+    return this.model.aggregate(pipeline).exec();
+  }
+
+  async findMany(
+    filter: FilterQuery<T> = {},
+    options?: {
+      limit?: number;
+      skip?: number;
+      sort?: Record<string, -1 | 1>;
+      projection?: any;
+    },
+  ): Promise<T[]> {
+    const query = this.model.find(filter, options?.projection);
+
+    if (options?.sort) {
+      query.sort(options.sort);
+    }
+    if (options?.skip !== undefined) {
+      query.skip(options.skip);
+    }
+    if (options?.limit !== undefined) {
+      query.limit(options.limit);
+    }
+
+    return query.exec();
   }
 }

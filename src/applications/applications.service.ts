@@ -225,11 +225,7 @@ export class ApplicationsService implements IApplicationService {
         limit,
       });
 
-    console.log(data);
-
-    const plaindata = data.map((job) => this._mapToPlainObject(job));
-
-    const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
+    const mappedData = plainToInstance(ApplicationResponceDto, data, {
       excludeExtraneousValues: true,
     });
 
@@ -289,9 +285,7 @@ export class ApplicationsService implements IApplicationService {
       };
     }
 
-    const plaindata = data.map((job) => this._mapToPlainObject(job));
-
-    const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
+    const mappedData = plainToInstance(ApplicationResponceDto, data, {
       excludeExtraneousValues: true,
     });
 
