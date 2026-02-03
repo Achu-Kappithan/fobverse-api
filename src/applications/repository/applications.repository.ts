@@ -146,8 +146,36 @@ export class ApplicationRepository
         },
       },
       {
+        $lookup: {
+          from: 'jobs',
+          localField: 'jobId',
+          foreignField: '_id',
+          as: 'jobDetails',
+        },
+      },
+      {
         $unwind: {
           path: '$profile',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: '$jobDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'companyprofiles',
+          localField: 'jobDetails.companyId',
+          foreignField: '_id',
+          as: 'company',
+        },
+      },
+      {
+        $unwind: {
+          path: '$company',
           preserveNullAndEmptyArrays: true,
         },
       },

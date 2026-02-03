@@ -27,6 +27,28 @@ export class NotificationService implements InotificationService {
     private readonly _notificationGateway: NotificationGateWay,
   ) {}
 
+  async createInterviewScheduledNotification(
+    candidateId: string,
+    interview: { date: string; time: string },
+  ) {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    const notification = await this._notificationRepository.create({
+      candidateId: candidateObjId,
+      notificationType: notificationType.SCHEDULED,
+      title: 'Interview Scheduled',
+      message: `Your interview has been scheduled`,
+      meta: {
+        date: interview.date,
+        time: interview.time,
+      },
+    });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
+  }
+
   async createInterviewRescheduledNotification(
     candidateId: string,
     interview: { date: string; time: string },
@@ -54,12 +76,101 @@ export class NotificationService implements InotificationService {
 
   async createInterviewCancelledNotification(candidateId: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
-    return this._notificationRepository.create({
+    const notification = await this._notificationRepository.create({
       candidateId: candidateObjId,
       notificationType: notificationType.CANCELLED,
       title: 'Interview Cancelled',
       message: `Your interview has been cancelled`,
     });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
+  }
+
+  async createApplicationSubmittedNotification(
+    candidateId: string,
+    jobTitle: string,
+  ) {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    const notification = await this._notificationRepository.create({
+      candidateId: candidateObjId,
+      notificationType: notificationType.APPLICATION_SUBMITTED,
+      title: 'Application Submitted',
+      message: `Your application for ${jobTitle} has been submitted successfully`,
+    });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
+  }
+
+  async createApplicationShortlistedNotification(
+    candidateId: string,
+    jobTitle: string,
+  ) {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    const notification = await this._notificationRepository.create({
+      candidateId: candidateObjId,
+      notificationType: notificationType.APPLICATION_SHORTLISTED,
+      title: 'Application Shortlisted',
+      message: `Congratulations! Your application for ${jobTitle} has been shortlisted`,
+    });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
+  }
+
+  async createApplicationRejectedNotification(
+    candidateId: string,
+    jobTitle: string,
+  ) {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    const notification = await this._notificationRepository.create({
+      candidateId: candidateObjId,
+      notificationType: notificationType.APPLICATION_REJECTED,
+      title: 'Application Update',
+      message: `Thank you for your interest in the ${jobTitle} position. Unfortunately, we will not be moving forward with your application at this time`,
+    });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
+  }
+
+  async createInterviewPassedNotification(candidateId: string, stage: string) {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    const notification = await this._notificationRepository.create({
+      candidateId: candidateObjId,
+      notificationType: notificationType.INTERVIEW_PASSED,
+      title: 'Interview Update',
+      message: `Great news! You have cleared the ${stage} interview`,
+    });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
+  }
+
+  async createInterviewFailedNotification(candidateId: string, stage: string) {
+    const candidateObjId = new Types.ObjectId(candidateId);
+    const notification = await this._notificationRepository.create({
+      candidateId: candidateObjId,
+      notificationType: notificationType.INTERVIEW_FAILED,
+      title: 'Interview Update',
+      message: `Thank you for completing the ${stage} interview. We regret to inform you that we will not be moving forward with your candidacy`,
+    });
+    this._notificationGateway.sendNotificationToCandidate(
+      candidateId,
+      notification,
+    );
+    return notification;
   }
 
   async getCandidateNotifications(

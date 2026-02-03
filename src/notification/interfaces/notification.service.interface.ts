@@ -3,12 +3,27 @@ import { ApiResponce } from '../../shared/interface/api.responce';
 import { notificationResponceDto } from '../dtos/notification.responce.dto';
 
 export interface InotificationService {
+  createInterviewScheduledNotification(
+    candidateId: string,
+    interview: { date: string; time: string },
+  );
+
   createInterviewRescheduledNotification(candidateId: string, interview: any);
 
-  createInterviewCancelledNotification(
+  createInterviewCancelledNotification(candidateId: string);
+
+  createApplicationSubmittedNotification(candidateId: string, jobTitle: string);
+
+  createApplicationShortlistedNotification(
     candidateId: string,
-    interviewId: string,
+    jobTitle: string,
   );
+
+  createApplicationRejectedNotification(candidateId: string, jobTitle: string);
+
+  createInterviewPassedNotification(candidateId: string, stage: string);
+
+  createInterviewFailedNotification(candidateId: string, stage: string);
 
   getCandidateNotifications(
     candidateId: string,

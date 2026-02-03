@@ -116,6 +116,18 @@ export class InterviewService implements IInterviewService {
       'Scheduled',
     );
 
+    const application = await this._applicationService.getjobDetails(
+      dto.applicationId,
+      '',
+    );
+    const candidateId = application.data?.candidateId;
+    if (candidateId) {
+      await this._notificationService.createInterviewScheduledNotification(
+        candidateId,
+        { date: dto.scheduledDate, time: dto.scheduledTime },
+      );
+    }
+
     return {
       message: MESSAGES.INTERVIEW.SHEDULE,
       data: mappedData,
@@ -170,6 +182,18 @@ export class InterviewService implements IInterviewService {
       mappedData,
       'Scheduled',
     );
+
+    const application = await this._applicationService.getjobDetails(
+      dto.applicationId,
+      '',
+    );
+    const candidateId = application.data?.candidateId;
+    if (candidateId) {
+      await this._notificationService.createInterviewScheduledNotification(
+        candidateId,
+        { date: dto.scheduledDate, time: dto.scheduledTime },
+      );
+    }
 
     return {
       message: MESSAGES.INTERVIEW.SHEDULE,
@@ -246,6 +270,18 @@ export class InterviewService implements IInterviewService {
       'Rescheduled',
     );
 
+    const application = await this._applicationService.getjobDetails(
+      dto.applicationId,
+      '',
+    );
+    const candidateId = application.data?.candidateId;
+    if (candidateId) {
+      await this._notificationService.createInterviewRescheduledNotification(
+        candidateId,
+        { date: dto.scheduledDate, time: dto.scheduledTime },
+      );
+    }
+
     return {
       message: MESSAGES.INTERVIEW.RE_SHEDULE,
       data: mappedData,
@@ -307,6 +343,18 @@ export class InterviewService implements IInterviewService {
       'Rescheduled',
     );
 
+    const application = await this._applicationService.getjobDetails(
+      dto.applicationId,
+      '',
+    );
+    const candidateId = application.data?.candidateId;
+    if (candidateId) {
+      await this._notificationService.createInterviewRescheduledNotification(
+        candidateId,
+        { date: dto.scheduledDate, time: dto.scheduledTime },
+      );
+    }
+
     return {
       message: MESSAGES.INTERVIEW.RE_SHEDULE,
       data: mappedData,
@@ -351,6 +399,17 @@ export class InterviewService implements IInterviewService {
       dto.userEmail,
       mappedData,
     );
+
+    const application = await this._applicationService.getjobDetails(
+      dto.applicationId,
+      '',
+    );
+    const candidateId = application.data?.candidateId;
+    if (candidateId) {
+      await this._notificationService.createInterviewCancelledNotification(
+        candidateId,
+      );
+    }
 
     return {
       message: MESSAGES.INTERVIEW.CANCEL_INTERVIEW,
@@ -513,10 +572,41 @@ export class InterviewService implements IInterviewService {
       );
     }
 
+    const application = await this._applicationService.getjobDetails(
+      dto.applicationId,
+      '',
+    );
+    const candidateId = application.data.candidateId;
+    const companyName = application.data.company?.name || 'the company';
+
+    if (candidateId) {
+      if (dto.finalResult === finalResult.Pass) {
+        await this._notificationService.createInterviewPassedNotification(
+          candidateId,
+          updatedInterview.stage,
+        );
+        await this._EmailService.SendInterviewPassedEmail(
+          application.data.email,
+          updatedInterview.stage,
+          companyName,
+        );
+      } else {
+        await this._notificationService.createInterviewFailedNotification(
+          candidateId,
+          updatedInterview.stage,
+        );
+        await this._EmailService.SendInterviewFailedEmail(
+          application.data.email,
+          updatedInterview.stage,
+          companyName,
+        );
+      }
+    }
+
     const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...updatedInterview?.toJSON(),
-      _id: updatedInterview?._id.toString(),
-      scheduledBy: updatedInterview?.scheduledBy.toString(),
+      ...updatedInterview.toObject(),
+      _id: updatedInterview._id.toString(),
+      scheduledBy: updatedInterview.scheduledBy.toString(),
       applicationId: updatedInterview.applicationId.toString(),
     });
 
