@@ -13,6 +13,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AUTH_SERVICE, IAuthService } from './interfaces/IAuthCandiateService';
 import {
   forgotPasswordDto,
@@ -38,6 +39,7 @@ export class AuthController {
   constructor(
     @Inject(AUTH_SERVICE)
     private readonly _authService: IAuthService,
+    private readonly _configService: ConfigService,
   ) {}
 
   @Get('profile')
@@ -77,8 +79,14 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+    const cookieOptions = {
+      httpOnly: true,
+      secure: this._configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'strict' as const,
+      path: '/',
+    };
+    res.clearCookie('access_token', cookieOptions);
+    res.clearCookie('refresh_token', { ...cookieOptions, httpOnly: false });
     return { message: MESSAGES.AUTH.LOGOUT_SUCCESS };
   }
 

@@ -21,5 +21,6 @@ export function setJwtCookie(
     secure: configService.get<string>('NODE_ENV') === 'production',
     maxAge: maxAgeMs,
     sameSite: 'strict',
+    path: '/',
   });
 }
