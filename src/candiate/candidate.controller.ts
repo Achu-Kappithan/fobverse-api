@@ -60,15 +60,7 @@ export class CandiateController {
   }
 
   @Get('all-companies')
-  @UseGuards(AuthGuard('access_token'))
   async getAllCompanies(
-    @Query() pagination: PaginationDto,
-  ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
-    return this._candiateService.getAllCompanies(pagination);
-  }
-
-  @Get('all-companies-public')
-  async getAllCompaniesPublic(
     @Query() pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._candiateService.getAllCompanies(pagination);
@@ -85,7 +77,6 @@ export class CandiateController {
   }
 
   @Get('application-details/:applicationId')
-  @UseGuards(AuthGuard('access_token'))
   async getApplicationStages(
     @Param('applicationId') applicationId: string,
   ): Promise<CandidateResponceInterface<AllStagesResponseDto>> {
