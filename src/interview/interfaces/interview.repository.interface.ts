@@ -20,6 +20,11 @@ export interface IInterviewRepository
     interviewerId: string,
     status?: ReviewStatus,
   ): Promise<InterviewDocument[]>;
+
+  getUpcomingInterviewsForCompany(
+    companyId: string,
+    limit: number,
+  ): Promise<InterviewDocument[]>;
 }
 
 export const INTERVIEW_REPOSITORY = 'INTERVIEW_REPOSITORY';

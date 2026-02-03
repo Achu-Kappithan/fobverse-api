@@ -24,7 +24,7 @@ export class AtsSortingService implements IAtsService {
       throw new Error('Failed to fetch PDF data');
     }
 
-    const pdfBuffer = Buffer.from(response.data);
+    const pdfBuffer = Buffer.from(response.data as ArrayBuffer);
     const data = await PdfParse(pdfBuffer);
 
     return data.text || '';

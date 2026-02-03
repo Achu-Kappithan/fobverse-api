@@ -16,4 +16,18 @@ export interface IBaseRepository<T extends Document> {
       projection?: any;
     },
   ): Promise<{ data: T[]; total: number }>;
+
+  count(filter: FilterQuery<T>): Promise<number>;
+
+  aggregate(pipeline: any[]): Promise<any[]>;
+
+  findMany(
+    filter?: FilterQuery<T>,
+    options?: {
+      limit?: number;
+      skip?: number;
+      sort?: Record<string, 1 | -1>;
+      projection?: any;
+    },
+  ): Promise<T[]>;
 }

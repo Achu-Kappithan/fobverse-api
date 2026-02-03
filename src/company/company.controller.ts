@@ -32,6 +32,7 @@ import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { ERequest } from '../shared/interface/api.responce';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
 import { PlainResponse } from '../admin/interfaces/responce.interface';
+import { DashboardResponseDto } from './dtos/dashboard.dto';
 
 @Controller('company')
 export class CompanyController {
@@ -155,5 +156,14 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async removeUser(@Query('id') id: string): Promise<PlainResponse> {
     return this._companyService.removeUser(id);
+  }
+
+  @Get('dashboard')
+  @UseGuards(AuthGuard('access_token'))
+  async getDashboard(
+    @Request() req: ERequest,
+  ): Promise<comapnyResponceInterface<DashboardResponseDto>> {
+    const companyId = req.user?.companyId?.toString() ?? '';
+    return this._companyService.getDashboardData(companyId);
   }
 }

@@ -10,6 +10,9 @@ import { COMAPNY_REPOSITORY } from './interface/profile.repository.interface';
 import { COMPANY_SERVICE } from './interface/profile.service.interface';
 import { CompanyRepository } from './repository/comapny.repository';
 import { AuthModule } from '../auth/auth.module';
+import { JobsModule } from '../jobs/jobs.module';
+import { ApplicationsModule } from '../applications/applications.module';
+import { InterviewModule } from '../interview/interview.module';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { AuthModule } from '../auth/auth.module';
       { name: CompanyProfile.name, schema: CompanyProfileSchema },
     ]),
     forwardRef(() => AuthModule),
+    JobsModule,
+    ApplicationsModule,
+    InterviewModule,
   ],
   controllers: [CompanyController],
   providers: [

@@ -1,4 +1,4 @@
-import { FilterQuery, UpdateResult } from 'mongoose';
+import { FilterQuery, Types, UpdateResult } from 'mongoose';
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { ApplicationDocument } from '../schema/applications.schema';
 import {
@@ -20,6 +20,14 @@ export interface IApplicationRepository
   updateAtsScore(ids: string[], minScore: number): Promise<UpdateResult>;
 
   getApplicationDetails(appId: string): Promise<populatedapplicationList>;
+
+  getDashboardStats(companyId: Types.ObjectId): Promise<{
+    totalApplications: number;
+    hiredCandidates: number;
+    pendingApplications: number;
+  }>;
+
+  getJobApplicationStats(companyId: Types.ObjectId): Promise<any[]>;
 
   getCandidateApplications(
     candidateId: string,

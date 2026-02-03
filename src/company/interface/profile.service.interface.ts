@@ -14,6 +14,7 @@ import {
   UpdateInternalUserDto,
   UpdateProfileDto,
 } from '../dtos/update.profile.dtos';
+import { DashboardResponseDto } from '../dtos/dashboard.dto';
 import { comapnyResponceInterface } from './responce.interface';
 import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
 
@@ -73,6 +74,10 @@ export interface IComapnyService {
   getAllCompanies(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>>;
+
+  getDashboardData(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<DashboardResponseDto>>;
 }
 
 export const COMPANY_SERVICE = 'COMPANY_SERVICE';

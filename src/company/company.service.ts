@@ -40,6 +40,25 @@ import {
   PlainResponse,
 } from '../admin/interfaces/responce.interface';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
+import {
+  JOBS_REPOSITORY,
+  IJobsRepository,
+} from '../jobs/interfaces/jobs.repository.interface';
+import {
+  APPLICATION_REPOSITORY,
+  IApplicationRepository,
+} from '../applications/interfaces/application.repository.interface';
+import {
+  INTERVIEW_REPOSITORY,
+  IInterviewRepository,
+} from '../interview/interfaces/interview.repository.interface';
+import {
+  DashboardResponseDto,
+  DashboardStatsDto,
+  JobStatDto,
+} from './dtos/dashboard.dto';
+import { ApplicationResponceDto } from '../applications/dtos/application.responce';
+import { ScheduleResponseDto } from '../interview/dtos/interview.responce.dto';
 
 @Injectable()
 export class CompanyService implements IComapnyService {
@@ -49,6 +68,12 @@ export class CompanyService implements IComapnyService {
     private readonly _companyRepository: IcompanyRepository,
     @Inject(forwardRef(() => AUTH_SERVICE))
     private readonly _AuthService: IAuthService,
+    @Inject(JOBS_REPOSITORY)
+    private readonly _jobRepository: IJobsRepository,
+    @Inject(APPLICATION_REPOSITORY)
+    private readonly _applicationRepository: IApplicationRepository,
+    @Inject(INTERVIEW_REPOSITORY)
+    private readonly _interviewRepository: IInterviewRepository,
   ) {}
 
   //for updating bolock /unblock Status
@@ -305,6 +330,83 @@ export class CompanyService implements IComapnyService {
       currentPage: page,
       itemsPerPage: limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async getDashboardData(
+    companyId: string,
+  ): Promise<comapnyResponceInterface<DashboardResponseDto>> {
+    const comId = new Types.ObjectId(companyId);
+
+    const [
+      statsRepo,
+      totalJobs,
+      { data: recentAppsRaw },
+      jobStatsData,
+      upcomingInterviewsRaw,
+    ] = await Promise.all([
+      this._applicationRepository.getDashboardStats(comId),
+      this._jobRepository.count({ companyId: comId }),
+      this._applicationRepository.populatedApplicationList(
+        { companyId: comId },
+        { limit: 5, sort: { createdAt: -1 } },
+      ),
+      this._applicationRepository.getJobApplicationStats(comId),
+      this._interviewRepository.getUpcomingInterviewsForCompany(companyId, 5),
+    ]);
+
+    const stats: DashboardStatsDto = {
+      ...statsRepo,
+      totalJobs: totalJobs,
+      activeJobs: totalJobs,
+      interviewsScheduled: upcomingInterviewsRaw.length,
+    };
+
+    const recentApplications = plainToInstance(
+      ApplicationResponceDto,
+      recentAppsRaw.map((app) => ({
+        ...app,
+        _id: app._id.toString(),
+        candidateId: app.candidateId.toString(),
+        jobId: app.jobId.toString(),
+        companyId: app.companyId.toString(),
+      })),
+      { excludeExtraneousValues: true },
+    );
+    console.log(recentApplications);
+
+    const jobStats = plainToInstance(
+      JobStatDto,
+      jobStatsData.map((stat: { jobId: Types.ObjectId }) => ({
+        ...stat,
+        jobId: stat.jobId.toString(),
+      })),
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    const upcomingInterviews = plainToInstance(
+      ScheduleResponseDto,
+      upcomingInterviewsRaw.map((interview) => ({
+        ...interview,
+        _id: interview._id.toString(),
+        applicationId: interview.applicationId.toString(),
+        scheduledBy: interview.scheduledBy.toString(),
+      })),
+      { excludeExtraneousValues: true },
+    );
+
+    const dashboardData: DashboardResponseDto = {
+      stats,
+      recentApplications,
+      upcomingInterviews,
+      jobStats,
+    };
+
+    return {
+      message: 'Dashboard data fetched successfully',
+      data: dashboardData,
     };
   }
 }

@@ -32,6 +32,6 @@ import { AtsSortingModule } from '../ats-sorting/ats-sorting.module';
       useClass: ApplicationsService,
     },
   ],
-  exports: [APPLICATION_SERVICE],
+  exports: [APPLICATION_SERVICE, APPLICATION_REPOSITORY],
 })
 export class ApplicationsModule {}
