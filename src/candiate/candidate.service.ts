@@ -36,6 +36,10 @@ import {
   INTERVIEW_SERVICE,
 } from '../interview/interfaces/interview.service.interface';
 import { AllStagesResponseDto } from '../interview/dtos/all-stages-response.dto';
+import {
+  IJobService,
+  JOBS_SERVICE,
+} from '../jobs/interfaces/jobs.service.interface';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -50,6 +54,8 @@ export class CandidateService implements ICandidateService {
     private readonly _applicationService: IApplicationService,
     @Inject(INTERVIEW_SERVICE)
     private readonly _interviewService: IInterviewService,
+    @Inject(JOBS_SERVICE)
+    private readonly _jobService: IJobService,
   ) {}
 
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
@@ -200,6 +206,23 @@ export class CandidateService implements ICandidateService {
     return {
       message: stages.message,
       data: stages.data,
+    };
+  }
+
+  async getHomeDataPublic(): Promise<
+    CandidateResponceInterface<{ jobs: any[]; companies: any[] }>
+  > {
+    const [jobs, companies] = await Promise.all([
+      this._jobService.getAllJobs(null, { page: 1, limit: 6 }),
+      this._companyService.getAllCompanies({ page: 1, limit: 4 }),
+    ]);
+
+    return {
+      message: 'Home data fetched successfully',
+      data: {
+        jobs: jobs.data,
+        companies: companies.data,
+      },
     };
   }
 }

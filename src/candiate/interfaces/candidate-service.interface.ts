@@ -40,6 +40,8 @@ export interface ICandidateService {
   getApplicationStages(
     applicationId: string,
   ): Promise<CandidateResponceInterface<AllStagesResponseDto>>;
+
+  getHomeDataPublic(): Promise<CandidateResponceInterface<{ jobs: any[]; companies: any[] }>>;
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';

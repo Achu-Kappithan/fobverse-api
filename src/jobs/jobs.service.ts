@@ -52,7 +52,7 @@ export class JobsService implements IJobService {
   //for geting Alljobs
 
   async getAllJobs(
-    id: string,
+    id: string | null,
     pagination: jobsPagesAndFilterDto,
   ): Promise<PaginatedResponse<ResponseJobsDto[]>> {
     const {
@@ -87,7 +87,7 @@ export class JobsService implements IJobService {
       }
     }
 
-    if (id) {
+    if (id && id !== 'null' && id !== 'undefined') {
       const companyId = new Types.ObjectId(id);
       filter.companyId = companyId;
     }

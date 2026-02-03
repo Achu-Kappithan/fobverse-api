@@ -62,4 +62,11 @@ export class JobsController {
   async jobPublicView(@Query('id') id: string) {
     return this._jobservices.populatedJobView(id);
   }
+
+  @Get('getalljobs-public')
+  async getAllJobsPublic(
+    @Query() parms: jobsPagesAndFilterDto,
+  ): Promise<PaginatedResponse<ResponseJobsDto[]>> {
+    return this._jobservices.getAllJobs('', parms);
+  }
 }
