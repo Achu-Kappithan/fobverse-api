@@ -23,6 +23,10 @@ import {
   IJobsRepository,
   JOBS_REPOSITORY,
 } from '../jobs/interfaces/jobs.repository.interface';
+import {
+  APPLICATION_REPOSITORY,
+  IApplicationRepository,
+} from '../applications/interfaces/application.repository.interface';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import {
   CompanyProfileResponseDto,
@@ -42,6 +46,8 @@ import { ApiResponce } from '../shared/interface/api.responce';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { UpdateAdminProfileDto } from './dtos/admin-profile.dto';
+import { AdminDashboardDto } from './dtos/admin-dashboard.dto';
+import { jobType } from '../jobs/schema/jobs.schema';
 
 @Injectable()
 export class AdminService implements IAdminService {
@@ -53,6 +59,8 @@ export class AdminService implements IAdminService {
     private readonly _candidateRepository: ICandidateRepository,
     @Inject(JOBS_REPOSITORY)
     private readonly _jobsRepository: IJobsRepository,
+    @Inject(APPLICATION_REPOSITORY)
+    private readonly _applicationRepository: IApplicationRepository,
     @Inject(AUTH_SERVICE)
     readonly _authService: IAuthService,
   ) {}
@@ -256,6 +264,72 @@ export class AdminService implements IAdminService {
     return {
       message: MESSAGES.ADMIN.PROFILE_UPDATE_SUCCESS,
       data: data,
+    };
+  }
+
+  async getDashboardStats(): Promise<ApiResponce<AdminDashboardDto>> {
+    const [
+      totalCandidates,
+      totalCompanies,
+      totalApplications,
+      totalJobs,
+      activeJobs,
+    ] = await Promise.all([
+      this._candidateRepository.count({}),
+      this._companyRepository.count({}),
+      this._applicationRepository.count({}),
+      this._jobsRepository.count({}),
+      this._jobsRepository.count({ activeStatus: true }),
+    ]);
+
+    const jobTypeStats = {
+      fulltime: await this._jobsRepository.count({ jobType: jobType.FullTime }),
+      parttime: await this._jobsRepository.count({
+        jobType: jobType.PartTmime,
+      }),
+      remote: await this._jobsRepository.count({ jobType: jobType.Remote }),
+      onsite: await this._jobsRepository.count({ jobType: jobType.OnSite }),
+      internship: 0,
+      contract: 0,
+    };
+
+    const { data: recentJobsData } = await this._jobsRepository.findAllJobs(
+      {},
+      { limit: 4, skip: 0, sort: { createdAt: -1 } },
+    );
+
+    const recentJobs = await Promise.all(
+      recentJobsData.map(async (job) => {
+        const company = job.companyId as { name: string; logoUrl?: string };
+        const applicantsCount = await this._applicationRepository.count({
+          jobId: job._id,
+        });
+
+        return {
+          _id: job._id.toString(),
+          title: job.title,
+          companyName: company.name,
+          location: job.location.join(', '),
+          jobType: job.jobType,
+          applicantsCount,
+          logo: company.logoUrl || '',
+        };
+      }),
+    );
+
+    const dashboardStats: AdminDashboardDto = {
+      totalCandidates,
+      totalCompanies,
+      totalApplications,
+      totalJobs,
+      activeJobs,
+      jobTypeStats,
+      recentJobs,
+    };
+
+    return {
+      message: MESSAGES.ADMIN.DATA_RETRIEVED,
+      data: dashboardStats,
     };
   }
 }

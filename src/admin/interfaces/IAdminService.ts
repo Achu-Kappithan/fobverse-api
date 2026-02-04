@@ -9,6 +9,7 @@ import { AllJobsAdminResponce } from '../../jobs/dtos/responce.job.dto';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { ApiResponce } from '../../shared/interface/api.responce';
 import { UpdateAdminProfileDto } from '../dtos/admin-profile.dto';
+import { AdminDashboardDto } from '../dtos/admin-dashboard.dto';
 import { PaginatedResponse, PlainResponse } from './responce.interface';
 
 export interface IAdminService {
@@ -37,6 +38,8 @@ export interface IAdminService {
     id: string,
     dto: UpdateAdminProfileDto,
   ): Promise<ApiResponce<UserResponceDto>>;
+
+  getDashboardStats(): Promise<ApiResponce<AdminDashboardDto>>;
 }
 
 export const ADMIN_SERVICE = 'ADMIN_SERVICE';
