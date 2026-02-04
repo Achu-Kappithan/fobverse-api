@@ -26,6 +26,7 @@ import { Request as ERequest } from 'express';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { UpdateAdminProfileDto } from './dtos/admin-profile.dto';
+import { AdminDashboardDto } from './dtos/admin-dashboard.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -103,5 +104,11 @@ export class AdminController {
   ): Promise<ApiResponce<UserResponceDto>> {
     const user = req.user as { _id: string };
     return this._adminService.upateUserProfile(user._id.toString(), dto);
+  }
+
+  @Get('dashboard-stats')
+  @UseGuards(AuthGuard('access_token'))
+  async getDashboardStats(): Promise<ApiResponce<AdminDashboardDto>> {
+    return this._adminService.getDashboardStats();
   }
 }
