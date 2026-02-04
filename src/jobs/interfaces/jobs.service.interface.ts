@@ -9,7 +9,7 @@ export interface IJobService {
   createJobs(id: string, dto: JobsDto): Promise<ApiResponce<ResponseJobsDto>>;
 
   getAllJobs(
-    id: string,
+    id: string | null,
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<ResponseJobsDto[]>>;
 

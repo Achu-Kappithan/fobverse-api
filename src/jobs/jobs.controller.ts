@@ -58,8 +58,14 @@ export class JobsController {
   }
 
   @Get('publicview')
-  @UseGuards(AuthGuard('access_token'))
   async jobPublicView(@Query('id') id: string) {
     return this._jobservices.populatedJobView(id);
+  }
+
+  @Get('getalljobs-public')
+  async getAllJobsPublic(
+    @Query() parms: jobsPagesAndFilterDto,
+  ): Promise<PaginatedResponse<ResponseJobsDto[]>> {
+    return this._jobservices.getAllJobs('', parms);
   }
 }

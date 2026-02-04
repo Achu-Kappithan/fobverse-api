@@ -12,6 +12,7 @@ import { CandiateController } from './candidate.controller';
 import { CompanyModule } from '../company/company.module';
 import { ApplicationsModule } from '../applications/applications.module';
 import { InterviewModule } from '../interview/interview.module';
+import { JobsModule } from '../jobs/jobs.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { InterviewModule } from '../interview/interview.module';
       { name: CandidateProfile.name, schema: CandidateProfileSchema },
     ]),
     CompanyModule,
+    JobsModule,
     forwardRef(() => ApplicationsModule),
     forwardRef(() => InterviewModule),
   ],

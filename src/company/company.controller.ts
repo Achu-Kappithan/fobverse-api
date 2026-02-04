@@ -145,7 +145,6 @@ export class CompanyController {
   }
 
   @Get('public/profile')
-  @UseGuards(AuthGuard('access_token'))
   async getPublicView(
     @Query('id') id: string,
   ): Promise<comapnyResponceInterface<populateProfileDto>> {
