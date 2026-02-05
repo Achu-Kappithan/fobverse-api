@@ -8,11 +8,12 @@ import {
 } from './schema/candidate.profile.schema';
 import { CandidateRepository } from './candidate.repository';
 import { CandidateService } from './candidate.service';
-import { CandiateController } from './candidate.controller';
+import { CandidateController } from './candidate.controller';
 import { CompanyModule } from '../company/company.module';
 import { ApplicationsModule } from '../applications/applications.module';
 import { InterviewModule } from '../interview/interview.module';
 import { JobsModule } from '../jobs/jobs.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { JobsModule } from '../jobs/jobs.module';
     JobsModule,
     forwardRef(() => ApplicationsModule),
     forwardRef(() => InterviewModule),
+    forwardRef(() => AuthModule),
   ],
   providers: [
     {
@@ -35,6 +37,6 @@ import { JobsModule } from '../jobs/jobs.module';
     },
   ],
   exports: [CANDIDATE_SERVICE, CANDIDATE_REPOSITORY],
-  controllers: [CandiateController],
+  controllers: [CandidateController],
 })
 export class CandiateModule {}

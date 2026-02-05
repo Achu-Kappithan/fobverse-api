@@ -40,6 +40,12 @@ import {
   IJobService,
   JOBS_SERVICE,
 } from '../jobs/interfaces/jobs.service.interface';
+import { changePassDto } from '../company/dtos/update.profile.dtos';
+import { generalResponce } from '../auth/interfaces/api-response.interface';
+import {
+  AUTH_SERVICE,
+  IAuthService,
+} from '../auth/interfaces/IAuthCandiateService';
 
 @Injectable()
 export class CandidateService implements ICandidateService {
@@ -56,6 +62,8 @@ export class CandidateService implements ICandidateService {
     private readonly _interviewService: IInterviewService,
     @Inject(JOBS_SERVICE)
     private readonly _jobService: IJobService,
+    @Inject(AUTH_SERVICE)
+    private readonly _authService: IAuthService,
   ) {}
 
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
@@ -224,5 +232,13 @@ export class CandidateService implements ICandidateService {
         companies: companies.data,
       },
     };
+  }
+
+  async updatePassword(
+    id: string,
+    dto: changePassDto,
+  ): Promise<generalResponce> {
+    this._logger.log(`[CandidateService] Updating password for user Id: ${id}`);
+    return this._authService.changePassword(id, dto);
   }
 }

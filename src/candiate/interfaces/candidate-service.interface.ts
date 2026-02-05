@@ -9,6 +9,8 @@ import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
 import { CandidateApplicationResponseDto } from '../../applications/dtos/candidate-application.response.dto';
 import { CandidateApplicationsQueryDto } from '../../applications/dtos/candidate-applications-query.dto';
 import { AllStagesResponseDto } from '../../interview/dtos/all-stages-response.dto';
+import { changePassDto } from '../../company/dtos/update.profile.dtos';
+import { generalResponce } from '../../auth/interfaces/api-response.interface';
 
 export interface ICandidateService {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
@@ -41,7 +43,10 @@ export interface ICandidateService {
     applicationId: string,
   ): Promise<CandidateResponceInterface<AllStagesResponseDto>>;
 
-  getHomeDataPublic(): Promise<CandidateResponceInterface<{ jobs: any[]; companies: any[] }>>;
+  getHomeDataPublic(): Promise<
+    CandidateResponceInterface<{ jobs: any[]; companies: any[] }>
+  >;
+  updatePassword(id: string, dto: changePassDto): Promise<generalResponce>;
 }
 
 export const CANDIDATE_SERVICE = 'CANDIDATE_SERVICE';
