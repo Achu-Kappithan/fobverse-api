@@ -91,7 +91,7 @@ export class CompanyService implements IComapnyService {
     );
     if (!newProfile) {
       throw new InternalServerErrorException(
-        MESSAGES.AUTH.PROFILE_CREATION_FAIILD,
+        MESSAGES.AUTH.PROFILE_CREATION_FAILED,
       );
     }
 

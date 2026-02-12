@@ -58,22 +58,22 @@ export class InterviewController {
 
   @Put('reshedule')
   @UseGuards(AuthGuard('access_token'))
-  async reSheduleInterview(
+  async reScheduleInterview(
     @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
   ): Promise<ApiResponse<ScheduleResponseDto>> {
     const scheduledBy = req.user as { id: string };
-    return this._interviewService.reSheduleTelyInterview(dto, scheduledBy.id);
+    return this._interviewService.reScheduleTelyInterview(dto, scheduledBy.id);
   }
 
   @Put('telephone/reshedule')
   @UseGuards(AuthGuard('access_token'))
-  async reSheduleTelyInterview(
+  async reScheduleTelyInterview(
     @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
   ): Promise<ApiResponse<ScheduleResponseDto>> {
     const scheduledBy = req.user as { id: string };
-    return this._interviewService.reSheduleInterview(dto, scheduledBy.id);
+    return this._interviewService.reScheduleInterview(dto, scheduledBy.id);
   }
 
   @Patch('cancelinterview')

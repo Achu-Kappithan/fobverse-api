@@ -110,7 +110,7 @@ export class AuthService implements IAuthService {
 
     if (!profileData) {
       this._logger.warn(`Login attempt for ${email}: User not found.`);
-      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUD);
+      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
 
     if (!profileData.password) {
@@ -302,7 +302,7 @@ export class AuthService implements IAuthService {
       this._logger.warn(
         `Email verification attempt for non-existent user ID: ${payload.UserId}`,
       );
-      throw new BadRequestException(MESSAGES.AUTH.USER_NOT_FOUD);
+      throw new BadRequestException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
 
     if (user.isVerified) {
@@ -426,7 +426,7 @@ export class AuthService implements IAuthService {
     let user: populatedpData | UserDocument | null;
 
     user = await this._authRepository.findCandidateByEmail(email);
-    console.log('get candiate usering email ', user);
+    console.log('get candidate using email ', user);
 
     if (user && user.role !== (role as string)) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
@@ -442,7 +442,7 @@ export class AuthService implements IAuthService {
       } as UserDocument);
 
       if (!user) {
-        throw new UnauthorizedException(MESSAGES.AUTH.PROFILE_CREATION_FAIILD);
+        throw new UnauthorizedException(MESSAGES.AUTH.PROFILE_CREATION_FAILED);
       }
 
       const profiledata: CreateProfileDto = {
@@ -548,7 +548,7 @@ export class AuthService implements IAuthService {
 
     if (!user) {
       this._logger.warn(`Login attempt for ${dto.email}: User not found.`);
-      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUD);
+      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
 
     if (!user.isVerified) {
@@ -595,7 +595,7 @@ export class AuthService implements IAuthService {
     );
 
     if (!user) {
-      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUD);
+      throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
 
     if (!user.isVerified) {
@@ -671,7 +671,7 @@ export class AuthService implements IAuthService {
     const user = await this._authRepository.findCompanyByEmail(dto.email);
 
     if (!user) {
-      throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUD);
+      throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
     if (!user.password) {
       throw new BadRequestException(MESSAGES.AUTH.ACCOUNT_LINKED_WITH_GOOGLE);
@@ -757,7 +757,7 @@ export class AuthService implements IAuthService {
     const existinguser = await this._authRepository.findByEmail(dto.email);
 
     if (existinguser) {
-      this._logger.log(`[AuthService] Email alredy Exist${dto.email}`);
+      this._logger.log(`[AuthService] Email already exists ${dto.email}`);
       throw new ConflictException(MESSAGES.COMPANY.ALREADY_EXIST);
     }
 
@@ -921,7 +921,7 @@ export class AuthService implements IAuthService {
     const User = await this._authRepository.findById(id);
 
     if (!User) {
-      throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUD);
+      throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
     const matchExistingPass = await bcrypt.compare(
       dto.currPass,

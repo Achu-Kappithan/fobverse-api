@@ -15,17 +15,17 @@ export class CandidateRepository
 {
   constructor(
     @InjectModel(CandidateProfile.name)
-    private readonly candiateModel: Model<CandidateProfileDocument>,
+    private readonly candidateModel: Model<CandidateProfileDocument>,
   ) {
-    super(candiateModel);
+    super(candidateModel);
   }
 
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
-    return this.candiateModel.findOne({ email });
+    return this.candidateModel.findOne({ email });
   }
 
   async updateStatus(id: string): Promise<UpdateResult> {
-    return await this.candiateModel.updateOne({ _id: id }, [
+    return await this.candidateModel.updateOne({ _id: id }, [
       {
         $set: {
           isActive: { $not: '$isActive' },

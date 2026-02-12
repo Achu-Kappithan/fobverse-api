@@ -92,7 +92,7 @@ export class CandidateService implements ICandidateService {
 
     if (!newprofile) {
       throw new InternalServerErrorException(
-        MESSAGES.AUTH.PROFILE_CREATION_FAIILD,
+        MESSAGES.AUTH.PROFILE_CREATION_FAILED,
       );
     }
     return MappingUtil.map(CandidateProfileResponseDto, newprofile);

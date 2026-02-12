@@ -99,7 +99,7 @@ export class ApplicationsService implements IApplicationService {
     );
 
     this._logger.log(
-      `[applicationService]job discription feth${JSON.stringify(jobDetails)}`,
+      `[applicationService]job description fetch${JSON.stringify(jobDetails)}`,
     );
 
     const atsScore = this._atsService.calculateScore(
@@ -124,7 +124,7 @@ export class ApplicationsService implements IApplicationService {
     if (previousapplication) {
       const jobid: string = previousapplication.jobId.toString();
       if (jobid === dto.jobId) {
-        throw new ConflictException(MESSAGES.APPLICATIONS.ALREDY_APPLYED);
+        throw new ConflictException(MESSAGES.APPLICATIONS.ALREADY_APPLIED);
       }
     }
 
@@ -148,7 +148,7 @@ export class ApplicationsService implements IApplicationService {
 
     if (!data) {
       throw new InternalServerErrorException(
-        MESSAGES.APPLICATIONS.SUBMITION_FAILD,
+        MESSAGES.APPLICATIONS.SUBMISSION_FAILED,
       );
     }
 

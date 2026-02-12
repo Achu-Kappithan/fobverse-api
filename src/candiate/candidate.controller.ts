@@ -32,7 +32,7 @@ import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
 export class CandidateController {
   constructor(
     @Inject(CANDIDATE_SERVICE)
-    private readonly _candiateService: ICandidateService,
+    private readonly _candidateService: ICandidateService,
   ) {}
 
   @Get('getprofile')
@@ -41,7 +41,7 @@ export class CandidateController {
     @Request() req: ERequest,
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     const user = req.user as { id: string };
-    return this._candiateService.getProfile(user.id);
+    return this._candidateService.getProfile(user.id);
   }
 
   @Post('updateprofile')
@@ -51,7 +51,7 @@ export class CandidateController {
     @Request() req: ERequest,
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     const user = req.user as { id: string };
-    return this._candiateService.updateProfile(dto, user.id);
+    return this._candidateService.updateProfile(dto, user.id);
   }
 
   @Get('/public/profile')
@@ -59,14 +59,14 @@ export class CandidateController {
   async publicView(
     @Query('id') id: string,
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
-    return this._candiateService.publicView(id);
+    return this._candidateService.publicView(id);
   }
 
   @Get('all-companies')
   async getAllCompanies(
     @Query() pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
-    return this._candiateService.getAllCompanies(pagination);
+    return this._candidateService.getAllCompanies(pagination);
   }
 
   @Get('my-applications')
@@ -76,14 +76,14 @@ export class CandidateController {
     @Query() dto: CandidateApplicationsQueryDto,
   ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
     const user = req.user as { id: string };
-    return this._candiateService.getMyApplications(user.id, dto);
+    return this._candidateService.getMyApplications(user.id, dto);
   }
 
   @Get('application-details/:applicationId')
   async getApplicationStages(
     @Param('applicationId') applicationId: string,
   ): Promise<ApiResponse<AllStagesResponseDto>> {
-    return await this._candiateService.getApplicationStages(applicationId);
+    return await this._candidateService.getApplicationStages(applicationId);
   }
 
   @Get('home-data-public')
@@ -93,7 +93,7 @@ export class CandidateController {
       companies: CompanyProfileResponseDto[];
     }>
   > {
-    return await this._candiateService.getHomeDataPublic();
+    return await this._candidateService.getHomeDataPublic();
   }
 
   @Post('change-pwd')
@@ -104,6 +104,6 @@ export class CandidateController {
   ): Promise<ApiResponse<unknown>> {
     const user = req.user as { _id: string };
     const id = user?._id?.toString();
-    return await this._candiateService.updatePassword(id, dto);
+    return await this._candidateService.updatePassword(id, dto);
   }
 }

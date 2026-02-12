@@ -28,10 +28,10 @@ export const MESSAGES = {
     VERIFICATION_TOKEN_MISSING: 'Verification token is missing.',
     VERIFICATION_LINK_INVALID_OR_EXPIRED:
       'Invalid or expired verification link.',
-    USER_NOT_FOUD: 'User not found',
+    USER_NOT_FOUND: 'User not found',
     ACCOUNT_LINKED_WITH_GOOGLE:
       'This account is linked with Google. Use Google to sign in.',
-    PROFILE_CREATION_FAIILD: 'Profile Creation faild try again..',
+    PROFILE_CREATION_FAILED: 'Profile creation failed. Please try again.',
 
     // Forbidden
     USER_BLOCKED: 'You are currently blocked. Please contact the admin.',
@@ -47,7 +47,7 @@ export const MESSAGES = {
   COMPANY: {
     PROFILE_UPDATE_SUCCESS: 'Profile data updated successfully.',
     PROFILE_FETCH_SUCCESS: 'Company profile fetched successfully.',
-    ALREADY_EXIST: 'Email alredy exists',
+    ALREADY_EXIST: 'Email already exists',
     USERS_GET_SUCCESS: 'Internal Users get Successfully',
     USER_REG_SUCCESS: 'User registration  completed',
     USER_PROFILE_GET: 'User profile get Successfully',
@@ -61,9 +61,9 @@ export const MESSAGES = {
   },
   CANDIDATE: {
     PROFILE_FETCH_SUCCESS: 'Candidate profile fetched successfully.',
-    PROFILE_FETCH_FAIL: 'Error regading feth candiateProfile data',
+    PROFILE_FETCH_FAIL: 'Error regarding fetching candidate profile data',
     PROFILE_UPDATE_SUCCESS: 'Profile data updated successfully.',
-    PROFILE_UPDATE_FAIL: 'Error regading updating profile data',
+    PROFILE_UPDATE_FAIL: 'Error regarding updating profile data',
   },
   ADMIN: {
     DATA_RETRIEVED: 'Data retrieved successfully.',
@@ -74,19 +74,19 @@ export const MESSAGES = {
   },
   APPLICATIONS: {
     SUBMIT_APPLICATION: 'Application Submited successfully',
-    SUBMITION_FAILD: 'Creation Faild internalServer Error',
-    ALREDY_APPLYED: 'Thsi job role is alredy applayied',
+    SUBMISSION_FAILED: 'Creation failed - internal server error',
+    ALREADY_APPLIED: 'This job role has already been applied to',
     FETCH_APPLICATION_DETAILS: 'Application details fetch Successfully',
   },
   INTERVIEW: {
-    SHEDULE: 'Interview Shedule Completed',
-    RE_SHEDULE: 'Intierview Re-Sheduled',
+    SCHEDULE: 'Interview scheduled successfully',
+    RESCHEDULE: 'Interview rescheduled successfully',
     CANCEL_INTERVIEW: 'Interview Cancelled',
-    SHEDULED: 'This Interview  is alredy Sheduled',
+    SCHEDULED: 'This interview is already scheduled',
     STAGE_GET: 'Stage details sucessfully fetched',
-    FAILD_GET: 'Errro regading fetching Stage details',
+    FAILED_GET: 'Error regarding fetching stage details',
     FEEDBACK_UPDATED: 'Feedback successfully updated',
-    UPDATE_FEEDBACK_FAILD: 'Faild to Update the Feedback',
+    UPDATE_FEEDBACK_FAILED: 'Failed to update feedback',
     UPDATE_STATUS_FAILD: 'Failed to update application status',
     UPDATE_STAGE_FAILD: 'Failed to update Stage',
     FETCH_SUCCESS: 'User schedules fetched successfully',

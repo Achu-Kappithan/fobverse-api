@@ -29,7 +29,7 @@ export interface IInterviewService {
     interviewerId: string,
   ): Promise<ApiResponse<ScheduleResponseDto>>;
 
-  reSheduleInterview(
+  reScheduleInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponse<ScheduleResponseDto>>;
@@ -48,7 +48,7 @@ export interface IInterviewService {
     scheduledBy: string,
   ): Promise<ApiResponse<ScheduleResponseDto>>;
 
-  reSheduleTelyInterview(
+  reScheduleTelyInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponse<ScheduleResponseDto>>;

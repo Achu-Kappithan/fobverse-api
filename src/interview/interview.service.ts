@@ -69,7 +69,7 @@ export class InterviewService implements IInterviewService {
     );
 
     if (currentData) {
-      throw new ConflictException(MESSAGES.INTERVIEW.SHEDULED);
+      throw new ConflictException(MESSAGES.INTERVIEW.SCHEDULED);
     }
 
     const applicationObjId = new Types.ObjectId(dto.applicationId);
@@ -124,7 +124,7 @@ export class InterviewService implements IInterviewService {
     }
 
     return {
-      message: MESSAGES.INTERVIEW.SHEDULE,
+      message: MESSAGES.INTERVIEW.SCHEDULE,
       data: mappedData,
     };
   }
@@ -142,7 +142,7 @@ export class InterviewService implements IInterviewService {
     );
 
     if (currentData) {
-      throw new ConflictException(MESSAGES.INTERVIEW.SHEDULED);
+      throw new ConflictException(MESSAGES.INTERVIEW.SCHEDULED);
     }
 
     const applicationObjId = new Types.ObjectId(dto.applicationId);
@@ -186,12 +186,12 @@ export class InterviewService implements IInterviewService {
     }
 
     return {
-      message: MESSAGES.INTERVIEW.SHEDULE,
+      message: MESSAGES.INTERVIEW.SCHEDULE,
       data: mappedData,
     };
   }
 
-  async reSheduleInterview(
+  async reScheduleInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponse<ScheduleResponseDto>> {
@@ -268,12 +268,12 @@ export class InterviewService implements IInterviewService {
     }
 
     return {
-      message: MESSAGES.INTERVIEW.RE_SHEDULE,
+      message: MESSAGES.INTERVIEW.RESCHEDULE,
       data: mappedData,
     };
   }
 
-  async reSheduleTelyInterview(
+  async reScheduleTelyInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
   ): Promise<ApiResponse<ScheduleResponseDto>> {
@@ -336,7 +336,7 @@ export class InterviewService implements IInterviewService {
     }
 
     return {
-      message: MESSAGES.INTERVIEW.RE_SHEDULE,
+      message: MESSAGES.INTERVIEW.RESCHEDULE,
       data: mappedData,
     };
   }
@@ -402,7 +402,7 @@ export class InterviewService implements IInterviewService {
     );
 
     if (!data) {
-      throw new InternalServerErrorException(MESSAGES.INTERVIEW.FAILD_GET);
+      throw new InternalServerErrorException(MESSAGES.INTERVIEW.FAILED_GET);
     }
 
     const mappedData = MappingUtil.map(ScheduleResponseDto, data);
@@ -464,7 +464,7 @@ export class InterviewService implements IInterviewService {
     const interview = await this._interviewRepository.findById(dto.interviewId);
 
     if (!interview) {
-      throw new NotFoundException(MESSAGES.INTERVIEW.FAILD_GET);
+      throw new NotFoundException(MESSAGES.INTERVIEW.FAILED_GET);
     }
 
     const evaluatorIndex = interview.evaluators.findIndex(
@@ -495,7 +495,7 @@ export class InterviewService implements IInterviewService {
     const interview = await this._interviewRepository.findById(dto.interviewId);
 
     if (!interview) {
-      throw new NotFoundException(MESSAGES.INTERVIEW.FAILD_GET);
+      throw new NotFoundException(MESSAGES.INTERVIEW.FAILED_GET);
     }
 
     if (interview.scheduledBy.toHexString() !== hrId) {
