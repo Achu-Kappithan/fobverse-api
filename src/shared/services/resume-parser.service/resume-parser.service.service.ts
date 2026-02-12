@@ -11,8 +11,8 @@ export class ResumeParserServiceService {
       throw new Error('Failed to fetch PDF data');
     }
 
-    const pdfBuffer = Buffer.from(response.data);
-    const data = await PdfParse(pdfBuffer);
+    const pdfBuffer = Buffer.from(response.data as ArrayBuffer);
+    const data = (await PdfParse(pdfBuffer)) as { text: string };
 
     return data.text || '';
   }

@@ -24,9 +24,12 @@ import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import { CandidateApplicationResponseDto } from '../applications/dtos/candidate-application.response.dto';
 import { CandidateApplicationsQueryDto } from '../applications/dtos/candidate-applications-query.dto';
 import { AllStagesResponseDto } from '../interview/dtos/all-stages-response.dto';
+import { changePassDto } from '../company/dtos/update.profile.dtos';
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
+import { generalResponce } from '../auth/interfaces/api-response.interface';
 
 @Controller('candidate')
-export class CandiateController {
+export class CandidateController {
   constructor(
     @Inject(CANDIDATE_SERVICE)
     private readonly _candiateService: ICandidateService,
@@ -41,7 +44,7 @@ export class CandiateController {
     return this._candiateService.getProfile(user.id);
   }
 
-  @Post('updataprofile')
+  @Post('updateprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateProfile(
     @Body() dto: UpdateCandidateProfileDto,
@@ -85,8 +88,22 @@ export class CandiateController {
 
   @Get('home-data-public')
   async getHomeDataPublic(): Promise<
-    CandidateResponceInterface<{ jobs: any[]; companies: any[] }>
+    CandidateResponceInterface<{
+      jobs: ResponseJobsDto[];
+      companies: CompanyProfileResponseDto[];
+    }>
   > {
-    return this._candiateService.getHomeDataPublic();
+    return await this._candiateService.getHomeDataPublic();
+  }
+
+  @Post('change-pwd')
+  @UseGuards(AuthGuard('access_token'))
+  async UpdatePassword(
+    @Body() dto: changePassDto,
+    @Request() req: ERequest,
+  ): Promise<generalResponce> {
+    const user = req.user as { _id: string };
+    const id = user?._id?.toString();
+    return await this._candiateService.updatePassword(id, dto);
   }
 }

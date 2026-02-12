@@ -58,7 +58,7 @@ export class InterviewRepository
     status?: ReviewStatus,
   ): Promise<InterviewDocument[]> {
     const userId = new Types.ObjectId(interviewerId);
-    const query: Record<string, any> = {
+    const query: Record<string, unknown> = {
       'evaluators.interviewerId': userId,
     };
 

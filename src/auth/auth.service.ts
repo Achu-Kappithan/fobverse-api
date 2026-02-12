@@ -336,7 +336,7 @@ export class AuthService implements IAuthService {
     );
 
     if (user.role == UserRole.CANDIDATE) {
-      newProfile = await this._candidateService.createPorfile(profiledataDto);
+      newProfile = await this._candidateService.createProfile(profiledataDto);
     } else if (user.role === UserRole.COMPANY_ADMIN) {
       newProfile = await this._companyService.createProfile(profiledataDto);
       if (newProfile) {
@@ -450,7 +450,7 @@ export class AuthService implements IAuthService {
         name: user.name,
       };
 
-      await this._candidateService.createPorfile(profiledata);
+      await this._candidateService.createProfile(profiledata);
     } else {
       const populatedUser = user as populatedpData;
       if (!populatedUser.profile.isActive) {

@@ -13,7 +13,7 @@ export interface IInterviewRepository
   updateFeedback(
     appId: string,
     stage: string,
-    data: any,
+    data: Record<string, unknown>,
   ): Promise<InterviewDocument | null>;
 
   findSchedulesByInterviewer(

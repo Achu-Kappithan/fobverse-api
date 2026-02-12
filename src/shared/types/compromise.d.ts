@@ -2,7 +2,7 @@ declare module 'compromise' {
   interface NlpDoc {
     out(method: 'array'): string[];
     out(method: 'text'): string;
-    out(method: 'json'): any;
+    out(method: 'json'): unknown;
 
     normalize(): NlpDoc;
     terms(): NlpDoc;

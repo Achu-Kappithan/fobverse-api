@@ -1,6 +1,27 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { jobType } from '../schema/jobs.schema';
 import { Types } from 'mongoose';
+
+// Nested DTO for salary object
+export class SalaryDto {
+  @Expose()
+  min: number;
+
+  @Expose()
+  max: number;
+}
+
+// Nested DTO for populated company ID
+export class CompanyIdDto {
+  @Expose()
+  _id: string;
+
+  @Expose()
+  name: string;
+
+  @Expose()
+  logoUrl: string;
+}
 
 export class populatedcompanyId {
   _id: Types.ObjectId;
@@ -31,10 +52,8 @@ export class ResponseJobsDto {
   experience: string[];
 
   @Expose()
-  salary: {
-    min: number;
-    max: number;
-  };
+  @Type(() => SalaryDto)
+  salary: SalaryDto;
 
   @Expose()
   location: string[];
@@ -43,7 +62,8 @@ export class ResponseJobsDto {
   vacancies: number;
 
   @Expose()
-  companyId: string | populatedcompanyId;
+  @Type(() => CompanyIdDto)
+  companyId: string | CompanyIdDto;
 
   @Expose()
   dueDate: string;
@@ -69,7 +89,8 @@ export class AllJobsAdminResponce {
   vacancies: number;
 
   @Expose()
-  companyId: string | { _id: Types.ObjectId; name: string };
+  @Type(() => CompanyIdDto)
+  companyId: string | CompanyIdDto;
 
   @Expose()
   activeStatus: boolean;

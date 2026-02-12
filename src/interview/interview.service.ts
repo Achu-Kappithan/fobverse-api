@@ -20,7 +20,7 @@ import { Types } from 'mongoose';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { ScheduleResponseDto } from './dtos/interview.responce.dto';
 import { AllStagesResponseDto } from './dtos/all-stages-response.dto';
-import { plainToInstance } from 'class-transformer';
+import { MappingUtil } from '../shared/utils/mapping.util';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { EmailService } from '../email/email.service';
 import {
@@ -104,12 +104,7 @@ export class InterviewService implements IInterviewService {
     };
 
     const data = await this._interviewRepository.create(updatedDto);
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data.toJSON(),
-      _id: data._id.toString(),
-      scheduledBy: data.scheduledBy.toString(),
-      applicationId: data.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, data);
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
       mappedData,
@@ -171,12 +166,7 @@ export class InterviewService implements IInterviewService {
     };
 
     const data = await this._interviewRepository.create(updatedDto);
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data.toJSON(),
-      _id: data._id.toString(),
-      scheduledBy: data.scheduledBy.toString(),
-      applicationId: data.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, data);
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
       mappedData,
@@ -257,12 +247,7 @@ export class InterviewService implements IInterviewService {
     };
 
     const data = await this._interviewRepository.update(filter, updatedDto);
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data!.toJSON(),
-      _id: data!._id.toString(),
-      scheduledBy: data!.scheduledBy.toString(),
-      applicationId: data?.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, data);
 
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
@@ -330,12 +315,7 @@ export class InterviewService implements IInterviewService {
     };
 
     const data = await this._interviewRepository.update(filter, updatedDto);
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data!.toJSON(),
-      _id: data!._id.toString(),
-      scheduledBy: data!.scheduledBy.toString(),
-      applicationId: data?.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, data);
 
     await this._EmailService.SendInterviewEmail(
       dto.userEmail,
@@ -389,12 +369,7 @@ export class InterviewService implements IInterviewService {
       );
     }
 
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...data.toJSON(),
-      _id: data._id.toString(),
-      scheduledBy: data.scheduledBy.toString(),
-      applicationId: data.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, data);
     await this._EmailService.SendInterviewCancelledEmail(
       dto.userEmail,
       mappedData,
@@ -430,18 +405,7 @@ export class InterviewService implements IInterviewService {
       throw new InternalServerErrorException(MESSAGES.INTERVIEW.FAILD_GET);
     }
 
-    const plainData = data.toObject ? data.toObject() : data;
-
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...plainData,
-      _id: plainData._id.toString(),
-      applicationId: plainData.applicationId?.toString(),
-      scheduledBy: plainData.scheduledBy?.toString(),
-      evaluators: plainData.evaluators?.map((evaluator) => ({
-        ...evaluator,
-        interviewerId: evaluator.interviewerId?.toString(),
-      })),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, data);
 
     return {
       message: MESSAGES.INTERVIEW.STAGE_GET,
@@ -468,18 +432,7 @@ export class InterviewService implements IInterviewService {
     let techStage: ScheduleResponseDto | null = null;
 
     interviews.forEach((interview) => {
-      const plainData = interview.toObject ? interview.toObject() : interview;
-
-      const mappedInterview = plainToInstance(ScheduleResponseDto, {
-        ...plainData,
-        _id: plainData._id.toString(),
-        applicationId: plainData.applicationId?.toString(),
-        scheduledBy: plainData.scheduledBy?.toString(),
-        evaluators: plainData.evaluators?.map((evaluator) => ({
-          ...evaluator,
-          interviewerId: evaluator.interviewerId?.toString(),
-        })),
-      });
+      const mappedInterview = MappingUtil.map(ScheduleResponseDto, interview);
 
       if (interview.stage === Stages.Shortlisted) {
         shortlistedStage = mappedInterview;
@@ -527,12 +480,7 @@ export class InterviewService implements IInterviewService {
 
     const updatedInterview = await interview.save();
 
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...updatedInterview?.toJSON(),
-      _id: updatedInterview?._id.toString(),
-      scheduledBy: updatedInterview?.scheduledBy.toString(),
-      applicationId: updatedInterview.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, updatedInterview);
 
     return {
       message: MESSAGES.INTERVIEW.FEEDBACK_UPDATED,
@@ -603,12 +551,7 @@ export class InterviewService implements IInterviewService {
       }
     }
 
-    const mappedData = plainToInstance(ScheduleResponseDto, {
-      ...updatedInterview.toObject(),
-      _id: updatedInterview._id.toString(),
-      scheduledBy: updatedInterview.scheduledBy.toString(),
-      applicationId: updatedInterview.applicationId.toString(),
-    });
+    const mappedData = MappingUtil.map(ScheduleResponseDto, updatedInterview);
 
     return {
       message: MESSAGES.INTERVIEW.FEEDBACK_UPDATED,
@@ -631,36 +574,11 @@ export class InterviewService implements IInterviewService {
       );
 
     const mappedData = interviews.map((interview) => {
-      const interviewObj = interview.toObject();
-
-      const application = interviewObj.applicationId as unknown as {
-        _id: Types.ObjectId;
-        name: string;
-        candidateId: Types.ObjectId;
-        jobId: {
-          _id: Types.ObjectId;
-          title: string;
-        };
-      };
-
-      return plainToInstance(ScheduleResponseDto, {
-        ...interviewObj,
-        _id: interviewObj._id.toString(),
-        applicationId:
-          application?._id?.toString() ||
-          (interviewObj.applicationId instanceof Types.ObjectId
-            ? interviewObj.applicationId.toString()
-            : undefined),
-        candidateName: application?.name,
-        jobTitle: application?.jobId?.title,
-        jobId: application?.jobId?._id?.toString(),
-        candidateId: application?.candidateId?.toString(),
-        scheduledBy: interviewObj.scheduledBy?.toString(),
-        evaluators: interviewObj.evaluators?.map((evaluator) => ({
-          ...evaluator,
-          interviewerId: evaluator.interviewerId?.toString(),
-        })),
-      });
+      const interviewObj =
+        typeof interview.toObject === 'function'
+          ? interview.toObject()
+          : interview;
+      return MappingUtil.map(ScheduleResponseDto, interviewObj);
     });
 
     this.logger.log(
@@ -668,7 +586,7 @@ export class InterviewService implements IInterviewService {
     );
 
     return {
-      message: 'User schedules fetched successfully',
+      message: MESSAGES.INTERVIEW.FETCH_SUCCESS,
       data: mappedData,
     };
   }

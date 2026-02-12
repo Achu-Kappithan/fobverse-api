@@ -73,7 +73,7 @@ export class NotificationGateWay
     }
   }
 
-  sendNotificationToCandidate(candidateId: string, payload: any) {
+  sendNotificationToCandidate(candidateId: string, payload: unknown) {
     console.log('send notificaion works');
     const socketId = this.connectedUsers.get(candidateId);
     console.log('socket id gets ', socketId);

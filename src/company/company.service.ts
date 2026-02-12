@@ -17,7 +17,8 @@ import {
   UserResponceDto,
 } from './dtos/responce.allcompany';
 import { comapnyResponceInterface } from './interface/responce.interface';
-import { plainToInstance } from 'class-transformer';
+import { MappingUtil } from '../shared/utils/mapping.util';
+import { PaginationUtil } from '../shared/utils/pagination.util';
 import {
   changePassDto,
   InternalUserDto,
@@ -39,6 +40,7 @@ import {
   PaginatedResponse,
   PlainResponse,
 } from '../admin/interfaces/responce.interface';
+
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import {
   JOBS_REPOSITORY,
@@ -97,34 +99,24 @@ export class CompanyService implements IComapnyService {
       );
     }
 
-    const mappedData = plainToInstance(CompanyProfileResponseDto, newProfile);
-
-    return mappedData;
+    return MappingUtil.map(CompanyProfileResponseDto, newProfile);
   }
 
   // for fetching company profile
 
-  async getPorfile(
+  async getProfile(
     id: string,
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
     const profiledata = await this._companyRepository.findById(id);
-    const mappedData = plainToInstance(
-      CompanyProfileResponseDto,
-      {
-        ...profiledata?.toObject(),
-        _id: profiledata?._id.toString(),
-      },
-      { excludeExtraneousValues: true },
-    );
     return {
       message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
-      data: mappedData,
+      data: MappingUtil.map(CompanyProfileResponseDto, profiledata),
     };
   }
 
   // get Public Profile
 
-  async getPublicPorfile(
+  async getPublicProfile(
     id: string,
   ): Promise<comapnyResponceInterface<populateProfileDto>> {
     const profiledata = await this._companyRepository.publicPorfile(id);
@@ -133,24 +125,12 @@ export class CompanyService implements IComapnyService {
       throw new NotFoundException('Company not found');
     }
 
-    const mappedProfile = plainToInstance(
+    const mappedProfile = MappingUtil.map(
       CompanyProfileResponseDto,
-      {
-        ...profiledata,
-        _id: profiledata._id.toString(),
-      },
-      { excludeExtraneousValues: true },
+      profiledata,
     );
 
-    const mappedJobs = plainToInstance(
-      ResponseJobsDto,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      profiledata.jobs.map(({ companyId, ...job }) => ({
-        ...job,
-        _id: job._id.toString(),
-      })),
-      { excludeExtraneousValues: true },
-    );
+    const mappedJobs = MappingUtil.map(ResponseJobsDto, profiledata.jobs);
 
     const mappedData: populateProfileDto = {
       company: mappedProfile,
@@ -164,7 +144,7 @@ export class CompanyService implements IComapnyService {
   }
   // updating profile  wiht new data
 
-  async updatePorfile(
+  async updateProfile(
     id: string,
     dto: UpdateProfileDto,
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
@@ -173,16 +153,9 @@ export class CompanyService implements IComapnyService {
       { $set: dto },
     );
 
-    const mappedData = plainToInstance(
-      CompanyProfileResponseDto,
-      {
-        ...updatedata?.toJSON(),
-      },
-      { excludeExtraneousValues: true },
-    );
     return {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
-      data: mappedData,
+      data: MappingUtil.map(CompanyProfileResponseDto, updatedata),
     };
   }
 
@@ -247,7 +220,7 @@ export class CompanyService implements IComapnyService {
 
   //updateUserProfile
 
-  async upateUserProfile(
+  async updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
   ): Promise<comapnyResponceInterface<UserResponceDto>> {
@@ -275,16 +248,9 @@ export class CompanyService implements IComapnyService {
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
     const data = await this._companyRepository.addTeamMembers(id, dto);
 
-    const mappedData = plainToInstance(
-      CompanyProfileResponseDto,
-      {
-        ...data?.toJSON(),
-      },
-      { excludeExtraneousValues: true },
-    );
     return {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
-      data: mappedData,
+      data: MappingUtil.map(CompanyProfileResponseDto, data),
     };
   }
 
@@ -312,25 +278,15 @@ export class CompanyService implements IComapnyService {
         skip,
       });
 
-    const mappedData = plainToInstance(
-      CompanyProfileResponseDto,
-      companies.map((company) => ({
-        ...company.toObject(),
-        _id: company._id.toString(),
-      })),
-      {
-        excludeExtraneousValues: true,
-      },
-    );
+    const mappedData = MappingUtil.map(CompanyProfileResponseDto, companies);
 
-    return {
-      message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
-      data: mappedData,
-      totalItems: total,
-      currentPage: page,
-      itemsPerPage: limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return PaginationUtil.toPaginatedResponse(
+      mappedData,
+      total,
+      page,
+      limit,
+      MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
+    );
   }
 
   async getDashboardData(
@@ -362,46 +318,23 @@ export class CompanyService implements IComapnyService {
       interviewsScheduled: upcomingInterviewsRaw.length,
     };
 
-    const recentApplications = plainToInstance(
+    const recentApplications = MappingUtil.map(
       ApplicationResponceDto,
-      recentAppsRaw.map((app) => ({
-        ...app,
-        _id: app._id.toString(),
-        candidateId: app.candidateId.toString(),
-        jobId: app.jobId.toString(),
-        companyId: app.companyId.toString(),
-      })),
-      { excludeExtraneousValues: true },
-    );
-    console.log(recentApplications);
-
-    const jobStats = plainToInstance(
-      JobStatDto,
-      jobStatsData.map((stat: { jobId: Types.ObjectId }) => ({
-        ...stat,
-        jobId: stat.jobId.toString(),
-      })),
-      {
-        excludeExtraneousValues: true,
-      },
+      recentAppsRaw,
     );
 
-    const upcomingInterviews = plainToInstance(
+    const jobStats = MappingUtil.map(JobStatDto, jobStatsData);
+
+    const upcomingInterviews = MappingUtil.map(
       ScheduleResponseDto,
-      upcomingInterviewsRaw.map((interview) => ({
-        ...interview,
-        _id: interview._id.toString(),
-        applicationId: interview.applicationId.toString(),
-        scheduledBy: interview.scheduledBy.toString(),
-      })),
-      { excludeExtraneousValues: true },
+      upcomingInterviewsRaw,
     );
 
     const dashboardData: DashboardResponseDto = {
       stats,
-      recentApplications,
-      upcomingInterviews,
-      jobStats,
+      recentApplications: recentApplications,
+      upcomingInterviews: upcomingInterviews,
+      jobStats: jobStats,
     };
 
     return {

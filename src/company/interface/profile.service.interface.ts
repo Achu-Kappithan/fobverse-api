@@ -21,11 +21,11 @@ import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
 export interface IComapnyService {
   createProfile(dto: CreateProfileDto): Promise<CompanyProfileResponseDto>;
 
-  getPorfile(
+  getProfile(
     id: string,
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
 
-  updatePorfile(
+  updateProfile(
     id: string,
     dto: UpdateProfileDto,
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
@@ -45,7 +45,7 @@ export interface IComapnyService {
     id: string,
   ): Promise<comapnyResponceInterface<UserResponceDto>>;
 
-  upateUserProfile(
+  updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
   ): Promise<comapnyResponceInterface<UserResponceDto>>;
@@ -57,7 +57,7 @@ export interface IComapnyService {
     dto: TeamMemberDto,
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
 
-  getPublicPorfile(
+  getPublicProfile(
     id: string,
   ): Promise<comapnyResponceInterface<populateProfileDto>>;
 

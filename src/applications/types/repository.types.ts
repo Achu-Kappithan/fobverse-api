@@ -10,14 +10,14 @@ export type populatedapplicationList = ApplicationDocument & {
   candidateUser?: {
     _id: string;
     profileImg?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 };
 
 export type applicationPorfileDetails = ApplicationDocument & {
   profile?: CandidateProfileDocument;
   jobDetails?: JobsDocument;
-  candidateUser?: any;
+  candidateUser?: unknown;
 };
 
 export type PopulatedCandidateApplication = ApplicationDocument & {
@@ -47,12 +47,12 @@ export interface CandidateApplicationAggregation {
     title: string;
     location: string[];
     jobType: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   companyDetails?: {
     _id: Types.ObjectId;
     name: string;
     logoUrl?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }

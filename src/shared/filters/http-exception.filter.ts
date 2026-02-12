@@ -44,7 +44,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           message?: string | string[];
           error?: string;
           statusCode?: number;
-          [key: string]: any;
+          [key: string]: unknown;
         };
 
         if (Array.isArray(responseObj.message)) {

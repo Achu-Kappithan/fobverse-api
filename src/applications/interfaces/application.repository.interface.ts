@@ -1,4 +1,5 @@
 import { FilterQuery, Types, UpdateResult } from 'mongoose';
+import { JobStatDto } from '../../company/dtos/dashboard.dto';
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { ApplicationDocument } from '../schema/applications.schema';
 import {
@@ -13,7 +14,7 @@ export interface IApplicationRepository
       limit?: number;
       skip?: number;
       sort?: Record<string, -1 | 1>;
-      projection?: any;
+      projection?: Record<string, unknown>;
     },
   ): Promise<{ data: populatedapplicationList[]; total: number }>;
 
@@ -27,7 +28,7 @@ export interface IApplicationRepository
     pendingApplications: number;
   }>;
 
-  getJobApplicationStats(companyId: Types.ObjectId): Promise<any[]>;
+  getJobApplicationStats(companyId: Types.ObjectId): Promise<JobStatDto[]>;
 
   getCandidateApplications(
     candidateId: string,
