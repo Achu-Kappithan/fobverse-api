@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   CallHandler,
   ExecutionContext,
@@ -14,7 +13,7 @@ import { Request, Response } from 'express';
 interface ServiceResponsePayload<T> {
   message?: string;
   data?: T;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface PaginatedServiceResult<T> {
@@ -43,23 +42,23 @@ export class ResponseInterceptor<T>
     const response = ctx.getResponse<Response>();
 
     return next.handle().pipe(
-      map((responseBody) => {
+      map((responseBody: unknown) => {
         let finalMessage: string;
-        let finalData: any;
+        let finalData: unknown;
         let finalMeta: PaginationMeta | undefined = undefined;
 
         const statusCode = response.statusCode || HttpStatus.OK;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const responseBodyObj = responseBody as Record<string, unknown>;
         const isPaginatedResponse =
           responseBody &&
           typeof responseBody === 'object' &&
-          'data' in responseBody &&
-          Array.isArray(responseBody.data) &&
-          'totalItems' in responseBody &&
-          'currentPage' in responseBody &&
-          'itemsPerPage' in responseBody &&
-          'totalPages' in responseBody;
+          'data' in responseBodyObj &&
+          Array.isArray(responseBodyObj.data) &&
+          'totalItems' in responseBodyObj &&
+          'currentPage' in responseBodyObj &&
+          'itemsPerPage' in responseBodyObj &&
+          'totalPages' in responseBodyObj;
 
         if (isPaginatedResponse) {
           const paginatedPayload = responseBody as PaginatedServiceResult<T>;
@@ -85,7 +84,6 @@ export class ResponseInterceptor<T>
               : servicePayload;
         } else {
           finalMessage = 'Operation successful';
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           finalData = responseBody;
         }
 
@@ -93,8 +91,7 @@ export class ResponseInterceptor<T>
           success: true,
           statusCode: statusCode,
           message: finalMessage,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          data: finalData,
+          data: finalData as T,
           meta: finalMeta,
           timestamp: new Date().toISOString(),
           path: request.url,

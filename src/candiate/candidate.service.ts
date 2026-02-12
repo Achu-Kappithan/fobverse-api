@@ -16,7 +16,7 @@ import { CandidateProfileDocument } from './schema/candidate.profile.schema';
 import { Types } from 'mongoose';
 import { CandidateResponceInterface } from './interfaces/responce.interface';
 import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
-import { plainToInstance } from 'class-transformer';
+import { MappingUtil } from '../shared/utils/mapping.util';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import {
@@ -24,6 +24,8 @@ import {
   IComapnyService,
 } from '../company/interface/profile.service.interface';
 import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import {
   APPLICATION_SERVICE,
@@ -76,26 +78,25 @@ export class CandidateService implements ICandidateService {
     return this._candidateRepository.findById(id);
   }
 
-  async createPorfile(
+  async createProfile(
     dto: CreateCandidateProfileDto,
   ): Promise<CandidateProfileResponseDto> {
     this._logger.debug(
-      `[CandidateService] Creating new candieate profile${dto.name}`,
+      `[CandidateService] Creating new candidate profile ${dto.name}`,
     );
     const updateDto = {
       name: dto.name,
       UserId: new Types.ObjectId(dto.UserId),
     };
     const newprofile = await this._candidateRepository.create(updateDto);
-    this._logger.debug(`new profil created ${JSON.stringify(newprofile)}`);
+    this._logger.debug(`new profile created ${JSON.stringify(newprofile)}`);
 
     if (!newprofile) {
       throw new InternalServerErrorException(
         MESSAGES.AUTH.PROFILE_CREATION_FAIILD,
       );
     }
-    const mappedData = plainToInstance(CandidateProfileResponseDto, newprofile);
-    return mappedData;
+    return MappingUtil.map(CandidateProfileResponseDto, newprofile);
   }
 
   async findAllCandidate(): Promise<CandidateProfileDocument[] | null> {
@@ -112,16 +113,10 @@ export class CandidateService implements ICandidateService {
     if (!ProfileData) {
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_FETCH_FAIL);
     }
-    const mappedData = plainToInstance(
-      CandidateProfileResponseDto,
-      {
-        ...ProfileData?.toObject(),
-      },
-      { excludeExtraneousValues: true },
-    );
+
     return {
       message: MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
-      data: mappedData,
+      data: MappingUtil.map(CandidateProfileResponseDto, ProfileData),
     };
   }
 
@@ -142,20 +137,12 @@ export class CandidateService implements ICandidateService {
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_UPDATE_FAIL);
     }
     this._logger.log(
-      `[CandiateServie], updated profile data ${JSON.stringify(profileData)}`,
-    );
-
-    const mappedData = plainToInstance(
-      CandidateProfileResponseDto,
-      {
-        ...profileData?.toObject(),
-      },
-      { excludeExtraneousValues: true },
+      `[CandidateService], updated profile data ${JSON.stringify(profileData)}`,
     );
 
     return {
       message: MESSAGES.CANDIDATE.PROFILE_UPDATE_SUCCESS,
-      data: mappedData,
+      data: MappingUtil.map(CandidateProfileResponseDto, profileData),
     };
   }
 
@@ -166,16 +153,10 @@ export class CandidateService implements ICandidateService {
     if (!ProfileData) {
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_FETCH_FAIL);
     }
-    const mappedData = plainToInstance(
-      CandidateProfileResponseDto,
-      {
-        ...ProfileData?.toObject(),
-      },
-      { excludeExtraneousValues: true },
-    );
+
     return {
       message: MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
-      data: mappedData,
+      data: MappingUtil.map(CandidateProfileResponseDto, ProfileData),
     };
   }
 
@@ -218,7 +199,10 @@ export class CandidateService implements ICandidateService {
   }
 
   async getHomeDataPublic(): Promise<
-    CandidateResponceInterface<{ jobs: any[]; companies: any[] }>
+    CandidateResponceInterface<{
+      jobs: ResponseJobsDto[];
+      companies: CompanyProfileResponseDto[];
+    }>
   > {
     const [jobs, companies] = await Promise.all([
       this._jobService.getAllJobs(null, { page: 1, limit: 6 }),

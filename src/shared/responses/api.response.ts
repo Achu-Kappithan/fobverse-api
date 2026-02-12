@@ -10,12 +10,15 @@ export interface BaseApiResponse {
 export interface SuccessApiResponse<T> extends BaseApiResponse {
   success: true;
   data?: T;
+  meta?: PaginationMeta;
+  timestamp: string;
+  method: string;
 }
 
 export interface ErrorApiResponse extends BaseApiResponse {
   success: false;
   error: string;
-  details?: any;
+  details?: unknown;
 }
 
 export interface PaginationMeta {

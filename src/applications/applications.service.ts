@@ -22,7 +22,8 @@ import { MESSAGES } from '../shared/constants/constants.messages';
 import { ApplicationResponceDto } from './dtos/application.responce';
 import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { ApplicationDocument, Stages } from './schema/applications.schema';
-import { plainToInstance } from 'class-transformer';
+import { MappingUtil } from '../shared/utils/mapping.util';
+import { PaginationUtil } from '../shared/utils/pagination.util';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { CANDIDATE_REPOSITORY } from '../candiate/interfaces/candidate-repository.interface';
@@ -109,8 +110,6 @@ export class ApplicationsService implements IApplicationService {
 
     updatedDto.atsScore = Math.round(atsScore);
 
-    console.log('resume matching score is ', atsScore);
-
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
     );
@@ -188,24 +187,17 @@ export class ApplicationsService implements IApplicationService {
         limit,
       });
 
-    console.log(data);
-
     const plaindata = data.map((job) => this._mapToPlainObject(job));
 
-    const mappedData = plainToInstance(ApplicationResponceDto, plaindata, {
-      excludeExtraneousValues: true,
-    });
+    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: mappedData,
-      message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
-      currentPage: page,
-      totalItems: total,
-      totalPages: totalPages,
-      itemsPerPage: limit,
-    };
+    return PaginationUtil.toPaginatedResponse(
+      mappedData,
+      total,
+      page,
+      limit,
+      MESSAGES.COMPANY.USERS_GET_SUCCESS,
+    );
   }
 
   async getCompanyApplicants(
@@ -236,20 +228,17 @@ export class ApplicationsService implements IApplicationService {
         limit,
       });
 
-    const mappedData = plainToInstance(ApplicationResponceDto, data, {
-      excludeExtraneousValues: true,
-    });
+    const plaindata = data.map((job) => this._mapToPlainObject(job));
 
-    const totalPages = Math.ceil(total / limit);
+    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
 
-    return {
-      data: mappedData,
-      message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
-      currentPage: page,
-      totalItems: total,
-      totalPages: totalPages,
-      itemsPerPage: limit,
-    };
+    return PaginationUtil.toPaginatedResponse(
+      mappedData,
+      total,
+      page,
+      limit,
+      MESSAGES.COMPANY.USERS_GET_SUCCESS,
+    );
   }
 
   async updateAtsScore(
@@ -296,20 +285,17 @@ export class ApplicationsService implements IApplicationService {
       };
     }
 
-    const mappedData = plainToInstance(ApplicationResponceDto, data, {
-      excludeExtraneousValues: true,
-    });
+    const plaindata = data.map((job) => this._mapToPlainObject(job));
 
-    const totalPages = Math.ceil(total / limit);
+    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
 
-    return {
-      data: mappedData,
-      message: MESSAGES.COMPANY.UPDATE_ATS_SCORE,
-      currentPage: page,
-      totalItems: total,
-      totalPages: totalPages,
-      itemsPerPage: limit,
-    };
+    return PaginationUtil.toPaginatedResponse(
+      mappedData,
+      total,
+      page,
+      limit,
+      MESSAGES.COMPANY.UPDATE_ATS_SCORE,
+    );
   }
 
   async getjobDetails(
@@ -323,12 +309,9 @@ export class ApplicationsService implements IApplicationService {
     }
     const plainData = this._mapToDetailedPlainObject(data);
 
-    const mappedData = plainToInstance(
+    const mappedData = MappingUtil.map(
       ApplicationDetailsResponseDto,
       plainData,
-      {
-        excludeExtraneousValues: true,
-      },
     );
     this._logger.log(
       `[applicationService] applicationDetails fetched ${JSON.stringify(mappedData)}`,
@@ -441,24 +424,18 @@ export class ApplicationsService implements IApplicationService {
       jobType: app.jobDetails?.jobType ?? 'N/A',
     }));
 
-    const mappedData = plainToInstance(
+    const mappedData = MappingUtil.map(
       CandidateApplicationResponseDto,
       plainData,
-      {
-        excludeExtraneousValues: true,
-      },
     );
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: mappedData,
-      message: MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
-      currentPage: page,
-      totalItems: total,
-      totalPages: totalPages,
-      itemsPerPage: limit,
-    };
+    return PaginationUtil.toPaginatedResponse(
+      mappedData,
+      total,
+      page,
+      limit,
+      MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
+    );
   }
 
   private _mapToPlainObject(job: populatedapplicationList) {

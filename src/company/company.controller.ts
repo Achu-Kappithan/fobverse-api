@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Patch,
+  Param,
   Post,
   Query,
   Request,
@@ -48,7 +49,7 @@ export class CompanyController {
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
     const user = req.user;
     const companyId = user?.companyId?.toString() ?? '';
-    return this._companyService.getPorfile(companyId);
+    return this._companyService.getProfile(companyId);
   }
 
   @Patch('updateprofile')
@@ -59,7 +60,7 @@ export class CompanyController {
   ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
     const user = req.user;
     const companyId = user?.companyId?.toString() ?? '';
-    return this._companyService.updatePorfile(companyId, dto);
+    return this._companyService.updateProfile(companyId, dto);
   }
 
   @Post('createuser')
@@ -119,7 +120,7 @@ export class CompanyController {
     @Request() req: ERequest,
   ): Promise<comapnyResponceInterface<UserResponceDto>> {
     const user = req.user;
-    return this._companyService.upateUserProfile(user!._id.toString(), dto);
+    return this._companyService.updateUserProfile(user!._id.toString(), dto);
   }
 
   @Post('updatepassword')
@@ -144,11 +145,11 @@ export class CompanyController {
     return this._companyService.addTeamMembers(companyId.toString(), dto);
   }
 
-  @Get('public/profile')
-  async getPublicView(
-    @Query('id') id: string,
+  @Get('public/profile/:id')
+  async getPublicProfile(
+    @Param('id') id: string,
   ): Promise<comapnyResponceInterface<populateProfileDto>> {
-    return this._companyService.getPublicPorfile(id);
+    return this._companyService.getPublicProfile(id);
   }
 
   @Delete('removeuser')

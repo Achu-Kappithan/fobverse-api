@@ -1,6 +1,6 @@
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { JobsDocument } from '../schema/jobs.schema';
-import { FilterQuery, UpdateResult } from 'mongoose';
+import { FilterQuery, UpdateResult, ProjectionType } from 'mongoose';
 import { populatedJobDetails } from '../types/repository.types';
 
 export interface IJobsRepository extends IBaseRepository<JobsDocument> {
@@ -12,7 +12,7 @@ export interface IJobsRepository extends IBaseRepository<JobsDocument> {
       limit?: number;
       skip?: number;
       sort?: Record<string, 1 | -1>;
-      projection?: any;
+      projection?: ProjectionType<JobsDocument>;
     },
   ): Promise<{ data: JobsDocument[]; total: number }>;
 

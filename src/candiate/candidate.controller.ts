@@ -25,6 +25,7 @@ import { CandidateApplicationResponseDto } from '../applications/dtos/candidate-
 import { CandidateApplicationsQueryDto } from '../applications/dtos/candidate-applications-query.dto';
 import { AllStagesResponseDto } from '../interview/dtos/all-stages-response.dto';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
+import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
 import { generalResponce } from '../auth/interfaces/api-response.interface';
 
 @Controller('candidate')
@@ -87,7 +88,10 @@ export class CandidateController {
 
   @Get('home-data-public')
   async getHomeDataPublic(): Promise<
-    CandidateResponceInterface<{ jobs: any[]; companies: any[] }>
+    CandidateResponceInterface<{
+      jobs: ResponseJobsDto[];
+      companies: CompanyProfileResponseDto[];
+    }>
   > {
     return await this._candiateService.getHomeDataPublic();
   }

@@ -1,4 +1,11 @@
-import { Model, Document, FilterQuery, UpdateQuery, Types } from 'mongoose';
+import {
+  Model,
+  Document,
+  FilterQuery,
+  UpdateQuery,
+  Types,
+  PipelineStage,
+} from 'mongoose';
 import { IBaseRepository } from '../interface/base-repository.interface';
 
 export class BaseRepository<T extends Document> implements IBaseRepository<T> {
@@ -40,7 +47,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
       limit?: number;
       skip?: number;
       sort?: Record<string, -1 | 1>;
-      projection?: any;
+      projection?: Record<string, unknown>;
     },
   ): Promise<{ data: T[]; total: number }> {
     const query = this.model.find(filter, options?.projection);
@@ -70,8 +77,8 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     return this.model.countDocuments(filter).exec();
   }
 
-  async aggregate(pipeline: any[]): Promise<any[]> {
-    return this.model.aggregate(pipeline).exec();
+  async aggregate<R = unknown>(pipeline: PipelineStage[]): Promise<R[]> {
+    return this.model.aggregate<R>(pipeline).exec();
   }
 
   async findMany(
@@ -80,7 +87,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
       limit?: number;
       skip?: number;
       sort?: Record<string, -1 | 1>;
-      projection?: any;
+      projection?: Record<string, unknown>;
     },
   ): Promise<T[]> {
     const query = this.model.find(filter, options?.projection);

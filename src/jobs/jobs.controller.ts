@@ -33,7 +33,6 @@ export class JobsController {
   }
 
   @Get('getalljobs')
-  @UseGuards(AuthGuard('access_token'))
   async getAllJobs(
     @Query() parms: jobsPagesAndFilterDto,
     @Request() req: ERequest,

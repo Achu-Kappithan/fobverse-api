@@ -1,11 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IJobService } from './interfaces/jobs.service.interface';
-import { populatedcompanyId, ResponseJobsDto } from './dtos/responce.job.dto';
+import { ResponseJobsDto } from './dtos/responce.job.dto';
 import {
   IJobsRepository,
   JOBS_REPOSITORY,
 } from './interfaces/jobs.repository.interface';
-import { plainToInstance } from 'class-transformer';
 import { FilterQuery, Types } from 'mongoose';
 import { ApiResponce } from '../shared/interface/api.responce';
 import { MESSAGES } from '../shared/constants/constants.messages';
@@ -13,6 +12,8 @@ import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
 import { Jobs } from './schema/jobs.schema';
 import { populatedjobResDto } from './dtos/populated.jobs.dto';
+import { MappingUtil } from '../shared/utils/mapping.util';
+import { PaginationUtil } from '../shared/utils/pagination.util';
 import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
 
 @Injectable()
@@ -38,11 +39,7 @@ export class JobsService implements IJobService {
 
     this.logger.log(`[JobService] new job created ${JSON.stringify(jobData)}`);
 
-    const mappedData = plainToInstance(ResponseJobsDto, {
-      ...jobData.toJSON(),
-      _id: jobData._id.toString(),
-      companyId: (jobData.companyId as Types.ObjectId).toString(),
-    });
+    const mappedData = MappingUtil.map(ResponseJobsDto, jobData);
     return {
       message: MESSAGES.COMPANY.NEW_JOB_ADDED,
       data: mappedData,
@@ -101,30 +98,15 @@ export class JobsService implements IJobService {
       skip,
       limit,
     });
-    const plaindata = data.map((val) => {
-      const value = val.toJSON();
-      const company = value.companyId as populatedcompanyId;
-      return {
-        ...val.toJSON(),
-        _id: val._id.toString(),
-        companyId: {
-          ...company,
-          _id: company._id.toString(),
-        },
-      };
-    });
-    const mappedData = plainToInstance(ResponseJobsDto, plaindata);
+    const mappedData = MappingUtil.map(ResponseJobsDto, data);
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: mappedData,
-      message: MESSAGES.COMPANY.FETCH_ALL_JOBS,
-      currentPage: page,
-      totalItems: total,
-      totalPages: totalPages,
-      itemsPerPage: limit,
-    };
+    return PaginationUtil.toPaginatedResponse(
+      mappedData,
+      total,
+      page,
+      limit,
+      MESSAGES.COMPANY.FETCH_ALL_JOBS,
+    );
   }
 
   //show job Details
@@ -134,40 +116,20 @@ export class JobsService implements IJobService {
     this.logger.log(
       `[jobService] find jobDetails id: ${id} data: ${JSON.stringify(data)}`,
     );
-    const mappedData = plainToInstance(
-      ResponseJobsDto,
-      {
-        ...data?.toJSON(),
-        _id: data?._id.toString(),
-        companyId: (data?.companyId as Types.ObjectId).toString(),
-      },
-      { excludeExtraneousValues: true },
-    );
     return {
       message: MESSAGES.COMPANY.GET_JOBDETAIS,
-      data: mappedData,
+      data: MappingUtil.map(ResponseJobsDto, data),
     };
   }
 
   async populatedJobView(id: string): Promise<ApiResponce<populatedjobResDto>> {
     const data = await this._jobRepository.publicJobView(id);
 
-    const mappedJob = plainToInstance(
-      ResponseJobsDto,
-      {
-        ...data,
-        _id: data._id.toString(),
-      },
-      { excludeExtraneousValues: true },
-    );
+    const mappedJob = MappingUtil.map(ResponseJobsDto, data);
 
-    const mappedProfile = plainToInstance(
+    const mappedProfile = MappingUtil.map(
       CompanyProfileResponseDto,
-      data.profile.map((val) => ({
-        ...val,
-        _id: val._id.toString(),
-      })),
-      { excludeExtraneousValues: true },
+      data.profile,
     );
 
     return {
@@ -185,19 +147,9 @@ export class JobsService implements IJobService {
   ): Promise<ApiResponce<ResponseJobsDto>> {
     const data = await this._jobRepository.update({ _id: id }, { $set: dto });
 
-    const mappedData = plainToInstance(
-      ResponseJobsDto,
-      {
-        ...data?.toJSON(),
-        _id: data?._id.toString(),
-        companyId: (data?.companyId as Types.ObjectId).toString(),
-      },
-      { excludeExtraneousValues: true },
-    );
-
     return {
       message: MESSAGES.COMPANY.UPDATE_JOBS,
-      data: mappedData,
+      data: MappingUtil.map(ResponseJobsDto, data),
     };
   }
 }

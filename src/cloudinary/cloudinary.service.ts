@@ -35,7 +35,7 @@ export class CloudinaryService {
     | undefined {
     const timestamp = Math.round(new Date().getTime() / 1000);
 
-    const paramsToSign: { [key: string]: any } = {
+    const paramsToSign: Record<string, unknown> = {
       timestamp: timestamp,
       folder: options.folder,
     };

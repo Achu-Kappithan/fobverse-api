@@ -89,6 +89,7 @@ export const MESSAGES = {
     UPDATE_FEEDBACK_FAILD: 'Faild to Update the Feedback',
     UPDATE_STATUS_FAILD: 'Failed to update application status',
     UPDATE_STAGE_FAILD: 'Failed to update Stage',
+    FETCH_SUCCESS: 'User schedules fetched successfully',
   },
 
   NOTIFICATION: {

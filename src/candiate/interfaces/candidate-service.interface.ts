@@ -11,12 +11,13 @@ import { CandidateApplicationsQueryDto } from '../../applications/dtos/candidate
 import { AllStagesResponseDto } from '../../interview/dtos/all-stages-response.dto';
 import { changePassDto } from '../../company/dtos/update.profile.dtos';
 import { generalResponce } from '../../auth/interfaces/api-response.interface';
+import { ResponseJobsDto } from '../../jobs/dtos/responce.job.dto';
 
 export interface ICandidateService {
   findByEmail(email: string): Promise<CandidateProfileDocument | null>;
   findById(id: string): Promise<CandidateProfileDocument | null>;
   findAllCandidate(): Promise<CandidateProfileDocument[] | null>;
-  createPorfile(
+  createProfile(
     dto: CreateCandidateProfileDto,
   ): Promise<CandidateProfileResponseDto>;
   getProfile(
@@ -44,7 +45,10 @@ export interface ICandidateService {
   ): Promise<CandidateResponceInterface<AllStagesResponseDto>>;
 
   getHomeDataPublic(): Promise<
-    CandidateResponceInterface<{ jobs: any[]; companies: any[] }>
+    CandidateResponceInterface<{
+      jobs: ResponseJobsDto[];
+      companies: CompanyProfileResponseDto[];
+    }>
   >;
   updatePassword(id: string, dto: changePassDto): Promise<generalResponce>;
 }

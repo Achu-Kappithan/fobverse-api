@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { IJobsRepository } from '../interfaces/jobs.repository.interface';
 import { Jobs, JobsDocument } from '../schema/jobs.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, Types, UpdateResult } from 'mongoose';
+import {
+  FilterQuery,
+  Model,
+  Types,
+  UpdateResult,
+  ProjectionType,
+} from 'mongoose';
 import { BaseRepository } from '../../shared/repositories/base.repository';
 import { populatedJobDetails } from '../types/repository.types';
-import { ProjectionType } from 'mongoose';
 
 @Injectable()
 export class JobRepository
@@ -32,7 +37,7 @@ export class JobRepository
     filter: FilterQuery<JobsDocument> = {},
     options?: {
       limit?: number;
-      skip: number;
+      skip?: number;
       sort?: Record<string, -1 | 1>;
       projection?: ProjectionType<JobsDocument>;
     },
@@ -62,7 +67,9 @@ export class JobRepository
     return { data, total };
   }
 
-  async countDocuments(filter: FilterQuery<any> = {}): Promise<number> {
+  async countDocuments(
+    filter: FilterQuery<JobsDocument> = {},
+  ): Promise<number> {
     return this.jobModel.countDocuments(filter).exec();
   }
 

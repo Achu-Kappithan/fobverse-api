@@ -14,8 +14,12 @@ import {
   Types,
   UpdateResult,
 } from 'mongoose';
-import { populatedapplicationList } from '../types/repository.types';
+import {
+  CandidateApplicationAggregation,
+  populatedapplicationList,
+} from '../types/repository.types';
 import { AggregateResult } from '../interfaces/responce.interface';
+import { JobStatDto } from '../../company/dtos/dashboard.dto';
 
 @Injectable()
 export class ApplicationRepository
@@ -35,7 +39,7 @@ export class ApplicationRepository
       limit?: number;
       skip?: number;
       sort?: Record<string, -1 | 1>;
-      projection?: any;
+      projection?: Record<string, unknown>;
     },
   ): Promise<{ data: populatedapplicationList[]; total: number }> {
     const pipeline: PipelineStage[] = [
@@ -195,7 +199,7 @@ export class ApplicationRepository
       skip?: number;
       sort?: Record<string, -1 | 1>;
     },
-  ): Promise<{ data: any[]; total: number }> {
+  ): Promise<{ data: CandidateApplicationAggregation[]; total: number }> {
     const pipeline: PipelineStage[] = [
       { $match: { candidateId: new Types.ObjectId(candidateId) } },
 
@@ -260,7 +264,8 @@ export class ApplicationRepository
       .aggregate<AggregateResult>(pipeline)
       .exec();
 
-    const data = result?.data || [];
+    const data = (result?.data ||
+      []) as unknown as CandidateApplicationAggregation[];
     const total = result?.metadata?.[0]?.total || 0;
     return { data, total };
   }
@@ -304,9 +309,11 @@ export class ApplicationRepository
     };
   }
 
-  async getJobApplicationStats(companyId: Types.ObjectId): Promise<any[]> {
+  async getJobApplicationStats(
+    companyId: Types.ObjectId,
+  ): Promise<JobStatDto[]> {
     interface JobAppStat {
-      jobId: Types.ObjectId;
+      jobId: string;
       jobTitle: string;
       applicationCount: number;
       active: boolean;
@@ -325,7 +332,8 @@ export class ApplicationRepository
       { $unwind: '$jobDetails' },
       {
         $project: {
-          jobId: '$_id',
+          _id: 0,
+          jobId: { $toString: '$_id' },
           jobTitle: '$jobDetails.title',
           applicationCount: 1,
           active: { $literal: true },

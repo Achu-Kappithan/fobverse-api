@@ -8,7 +8,10 @@ export interface InotificationService {
     interview: { date: string; time: string },
   );
 
-  createInterviewRescheduledNotification(candidateId: string, interview: any);
+  createInterviewRescheduledNotification(
+    candidateId: string,
+    interview: { date: string; time: string },
+  );
 
   createInterviewCancelledNotification(candidateId: string);
 
