@@ -78,7 +78,7 @@ export class ResponseJobsDto {
   activeStatus: boolean;
 }
 
-export class AllJobsAdminResponce {
+export class AllJobsAdminResponse {
   @Expose()
   title: string;
 

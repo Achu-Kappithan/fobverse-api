@@ -15,10 +15,10 @@ import {
   UpdateResult,
 } from 'mongoose';
 import {
+  AggregateResult,
   CandidateApplicationAggregation,
   populatedapplicationList,
 } from '../types/repository.types';
-import { AggregateResult } from '../interfaces/responce.interface';
 import { JobStatDto } from '../../company/dtos/dashboard.dto';
 
 @Injectable()

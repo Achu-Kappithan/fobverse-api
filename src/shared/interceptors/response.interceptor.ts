@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SuccessApiResponse, PaginationMeta } from '../responses/api.response';
+import { PaginationMeta, ApiResponse } from '../responses/api.response';
 import { Request, Response } from 'express';
 
 interface ServiceResponsePayload<T> {
@@ -30,13 +30,13 @@ export class ResponseInterceptor<T>
   implements
     NestInterceptor<
       T | ServiceResponsePayload<T> | PaginatedServiceResult<T>,
-      SuccessApiResponse<T>
+      ApiResponse<T>
     >
 {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<SuccessApiResponse<T>> {
+  ): Observable<ApiResponse<T>> {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();

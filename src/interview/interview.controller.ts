@@ -20,8 +20,8 @@ import {
   UpdateFeedbackDto,
   UpdateFinalResultDto,
 } from './dtos/interviewshedule.dto';
-import { ApiResponce } from '../shared/interface/api.responce';
-import { ScheduleResponseDto } from './dtos/interview.responce.dto';
+import { ApiResponse } from '../shared/responses/api.response';
+import { ScheduleResponseDto } from './dtos/interview.response.dto';
 import { CancelInterviewDto } from './dtos/cancelInterview.dto';
 import { Request as ERequest } from 'express';
 import { AllStagesResponseDto } from './dtos/all-stages-response.dto';
@@ -61,7 +61,7 @@ export class InterviewController {
   async reSheduleInterview(
     @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const scheduledBy = req.user as { id: string };
     return this._interviewService.reSheduleTelyInterview(dto, scheduledBy.id);
   }
@@ -71,7 +71,7 @@ export class InterviewController {
   async reSheduleTelyInterview(
     @Body() dto: ScheduleInterviewDto,
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const scheduledBy = req.user as { id: string };
     return this._interviewService.reSheduleInterview(dto, scheduledBy.id);
   }
@@ -80,7 +80,7 @@ export class InterviewController {
   @UseGuards(AuthGuard('access_token'))
   async cancelInterview(
     @Body() dto: CancelInterviewDto,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     return this._interviewService.cancelIntterview(dto);
   }
 
@@ -89,7 +89,7 @@ export class InterviewController {
   async getStageDetails(
     @Query('applicationId') applicationId: string,
     @Query('stage') stage: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     return await this._interviewService.getStageDetails(applicationId, stage);
   }
 
@@ -97,7 +97,7 @@ export class InterviewController {
   @UseGuards(AuthGuard('access_token'))
   async getAllStages(
     @Query('applicationId') applicationId: string,
-  ): Promise<ApiResponce<AllStagesResponseDto>> {
+  ): Promise<ApiResponse<AllStagesResponseDto>> {
     return await this._interviewService.getAllStagesByApplicationId(
       applicationId,
     );
@@ -108,7 +108,7 @@ export class InterviewController {
   async updateFeedback(
     @Body() data: UpdateFeedbackDto,
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const interviewer = req.user as { id: string };
     return this._interviewService.updateFeedback(data, interviewer.id);
   }
@@ -119,7 +119,7 @@ export class InterviewController {
     @Body() dto: UpdateFinalResultDto,
 
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const hrId = req.user as { id: string };
     return this._interviewService.updateFinalResult(dto, hrId.id);
   }
@@ -129,7 +129,7 @@ export class InterviewController {
   async getMySchedules(
     @Query('status') status: ReviewStatus | undefined,
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ScheduleResponseDto[]>> {
+  ): Promise<ApiResponse<ScheduleResponseDto[]>> {
     const user = req.user as { id: string };
     return this._interviewService.getUserSchedules(user.id, status);
   }

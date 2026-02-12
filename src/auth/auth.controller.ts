@@ -23,14 +23,10 @@ import {
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ERequest, Response } from 'express';
-import {
-  generalResponce,
-  LoginResponce,
-  tokenresponce,
-} from './interfaces/api-response.interface';
+import { ApiResponse } from '../shared/responses/api.response';
 import { userDto } from './dto/user.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
-import { CurrentUserDto } from '../shared/dtos/userresponce.dto';
+import { CurrentUserDto } from '../shared/dtos/user-response.dto';
 import { UserDocument } from './schema/user.schema';
 
 @Controller('auth')
@@ -112,7 +108,7 @@ export class AuthController {
   refreshTokens(
     @Req() req: ERequest,
     @Res({ passthrough: true }) response: Response,
-  ): tokenresponce {
+  ): ApiResponse<unknown> {
     const user = req.user as UserDocument;
     return this._authService.regenerateAccessToken(user, response);
   }
@@ -122,7 +118,7 @@ export class AuthController {
   async googleAuthCallback(
     @Query() query: { googleId: string; role: string },
     @Res({ passthrough: true }) response: Response,
-  ): Promise<LoginResponce<userDto>> {
+  ): Promise<ApiResponse<userDto>> {
     return this._authService.googleLogin(query.googleId, query.role, response);
   }
 
@@ -131,7 +127,7 @@ export class AuthController {
   async adminLogin(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<LoginResponce<userDto>> {
+  ): Promise<ApiResponse<userDto>> {
     const user = await this._authService.validateAdmin(dto);
     return this._authService.login(user, response);
   }
@@ -148,14 +144,14 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async updatePassword(
     @Body() dto: forgotPasswordDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return this._authService.validateEmailAndRoleExistence(dto);
   }
 
   @Post('updatepassword')
   async updateNewPassword(
     @Body() dto: UpdatePasswordDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return this._authService.updateNewPassword(dto);
   }
 }

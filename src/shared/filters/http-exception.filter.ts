@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorApiResponse } from '../responses/api.response';
+import { ApiResponse } from '../responses/api.response';
 
 interface ErrorDetails {
   validationErrors?: string[];
@@ -91,7 +91,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this._logger.warn(logMessage);
     }
 
-    const responsePayload: ErrorApiResponse = {
+    const responsePayload: ApiResponse<Record<string, unknown>> = {
       success: false,
       statusCode: status,
       message: frontendMessage,

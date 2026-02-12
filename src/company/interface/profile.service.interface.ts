@@ -1,12 +1,11 @@
-import { PlainResponse } from '../../admin/interfaces/responce.interface';
-import { generalResponce } from '../../auth/interfaces/api-response.interface';
+import { ApiResponse } from '../../shared/responses/api.response';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
 import { CreateProfileDto } from '../dtos/create.profile.dto';
 import { populateProfileDto } from '../dtos/populatedprofile.res.dto';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from '../dtos/responce.allcompany';
+  UserResponseDto,
+} from '../dtos/response.allcompany';
 import {
   changePassDto,
   InternalUserDto,
@@ -15,61 +14,50 @@ import {
   UpdateProfileDto,
 } from '../dtos/update.profile.dtos';
 import { DashboardResponseDto } from '../dtos/dashboard.dto';
-import { comapnyResponceInterface } from './responce.interface';
-import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
+import { PaginatedResponse } from '../../shared/responses/api.response';
 
 export interface IComapnyService {
   createProfile(dto: CreateProfileDto): Promise<CompanyProfileResponseDto>;
 
-  getProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
+  getProfile(id: string): Promise<ApiResponse<CompanyProfileResponseDto>>;
 
   updateProfile(
     id: string,
     dto: UpdateProfileDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
+  ): Promise<ApiResponse<CompanyProfileResponseDto>>;
 
   createUser(
     id: string,
     dto: InternalUserDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto>>;
+  ): Promise<ApiResponse<UserResponseDto>>;
 
   getInternalUsers(
     comapanyId: string,
     userId: string,
     pagination: PaginationDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
+  ): Promise<ApiResponse<UserResponseDto[]>>;
 
-  getUserProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto>>;
+  getUserProfile(id: string): Promise<ApiResponse<UserResponseDto>>;
 
   updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto>>;
+  ): Promise<ApiResponse<UserResponseDto>>;
 
-  updatePassword(id: string, dto: changePassDto): Promise<generalResponce>;
+  updatePassword(id: string, dto: changePassDto): Promise<ApiResponse<unknown>>;
 
   addTeamMembers(
     id: string,
     dto: TeamMemberDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>>;
+  ): Promise<ApiResponse<CompanyProfileResponseDto>>;
 
-  getPublicProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<populateProfileDto>>;
+  getPublicProfile(id: string): Promise<ApiResponse<populateProfileDto>>;
 
-  removeUser(id: string): Promise<PlainResponse>;
+  removeUser(id: string): Promise<ApiResponse<unknown>>;
 
-  getHrUsers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
+  getHrUsers(companyId: string): Promise<ApiResponse<UserResponseDto[]>>;
 
-  getInterviewers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
+  getInterviewers(companyId: string): Promise<ApiResponse<UserResponseDto[]>>;
 
   getAllCompanies(
     pagination: PaginationDto,
@@ -77,7 +65,7 @@ export interface IComapnyService {
 
   getDashboardData(
     companyId: string,
-  ): Promise<comapnyResponceInterface<DashboardResponseDto>>;
+  ): Promise<ApiResponse<DashboardResponseDto>>;
 }
 
 export const COMPANY_SERVICE = 'COMPANY_SERVICE';

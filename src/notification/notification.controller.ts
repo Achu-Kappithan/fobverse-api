@@ -13,8 +13,8 @@ import {
 } from './interfaces/notification.service.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as Erequest } from 'express';
-import { ApiResponce } from '../shared/interface/api.responce';
-import { notificationResponceDto } from './dtos/notification.responce.dto';
+import { ApiResponse } from '../shared/responses/api.response';
+import { notificationResponseDto } from './dtos/notification.response.dto';
 
 @Controller('notification')
 export class NotificationController {
@@ -27,7 +27,7 @@ export class NotificationController {
   @UseGuards(AuthGuard('access_token'))
   async getCandidateNotification(
     @Request() req: Erequest,
-  ): Promise<ApiResponce<notificationResponceDto[]>> {
+  ): Promise<ApiResponse<notificationResponseDto[]>> {
     const user = req.user as { id: string };
     return await this._notificationService.getCandidateNotifications(user.id);
   }
@@ -36,7 +36,7 @@ export class NotificationController {
   @UseGuards(AuthGuard('access_token'))
   async getUnreadCount(
     @Request() req: Erequest,
-  ): Promise<ApiResponce<{ count: number }>> {
+  ): Promise<ApiResponse<{ count: number }>> {
     const user = req.user as { id: string };
     console.log('user data get from the jwt', user);
 

@@ -4,7 +4,7 @@ import * as PdfParse from 'pdf-parse';
 import * as stopword from 'stopword';
 import { IAtsService } from './interfaces/ats.service.interface';
 import { ConfigService } from '@nestjs/config';
-import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
+import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
 import * as nlp from 'compromise';
 
 @Injectable()

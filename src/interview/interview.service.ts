@@ -17,8 +17,8 @@ import {
 } from './dtos/interviewshedule.dto';
 import { IInterviewService } from './interfaces/interview.service.interface';
 import { Types } from 'mongoose';
-import { ApiResponce } from '../shared/interface/api.responce';
-import { ScheduleResponseDto } from './dtos/interview.responce.dto';
+import { ApiResponse } from '../shared/responses/api.response';
+import { ScheduleResponseDto } from './dtos/interview.response.dto';
 import { AllStagesResponseDto } from './dtos/all-stages-response.dto';
 import { MappingUtil } from '../shared/utils/mapping.util';
 import { MESSAGES } from '../shared/constants/constants.messages';
@@ -59,7 +59,7 @@ export class InterviewService implements IInterviewService {
   async sheduleInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     this.logger.log(
       `[interviewService] data get in the frondend for sheduling interview ${JSON.stringify(dto)}`,
     );
@@ -132,7 +132,7 @@ export class InterviewService implements IInterviewService {
   async sheduleTelyInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     this.logger.log(
       `[interviewService] data get in the frondend for sheduling interview ${JSON.stringify(dto)}`,
     );
@@ -194,7 +194,7 @@ export class InterviewService implements IInterviewService {
   async reSheduleInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     this.logger.log(
       `[interviewService] data get in the frondend for resheduling interview ${JSON.stringify(dto)}`,
     );
@@ -276,7 +276,7 @@ export class InterviewService implements IInterviewService {
   async reSheduleTelyInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     this.logger.log(
       `[interviewService] data get in the frondend for resheduling interview ${JSON.stringify(dto)}`,
     );
@@ -343,7 +343,7 @@ export class InterviewService implements IInterviewService {
 
   async cancelIntterview(
     dto: CancelInterviewDto,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const applicationObjId = new Types.ObjectId(dto.applicationId);
     const filter = {
       applicationId: applicationObjId,
@@ -395,7 +395,7 @@ export class InterviewService implements IInterviewService {
   async getStageDetails(
     applicationId: string,
     stage: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const data = await this._interviewRepository.getStageDetails(
       applicationId,
       stage,
@@ -415,7 +415,7 @@ export class InterviewService implements IInterviewService {
 
   async getAllStagesByApplicationId(
     applicationId: string,
-  ): Promise<ApiResponce<AllStagesResponseDto>> {
+  ): Promise<ApiResponse<AllStagesResponseDto>> {
     this.logger.log(
       `[interviewService] Fetching all stages for applicationId: ${applicationId}`,
     );
@@ -442,7 +442,7 @@ export class InterviewService implements IInterviewService {
     });
 
     const allStagesData: AllStagesResponseDto = {
-      atsStage: atsStageResponse.data,
+      atsStage: atsStageResponse.data!,
       shortlistedStage,
       techStage,
     };
@@ -460,7 +460,7 @@ export class InterviewService implements IInterviewService {
   async updateFeedback(
     dto: UpdateFeedbackDto,
     interviewerId: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const interview = await this._interviewRepository.findById(dto.interviewId);
 
     if (!interview) {
@@ -491,7 +491,7 @@ export class InterviewService implements IInterviewService {
   async updateFinalResult(
     dto: UpdateFinalResultDto,
     hrId: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>> {
+  ): Promise<ApiResponse<ScheduleResponseDto>> {
     const interview = await this._interviewRepository.findById(dto.interviewId);
 
     if (!interview) {
@@ -524,8 +524,8 @@ export class InterviewService implements IInterviewService {
       dto.applicationId,
       '',
     );
-    const candidateId = application.data.candidateId;
-    const companyName = application.data.company?.name || 'the company';
+    const candidateId = application.data?.candidateId;
+    const companyName = application.data?.company?.name || 'the company';
 
     if (candidateId) {
       if (dto.finalResult === finalResult.Pass) {
@@ -534,7 +534,7 @@ export class InterviewService implements IInterviewService {
           updatedInterview.stage,
         );
         await this._EmailService.SendInterviewPassedEmail(
-          application.data.email,
+          application.data?.email || '',
           updatedInterview.stage,
           companyName,
         );
@@ -544,7 +544,7 @@ export class InterviewService implements IInterviewService {
           updatedInterview.stage,
         );
         await this._EmailService.SendInterviewFailedEmail(
-          application.data.email,
+          application.data?.email || '',
           updatedInterview.stage,
           companyName,
         );
@@ -562,7 +562,7 @@ export class InterviewService implements IInterviewService {
   async getUserSchedules(
     userId: string,
     status?: ReviewStatus,
-  ): Promise<ApiResponce<ScheduleResponseDto[]>> {
+  ): Promise<ApiResponse<ScheduleResponseDto[]>> {
     this.logger.log(
       `[interviewService] Fetching schedules for user: ${userId}, status: ${status || 'all'}`,
     );

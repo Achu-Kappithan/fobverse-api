@@ -1,4 +1,4 @@
-import { ResponseJobsDto } from '../../jobs/dtos/responce.job.dto';
+import { ResponseJobsDto } from '../../jobs/dtos/response.job.dto';
 
 export interface IAtsService {
   // parseJobDisciption(jobData: ResponseJobsDto | undefined): string;

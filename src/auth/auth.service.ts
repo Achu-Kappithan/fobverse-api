@@ -20,14 +20,8 @@ import {
 } from './interfaces/jwt-payload.interface';
 import { RegisterCandidateDto } from './dto/register-candidate.dto';
 import { IAuthService } from './interfaces/IAuthCandiateService';
-import {
-  generalResponce,
-  LoginResponce,
-  populatedpData,
-  RegisterResponce,
-  tokenresponce,
-  verificatonResponce,
-} from './interfaces/api-response.interface';
+import { ApiResponse } from '../shared/responses/api.response';
+import { populatedpData } from '../shared/interfaces/auth.interface';
 import {
   forgotPasswordDto,
   LoginDto,
@@ -60,15 +54,11 @@ import {
 } from '../company/dtos/update.profile.dtos';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from '../company/dtos/responce.allcompany';
+  UserResponseDto,
+} from '../company/dtos/response.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
-import {
-  PaginatedResponse,
-  PlainResponse,
-} from '../admin/interfaces/responce.interface';
-import { comapnyResponceInterface } from '../company/interface/responce.interface';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-response.dto';
+import { PaginatedResponse } from '../shared/responses/api.response';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -132,7 +122,7 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
 
-    if (profileData.role !== role) {
+    if ((profileData.role as UserRole) !== role) {
       this._logger.warn(`Mismath of User Role ${role}`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_USER_ROLE);
     }
@@ -154,7 +144,7 @@ export class AuthService implements IAuthService {
 
   //complete user login process
 
-  login(user: userDto, res: Response): LoginResponce<userDto> {
+  login(user: userDto, res: Response): ApiResponse<userDto> {
     this._logger.debug(
       `[AuthService.login] Preparing payload for tokens for user: ${user.email}`,
     );
@@ -215,7 +205,7 @@ export class AuthService implements IAuthService {
 
   async registerCandidate(
     dto: RegisterCandidateDto,
-  ): Promise<RegisterResponce> {
+  ): Promise<ApiResponse<{ user: UserDocument }>> {
     const existingUser = await this._authRepository.findByEmail(dto.email);
     if (existingUser) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
@@ -252,10 +242,12 @@ export class AuthService implements IAuthService {
 
     return {
       message: MESSAGES.AUTH.REGISTRATION_SUCCESS,
-      user: newUser!.toObject({
-        getters: true,
-        virtuals: false,
-      }) as UserDocument,
+      data: {
+        user: newUser!.toObject({
+          getters: true,
+          virtuals: false,
+        }) as UserDocument,
+      },
     };
   }
 
@@ -280,7 +272,9 @@ export class AuthService implements IAuthService {
 
   // Email verification  (Registration Process)
 
-  async verifyEmail(token: string): Promise<verificatonResponce> {
+  async verifyEmail(
+    token: string,
+  ): Promise<ApiResponse<{ user: UserDocument }>> {
     let payload: JwtVerificationPayload;
     try {
       if (!token) {
@@ -352,13 +346,18 @@ export class AuthService implements IAuthService {
 
     return {
       message: MESSAGES.AUTH.EMAIL_VERIFIED,
-      user: verifieduser!,
+      data: {
+        user: verifieduser!,
+      },
     };
   }
 
   // create new Access Token user RefreshTokens
 
-  regenerateAccessToken(paylod: UserDocument, res: Response): tokenresponce {
+  regenerateAccessToken(
+    paylod: UserDocument,
+    res: Response,
+  ): ApiResponse<{ newAccess: string }> {
     const tokenPaylod: JwtAccessPayload = {
       UserId: paylod._id.toString(),
       email: paylod.email,
@@ -386,6 +385,7 @@ export class AuthService implements IAuthService {
 
     return {
       message: MESSAGES.AUTH.ACCESS_TOKEN_REFRESHED,
+      data: { newAccess: newAccessToken },
     };
   }
 
@@ -395,7 +395,7 @@ export class AuthService implements IAuthService {
     idToken: string,
     role: UserRole,
     res: Response,
-  ): Promise<LoginResponce<userDto>> {
+  ): Promise<ApiResponse<userDto>> {
     this._logger.log(
       `[authService] googleId${idToken} and User role is ${role}`,
     );
@@ -428,7 +428,7 @@ export class AuthService implements IAuthService {
     user = await this._authRepository.findCandidateByEmail(email);
     console.log('get candiate usering email ', user);
 
-    if (user && user.role !== role) {
+    if (user && user.role !== (role as string)) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
 
@@ -452,12 +452,16 @@ export class AuthService implements IAuthService {
 
       await this._candidateService.createProfile(profiledata);
     } else {
-      const populatedUser = user as populatedpData;
+      const populatedUser = user;
       if (!populatedUser.profile.isActive) {
         throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
       }
 
-      if (!user.googleId && user.googleId !== googleId && user.role === role) {
+      if (
+        !user.googleId &&
+        user.googleId !== googleId &&
+        user.role === (role as string)
+      ) {
         this._logger.log(
           `Linking Google is To the Existinng User ${user.email}`,
         );
@@ -577,7 +581,7 @@ export class AuthService implements IAuthService {
 
   async validateEmailAndRoleExistence(
     dto: forgotPasswordDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     const { email, role } = dto;
     this._logger.log(
       '[authService] data from the frondend  for reset password',
@@ -622,7 +626,9 @@ export class AuthService implements IAuthService {
 
   // update  New password
 
-  async updateNewPassword(dto: UpdatePasswordDto): Promise<generalResponce> {
+  async updateNewPassword(
+    dto: UpdatePasswordDto,
+  ): Promise<ApiResponse<unknown>> {
     const { password, token } = dto;
     let payload: passwordResetPayload;
 
@@ -646,14 +652,10 @@ export class AuthService implements IAuthService {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const updatedUser = await this._authRepository.update(
+    await this._authRepository.update(
       { _id: payload.id },
       { $set: { password: hashPassword } },
     );
-
-    if (!updatedUser) {
-      throw new BadRequestException(MESSAGES.AUTH.CANNOT_UPDATE_PASSWORD);
-    }
 
     return {
       message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS,
@@ -663,7 +665,7 @@ export class AuthService implements IAuthService {
   async companyUserLogin(
     dto: LoginDto,
     res: Response,
-  ): Promise<LoginResponce<userDto>> {
+  ): Promise<ApiResponse<userDto>> {
     this._logger.log(`[AuthSevice] ComapnyUsers${dto.role}try to login`);
 
     const user = await this._authRepository.findCompanyByEmail(dto.email);
@@ -671,13 +673,16 @@ export class AuthService implements IAuthService {
     if (!user) {
       throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUD);
     }
-    const compareResult = await bcrypt.compare(dto.password, user.password!);
+    if (!user.password) {
+      throw new BadRequestException(MESSAGES.AUTH.ACCOUNT_LINKED_WITH_GOOGLE);
+    }
+    const compareResult = await bcrypt.compare(dto.password, user.password);
     if (!compareResult) {
       this._logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
 
-    if (user.role !== dto.role) {
+    if ((user.role as UserRole) !== dto.role) {
       this._logger.warn(`Mismath of User Role ${dto.role}`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_USER_ROLE);
     }
@@ -748,7 +753,7 @@ export class AuthService implements IAuthService {
   async createInternalUser(
     id: string,
     dto: InternalUserDto,
-  ): Promise<UserResponceDto> {
+  ): Promise<UserResponseDto> {
     const existinguser = await this._authRepository.findByEmail(dto.email);
 
     if (existinguser) {
@@ -773,7 +778,7 @@ export class AuthService implements IAuthService {
     );
 
     const mappedData = plainToInstance(
-      UserResponceDto,
+      UserResponseDto,
       {
         ...data?.toJSON(),
       },
@@ -787,7 +792,7 @@ export class AuthService implements IAuthService {
     companyId: string,
     userId: string,
     pagination: PaginationDto,
-  ): Promise<PaginatedResponse<UserResponceDto[]>> {
+  ): Promise<PaginatedResponse<UserResponseDto[]>> {
     const { search, page = 1, limit = 6, filtervalue } = pagination;
     const filter: FilterQuery<UserDocument> = {};
 
@@ -828,7 +833,7 @@ export class AuthService implements IAuthService {
       };
     });
 
-    const mappedData = plainToInstance(UserResponceDto, plaindata);
+    const mappedData = plainToInstance(UserResponseDto, plaindata);
     const totalPages = Math.ceil(total / limit);
     return {
       data: mappedData,
@@ -842,9 +847,7 @@ export class AuthService implements IAuthService {
 
   // get hrUsers
 
-  async getHrUsers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  async getHrUsers(companyId: string): Promise<ApiResponse<UserResponseDto[]>> {
     const companyObjId = new Types.ObjectId(companyId);
     const data = await this._authRepository.findHrUsers(companyObjId);
     const plaindata = data.map((val) => {
@@ -854,7 +857,7 @@ export class AuthService implements IAuthService {
         _id: user._id.toString(),
       };
     });
-    const mappedData = plainToInstance(UserResponceDto, plaindata);
+    const mappedData = plainToInstance(UserResponseDto, plaindata);
     return {
       message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
       data: mappedData,
@@ -863,7 +866,7 @@ export class AuthService implements IAuthService {
 
   async getInterviewers(
     companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     const companyObjId = new Types.ObjectId(companyId);
     const data = await this._authRepository.findInterviewers(companyObjId);
     const plaindata = data.map((val) => {
@@ -873,7 +876,7 @@ export class AuthService implements IAuthService {
         _id: user._id.toString(),
       };
     });
-    const mappedData = plainToInstance(UserResponceDto, plaindata);
+    const mappedData = plainToInstance(UserResponseDto, plaindata);
     return {
       message: MESSAGES.COMPANY.USERS_GET_SUCCESS,
       data: mappedData,
@@ -882,10 +885,10 @@ export class AuthService implements IAuthService {
 
   //get UserProfile
 
-  async getUserProfile(id: string): Promise<UserResponceDto> {
+  async getUserProfile(id: string): Promise<UserResponseDto> {
     this._logger.log('[AuthService] geting Company active userprofile', id);
     const data = await this._authRepository.findById(id);
-    const mappedData = plainToInstance(UserResponceDto, data?.toJSON());
+    const mappedData = plainToInstance(UserResponseDto, data?.toJSON());
     this._logger.debug(
       `[AuthService] profile details gets${JSON.stringify(mappedData)}`,
     );
@@ -897,9 +900,9 @@ export class AuthService implements IAuthService {
   async updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
-  ): Promise<UserResponceDto> {
+  ): Promise<UserResponseDto> {
     const data = await this._authRepository.update({ _id: id }, { $set: dto });
-    const mappedData = plainToInstance(UserResponceDto, data?.toJSON());
+    const mappedData = plainToInstance(UserResponseDto, data?.toJSON());
     this._logger.debug(
       `[AuthService] User profile updated ${JSON.stringify(mappedData)}`,
     );
@@ -911,7 +914,7 @@ export class AuthService implements IAuthService {
   async changePassword(
     id: string,
     dto: changePassDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     this._logger.log(
       `[AuthsService] Try to Update password id: ${id} newPass : ${dto.newPass}`,
     );
@@ -941,7 +944,7 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async removeUser(id: string): Promise<PlainResponse> {
+  async removeUser(id: string): Promise<ApiResponse<unknown>> {
     const filter: FilterQuery<UserDocument> = {};
     const userObjId = new Types.ObjectId(id);
     filter._id = userObjId;

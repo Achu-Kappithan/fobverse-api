@@ -8,7 +8,7 @@ import { IAdminService } from './interfaces/IAdminService';
 import {
   PaginatedResponse,
   PlainResponse,
-} from './interfaces/responce.interface';
+} from '../shared/responses/api.response';
 import { plainToInstance } from 'class-transformer';
 import { FilterQuery, Types } from 'mongoose';
 import {
@@ -30,21 +30,20 @@ import {
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from '../company/dtos/responce.allcompany';
+  UserResponseDto,
+} from '../company/dtos/response.allcompany';
 import { CompanyProfile } from '../company/schema/company.profile.schema';
-import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-response.dto';
 import { CandidateProfile } from '../candiate/schema/candidate.profile.schema';
 import { Jobs } from '../jobs/schema/jobs.schema';
-import { AllJobsAdminResponce } from '../jobs/dtos/responce.job.dto';
+import { AllJobsAdminResponse } from '../jobs/dtos/response.job.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import {
   AUTH_SERVICE,
   IAuthService,
 } from '../auth/interfaces/IAuthCandiateService';
-import { ApiResponce } from '../shared/interface/api.responce';
+import { ApiResponse } from '../shared/responses/api.response';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
-import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { UpdateAdminProfileDto } from './dtos/admin-profile.dto';
 import { AdminDashboardDto } from './dtos/admin-dashboard.dto';
 import { jobType } from '../jobs/schema/jobs.schema';
@@ -184,7 +183,7 @@ export class AdminService implements IAdminService {
 
   async getAllJobs(
     dto: PaginationDto,
-  ): Promise<PaginatedResponse<AllJobsAdminResponce[]>> {
+  ): Promise<PaginatedResponse<AllJobsAdminResponse[]>> {
     const { search, page = 1, limit = 6 } = dto;
 
     const filter: FilterQuery<Jobs> = {};
@@ -215,7 +214,7 @@ export class AdminService implements IAdminService {
       };
     });
 
-    const mapdeData = plainToInstance(AllJobsAdminResponce, plainData, {
+    const mapdeData = plainToInstance(AllJobsAdminResponse, plainData, {
       excludeExtraneousValues: true,
     });
 
@@ -240,7 +239,7 @@ export class AdminService implements IAdminService {
     };
   }
 
-  async getAdminProfile(id: string): Promise<ApiResponce<UserResponceDto>> {
+  async getAdminProfile(id: string): Promise<ApiResponse<UserResponseDto>> {
     this.logger.log(`[AdminService] try to getUser Profile ${id}`);
     const userProfile = await this._authService.getUserProfile(id);
     return {
@@ -252,14 +251,14 @@ export class AdminService implements IAdminService {
   async updatePassword(
     id: string,
     dto: changePassDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return await this._authService.changePassword(id, dto);
   }
 
   async upateUserProfile(
     id: string,
     dto: UpdateAdminProfileDto,
-  ): Promise<ApiResponce<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const data = await this._authService.updateUserProfile(id, dto);
     return {
       message: MESSAGES.ADMIN.PROFILE_UPDATE_SUCCESS,
@@ -267,7 +266,7 @@ export class AdminService implements IAdminService {
     };
   }
 
-  async getDashboardStats(): Promise<ApiResponce<AdminDashboardDto>> {
+  async getDashboardStats(): Promise<ApiResponse<AdminDashboardDto>> {
     const [
       totalCandidates,
       totalCompanies,

@@ -1,4 +1,4 @@
-import { PaginatedResponse } from '../../admin/interfaces/responce.interface';
+import { PaginatedResponse } from '../responses/api.response';
 
 export class PaginationUtil {
   /**

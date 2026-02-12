@@ -14,9 +14,9 @@ import {
 import { CreateProfileDto } from './dtos/create.profile.dto';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from './dtos/responce.allcompany';
-import { comapnyResponceInterface } from './interface/responce.interface';
+  UserResponseDto,
+} from './dtos/response.allcompany';
+import { ApiResponse } from '../shared/responses/api.response';
 import { MappingUtil } from '../shared/utils/mapping.util';
 import { PaginationUtil } from '../shared/utils/pagination.util';
 import {
@@ -33,13 +33,9 @@ import {
 } from '../auth/interfaces/IAuthCandiateService';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
-import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
-import {
-  PaginatedResponse,
-  PlainResponse,
-} from '../admin/interfaces/responce.interface';
+import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
+import { PaginatedResponse } from '../shared/responses/api.response';
 
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import {
@@ -59,8 +55,8 @@ import {
   DashboardStatsDto,
   JobStatDto,
 } from './dtos/dashboard.dto';
-import { ApplicationResponceDto } from '../applications/dtos/application.responce';
-import { ScheduleResponseDto } from '../interview/dtos/interview.responce.dto';
+import { ApplicationResponseDto } from '../applications/dtos/application.response';
+import { ScheduleResponseDto } from '../interview/dtos/interview.response.dto';
 
 @Injectable()
 export class CompanyService implements IComapnyService {
@@ -106,7 +102,7 @@ export class CompanyService implements IComapnyService {
 
   async getProfile(
     id: string,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const profiledata = await this._companyRepository.findById(id);
     return {
       message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
@@ -116,9 +112,7 @@ export class CompanyService implements IComapnyService {
 
   // get Public Profile
 
-  async getPublicProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<populateProfileDto>> {
+  async getPublicProfile(id: string): Promise<ApiResponse<populateProfileDto>> {
     const profiledata = await this._companyRepository.publicPorfile(id);
 
     if (!profiledata) {
@@ -147,7 +141,7 @@ export class CompanyService implements IComapnyService {
   async updateProfile(
     id: string,
     dto: UpdateProfileDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const updatedata = await this._companyRepository.update(
       { _id: id },
       { $set: dto },
@@ -164,7 +158,7 @@ export class CompanyService implements IComapnyService {
   async createUser(
     id: string,
     dto: InternalUserDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const data = await this._AuthService.createInternalUser(id, dto);
     return {
       message: MESSAGES.COMPANY.USER_REG_SUCCESS,
@@ -178,7 +172,7 @@ export class CompanyService implements IComapnyService {
     companyId: string,
     userId: string,
     pagination: PaginationDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     this.logger.log(
       `[ComapanyService] id get in Comapny service :${companyId}`,
     );
@@ -187,9 +181,7 @@ export class CompanyService implements IComapnyService {
 
   // get Hr Users
 
-  async getHrUsers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  async getHrUsers(companyId: string): Promise<ApiResponse<UserResponseDto[]>> {
     this.logger.log(`[companyService] fetch hr user of company ${companyId}`);
     return await this._AuthService.getHrUsers(companyId);
   }
@@ -198,7 +190,7 @@ export class CompanyService implements IComapnyService {
 
   async getInterviewers(
     companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     this.logger.log(
       `[companyService] fetch Interviewers of company ${companyId}`,
     );
@@ -207,9 +199,7 @@ export class CompanyService implements IComapnyService {
 
   //getUserProfile
 
-  async getUserProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  async getUserProfile(id: string): Promise<ApiResponse<UserResponseDto>> {
     this.logger.log(`[ComapayService] try to getUser Profile ${id}`);
     const userProfile = await this._AuthService.getUserProfile(id);
     return {
@@ -223,7 +213,7 @@ export class CompanyService implements IComapnyService {
   async updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const data = await this._AuthService.updateUserProfile(id, dto);
     return {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
@@ -236,7 +226,7 @@ export class CompanyService implements IComapnyService {
   async updatePassword(
     id: string,
     dto: changePassDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return await this._AuthService.changePassword(id, dto);
   }
 
@@ -245,7 +235,7 @@ export class CompanyService implements IComapnyService {
   async addTeamMembers(
     id: string,
     dto: TeamMemberDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const data = await this._companyRepository.addTeamMembers(id, dto);
 
     return {
@@ -254,7 +244,7 @@ export class CompanyService implements IComapnyService {
     };
   }
 
-  async removeUser(id: string): Promise<PlainResponse> {
+  async removeUser(id: string): Promise<ApiResponse<unknown>> {
     return await this._AuthService.removeUser(id);
   }
 
@@ -291,7 +281,7 @@ export class CompanyService implements IComapnyService {
 
   async getDashboardData(
     companyId: string,
-  ): Promise<comapnyResponceInterface<DashboardResponseDto>> {
+  ): Promise<ApiResponse<DashboardResponseDto>> {
     const comId = new Types.ObjectId(companyId);
 
     const [
@@ -319,7 +309,7 @@ export class CompanyService implements IComapnyService {
     };
 
     const recentApplications = MappingUtil.map(
-      ApplicationResponceDto,
+      ApplicationResponseDto,
       recentAppsRaw,
     );
 

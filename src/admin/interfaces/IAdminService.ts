@@ -1,16 +1,18 @@
-import { generalResponce } from '../../auth/interfaces/api-response.interface';
-import { CandidateProfileResponseDto } from '../../candiate/dtos/candidate-responce.dto';
+import { CandidateProfileResponseDto } from '../../candiate/dtos/candidate-response.dto';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from '../../company/dtos/responce.allcompany';
+  UserResponseDto,
+} from '../../company/dtos/response.allcompany';
 import { changePassDto } from '../../company/dtos/update.profile.dtos';
-import { AllJobsAdminResponce } from '../../jobs/dtos/responce.job.dto';
+import { AllJobsAdminResponse } from '../../jobs/dtos/response.job.dto';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
-import { ApiResponce } from '../../shared/interface/api.responce';
+import {
+  ApiResponse,
+  PaginatedResponse,
+  PlainResponse,
+} from '../../shared/responses/api.response';
 import { UpdateAdminProfileDto } from '../dtos/admin-profile.dto';
 import { AdminDashboardDto } from '../dtos/admin-dashboard.dto';
-import { PaginatedResponse, PlainResponse } from './responce.interface';
 
 export interface IAdminService {
   getAllCompnys(
@@ -26,20 +28,20 @@ export interface IAdminService {
 
   getAllJobs(
     dto: PaginationDto,
-  ): Promise<PaginatedResponse<AllJobsAdminResponce[]>>;
+  ): Promise<PaginatedResponse<AllJobsAdminResponse[]>>;
 
   updateJobStatus(id: string): Promise<PlainResponse>;
 
-  getAdminProfile(id: string): Promise<ApiResponce<UserResponceDto>>;
+  getAdminProfile(id: string): Promise<ApiResponse<UserResponseDto>>;
 
-  updatePassword(id: string, dto: changePassDto): Promise<generalResponce>;
+  updatePassword(id: string, dto: changePassDto): Promise<ApiResponse<unknown>>;
 
   upateUserProfile(
     id: string,
     dto: UpdateAdminProfileDto,
-  ): Promise<ApiResponce<UserResponceDto>>;
+  ): Promise<ApiResponse<UserResponseDto>>;
 
-  getDashboardStats(): Promise<ApiResponce<AdminDashboardDto>>;
+  getDashboardStats(): Promise<ApiResponse<AdminDashboardDto>>;
 }
 
 export const ADMIN_SERVICE = 'ADMIN_SERVICE';

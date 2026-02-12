@@ -1,6 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 
-export class TeamMemberResponceDto {
+export class TeamMemberResponseDto {
   @Expose()
   name: string;
 
@@ -63,11 +63,11 @@ export class CompanyProfileResponseDto {
   updatedAt: Date;
 
   @Expose()
-  @Type(() => TeamMemberResponceDto)
-  teamMembers?: TeamMemberResponceDto[];
+  @Type(() => TeamMemberResponseDto)
+  teamMembers?: TeamMemberResponseDto[];
 }
 
-export class UserResponceDto {
+export class UserResponseDto {
   @Expose()
   _id: string;
 

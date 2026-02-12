@@ -1,6 +1,6 @@
 import { Expose, Type } from 'class-transformer';
-import { ApplicationResponceDto } from '../../applications/dtos/application.responce';
-import { ScheduleResponseDto } from '../../interview/dtos/interview.responce.dto';
+import { ApplicationResponseDto } from '../../applications/dtos/application.response';
+import { ScheduleResponseDto } from '../../interview/dtos/interview.response.dto';
 
 export class DashboardStatsDto {
   @Expose()
@@ -42,8 +42,8 @@ export class DashboardResponseDto {
   stats: DashboardStatsDto;
 
   @Expose()
-  @Type(() => ApplicationResponceDto)
-  recentApplications: ApplicationResponceDto[];
+  @Type(() => ApplicationResponseDto)
+  recentApplications: ApplicationResponseDto[];
 
   @Expose()
   @Type(() => ScheduleResponseDto)

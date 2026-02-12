@@ -3,7 +3,7 @@ import { Stages } from '../schema/applications.schema';
 import {
   populatedcompanyId,
   ResponseJobsDto,
-} from '../../jobs/dtos/responce.job.dto';
+} from '../../jobs/dtos/response.job.dto';
 
 class ContactItemDto {
   @Expose()

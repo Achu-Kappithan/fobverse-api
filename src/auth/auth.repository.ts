@@ -7,7 +7,7 @@ import { BaseRepository } from '../shared/repositories/base.repository';
 import {
   PopulatedCompany,
   populatedpData,
-} from './interfaces/api-response.interface';
+} from '../shared/interfaces/auth.interface';
 
 @Injectable()
 export class AuthRepository

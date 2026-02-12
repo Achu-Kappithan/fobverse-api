@@ -1,7 +1,10 @@
 import { IBaseRepository } from '../../shared/interface/base-repository.interface';
 import { UserDocument } from '../schema/user.schema';
 import { Types } from 'mongoose';
-import { PopulatedCompany, populatedpData } from './api-response.interface';
+import {
+  PopulatedCompany,
+  populatedpData,
+} from '../../shared/interfaces/auth.interface';
 
 export interface IAuthRepository extends IBaseRepository<UserDocument> {
   findByEmail(email: string): Promise<UserDocument | null>;

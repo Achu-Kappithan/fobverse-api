@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Mail from 'nodemailer/lib/mailer';
 import * as nodemailer from 'nodemailer';
 import { populatedjobResDto } from '../jobs/dtos/populated.jobs.dto';
-import { ScheduleResponseDto } from '../interview/dtos/interview.responce.dto';
+import { ScheduleResponseDto } from '../interview/dtos/interview.response.dto';
 
 @Injectable()
 export class EmailService {

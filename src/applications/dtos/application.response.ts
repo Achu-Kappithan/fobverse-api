@@ -1,6 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Stages } from '../schema/applications.schema';
-import { ResponseJobsDto } from '../../jobs/dtos/responce.job.dto';
+import { ResponseJobsDto } from '../../jobs/dtos/response.job.dto';
 
 class ApplicationProfileDto {
   @Expose()
@@ -10,7 +10,7 @@ class ApplicationProfileDto {
   profileImg: string | null;
 }
 
-export class ApplicationResponceDto {
+export class ApplicationResponseDto {
   @Expose()
   _id: string;
 

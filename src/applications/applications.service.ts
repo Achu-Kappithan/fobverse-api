@@ -13,13 +13,13 @@ import {
   IApplicationRepository,
 } from './interfaces/application.repository.interface';
 import {
+  ApiResponse,
   PaginatedResponse,
-  PlainResponse,
-} from '../admin/interfaces/responce.interface';
+} from '../shared/responses/api.response';
 import { CreateApplicationDto } from './dtos/createapplication.dto';
 import { FilterQuery, Types } from 'mongoose';
 import { MESSAGES } from '../shared/constants/constants.messages';
-import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationResponseDto } from './dtos/application.response';
 import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { ApplicationDocument, Stages } from './schema/applications.schema';
 import { MappingUtil } from '../shared/utils/mapping.util';
@@ -42,7 +42,6 @@ import {
   NOTIFICATION_SERVICE,
 } from '../notification/interfaces/notification.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
-import { applicationResponce } from './interfaces/responce.interface';
 import {
   populatedapplicationList,
   CandidateApplicationAggregation,
@@ -70,7 +69,7 @@ export class ApplicationsService implements IApplicationService {
     dto: CreateApplicationDto,
     id: string,
     companyId: string,
-  ): Promise<PlainResponse> {
+  ): Promise<ApiResponse<unknown>> {
     const jobid = new Types.ObjectId(dto.jobId);
     const candidateObjId = new Types.ObjectId(id);
     const companyObjId = new Types.ObjectId(companyId);
@@ -161,7 +160,7 @@ export class ApplicationsService implements IApplicationService {
   async getAllApplications(
     companyId: string,
     dto: PaginatedApplicationDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const { page = 1, limit = 4, search, filtervalue, jobId } = dto;
     this._logger.log(
       `[ApplicationService] request getall application with dto :${JSON.stringify(dto)} and comapayId is : ${companyId}`,
@@ -189,7 +188,7 @@ export class ApplicationsService implements IApplicationService {
 
     const plaindata = data.map((job) => this._mapToPlainObject(job));
 
-    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
+    const mappedData = MappingUtil.map(ApplicationResponseDto, plaindata);
 
     return PaginationUtil.toPaginatedResponse(
       mappedData,
@@ -203,7 +202,7 @@ export class ApplicationsService implements IApplicationService {
   async getCompanyApplicants(
     companyId: string,
     dto: PaginationDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const { page = 1, limit = 5, search, filtervalue } = dto;
     this._logger.log(
       `[ApplicationService] request get all company applicants with dto :${JSON.stringify(dto)} and companyId is : ${companyId}`,
@@ -230,7 +229,7 @@ export class ApplicationsService implements IApplicationService {
 
     const plaindata = data.map((job) => this._mapToPlainObject(job));
 
-    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
+    const mappedData = MappingUtil.map(ApplicationResponseDto, plaindata);
 
     return PaginationUtil.toPaginatedResponse(
       mappedData,
@@ -244,7 +243,7 @@ export class ApplicationsService implements IApplicationService {
   async updateAtsScore(
     dto: updateAtsScoreDto,
     companyId: string,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const page = 1;
     const limit = 4;
     this._logger.log(
@@ -287,7 +286,7 @@ export class ApplicationsService implements IApplicationService {
 
     const plaindata = data.map((job) => this._mapToPlainObject(job));
 
-    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
+    const mappedData = MappingUtil.map(ApplicationResponseDto, plaindata);
 
     return PaginationUtil.toPaginatedResponse(
       mappedData,
@@ -301,7 +300,7 @@ export class ApplicationsService implements IApplicationService {
   async getjobDetails(
     appId: string,
     canId: string,
-  ): Promise<applicationResponce<ApplicationDetailsResponseDto>> {
+  ): Promise<ApiResponse<ApplicationDetailsResponseDto>> {
     console.log(appId, canId);
     const data = await this._applicationRepository.getApplicationDetails(appId);
     if (!data) {

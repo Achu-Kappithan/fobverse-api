@@ -12,11 +12,10 @@ import {
 import { notificationType } from './schema/notification.schema';
 import { Types } from 'mongoose';
 import { NotificationGateWay } from './notification.gateway';
-import { ApiResponce } from '../shared/interface/api.responce';
+import { ApiResponse, PlainResponse } from '../shared/responses/api.response';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { plainToInstance } from 'class-transformer';
-import { notificationResponceDto } from './dtos/notification.responce.dto';
-import { PlainResponse } from '../admin/interfaces/responce.interface';
+import { notificationResponseDto } from './dtos/notification.response.dto';
 
 @Injectable()
 export class NotificationService implements InotificationService {
@@ -175,7 +174,7 @@ export class NotificationService implements InotificationService {
 
   async getCandidateNotifications(
     candidateId: string,
-  ): Promise<ApiResponce<notificationResponceDto[]>> {
+  ): Promise<ApiResponse<notificationResponseDto[]>> {
     const data =
       await this._notificationRepository.findByRecipient(candidateId);
     const plaindata = data.map((val) => {
@@ -187,7 +186,7 @@ export class NotificationService implements InotificationService {
       };
     });
 
-    const mappedData = plainToInstance(notificationResponceDto, plaindata, {
+    const mappedData = plainToInstance(notificationResponseDto, plaindata, {
       excludeExtraneousValues: true,
     });
 
@@ -199,7 +198,7 @@ export class NotificationService implements InotificationService {
 
   async getUnreadCount(
     candidateId: string,
-  ): Promise<ApiResponce<{ count: number }>> {
+  ): Promise<ApiResponse<{ count: number }>> {
     const data =
       await this._notificationRepository.findUnreadCount(candidateId);
     return {
@@ -210,14 +209,14 @@ export class NotificationService implements InotificationService {
 
   async markAsRead(
     notificationId: string,
-  ): Promise<ApiResponce<notificationResponceDto>> {
+  ): Promise<ApiResponse<notificationResponseDto>> {
     const data = await this._notificationRepository.update(
       { _id: notificationId },
       {
         isRead: true,
       },
     );
-    const mappedData = plainToInstance(notificationResponceDto, {
+    const mappedData = plainToInstance(notificationResponseDto, {
       ...data,
       _id: data?._id.toString(),
       candidateId: data?.candidateId.toString(),

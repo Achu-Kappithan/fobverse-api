@@ -17,17 +17,16 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { CreateApplicationDto } from './dtos/createapplication.dto';
 import {
+  ApiResponse,
   PaginatedResponse,
-  PlainResponse,
-} from '../admin/interfaces/responce.interface';
+} from '../shared/responses/api.response';
 import { Request as ERequest } from 'express';
 import { UserDocument } from '../auth/schema/user.schema';
 import { PaginatedApplicationDto } from './dtos/application.pagination.dto';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationResponseDto } from './dtos/application.response';
 import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
-import { applicationResponce } from './interfaces/responce.interface';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -42,7 +41,7 @@ export class ApplicationsController {
     @Body() dto: CreateApplicationDto,
     @Request() req: ERequest,
     @Query('id') id: string,
-  ): Promise<PlainResponse> {
+  ): Promise<ApiResponse<unknown>> {
     const user = req.user as UserDocument;
     return this.applicationsService.createApplication(
       dto,
@@ -56,7 +55,7 @@ export class ApplicationsController {
   async getApplications(
     @Query() dto: PaginatedApplicationDto,
     @Request() req: ERequest,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const user = req.user as UserDocument;
     return this.applicationsService.getAllApplications(
       user.companyId!.toString(),
@@ -69,7 +68,7 @@ export class ApplicationsController {
   async getCompanyApplicants(
     @Query() dto: PaginationDto,
     @Request() req: ERequest,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const user = req.user as UserDocument;
     return this.applicationsService.getCompanyApplicants(
       user.companyId!.toString(),
@@ -82,7 +81,7 @@ export class ApplicationsController {
   async updateAtsScore(
     @Request() req: ERequest,
     @Body() dto: updateAtsScoreDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const user = req.user as UserDocument;
     return this.applicationsService.updateAtsScore(
       dto,
@@ -95,7 +94,7 @@ export class ApplicationsController {
   async getApplicationDetails(
     @Param('appId') appId: string,
     @Param('canId') canId: string,
-  ): Promise<applicationResponce<ApplicationDetailsResponseDto>> {
+  ): Promise<ApiResponse<ApplicationDetailsResponseDto>> {
     return this.applicationsService.getjobDetails(appId, canId);
   }
 }

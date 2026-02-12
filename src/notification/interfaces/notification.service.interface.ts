@@ -1,6 +1,8 @@
-import { PlainResponse } from '../../admin/interfaces/responce.interface';
-import { ApiResponce } from '../../shared/interface/api.responce';
-import { notificationResponceDto } from '../dtos/notification.responce.dto';
+import {
+  PlainResponse,
+  ApiResponse,
+} from '../../shared/responses/api.response';
+import { notificationResponseDto } from '../dtos/notification.response.dto';
 
 export interface InotificationService {
   createInterviewScheduledNotification(
@@ -30,13 +32,13 @@ export interface InotificationService {
 
   getCandidateNotifications(
     candidateId: string,
-  ): Promise<ApiResponce<notificationResponceDto[]>>;
+  ): Promise<ApiResponse<notificationResponseDto[]>>;
 
-  getUnreadCount(candidateId: string): Promise<ApiResponce<{ count: number }>>;
+  getUnreadCount(candidateId: string): Promise<ApiResponse<{ count: number }>>;
 
   markAsRead(
     notificationId: string,
-  ): Promise<ApiResponce<notificationResponceDto>>;
+  ): Promise<ApiResponse<notificationResponseDto>>;
 
   markAllAsRead(candidateId: string): Promise<PlainResponse>;
 }

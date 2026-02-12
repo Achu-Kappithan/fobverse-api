@@ -10,9 +10,12 @@ import {
 } from '@nestjs/common';
 import { IJobService, JOBS_SERVICE } from './interfaces/jobs.service.interface';
 import { AuthGuard } from '@nestjs/passport';
-import { ResponseJobsDto } from './dtos/responce.job.dto';
-import { ApiResponce, ERequest } from '../shared/interface/api.responce';
-import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { ResponseJobsDto } from './dtos/response.job.dto';
+import {
+  ApiResponse,
+  PaginatedResponse,
+} from '../shared/responses/api.response';
+import { ERequest } from '../shared/interfaces/auth.interface';
 import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
 
 @Controller('jobs')
@@ -27,7 +30,7 @@ export class JobsController {
   async createJobs(
     @Body() dto: JobsDto,
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ResponseJobsDto>> {
+  ): Promise<ApiResponse<ResponseJobsDto>> {
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._jobservices.createJobs(companyId.toString(), dto);
   }
@@ -52,7 +55,7 @@ export class JobsController {
   async updateJobDetails(
     @Query('id') id: string,
     @Body() dto: JobsDto,
-  ): Promise<ApiResponce<ResponseJobsDto>> {
+  ): Promise<ApiResponse<ResponseJobsDto>> {
     return this._jobservices.updateJobDetails(id.toString(), dto);
   }
 

@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { ScheduleResponseDto } from './interview.responce.dto';
+import { ScheduleResponseDto } from './interview.response.dto';
 import { ApplicationDetailsResponseDto } from '../../applications/dtos/application-details.response.dto';
 
 export class AllStagesResponseDto {

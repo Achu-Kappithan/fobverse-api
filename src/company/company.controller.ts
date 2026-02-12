@@ -16,11 +16,11 @@ import {
   IComapnyService,
 } from './interface/profile.service.interface';
 import { AuthGuard } from '@nestjs/passport';
-import { comapnyResponceInterface } from './interface/responce.interface';
+import { ApiResponse } from '../shared/responses/api.response';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from './dtos/responce.allcompany';
+  UserResponseDto,
+} from './dtos/response.allcompany';
 import {
   changePassDto,
   InternalUserDto,
@@ -29,10 +29,9 @@ import {
   UpdateProfileDto,
 } from './dtos/update.profile.dtos';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { generalResponce } from '../auth/interfaces/api-response.interface';
-import { ERequest } from '../shared/interface/api.responce';
+import { ERequest } from '../shared/interfaces/auth.interface';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
-import { PlainResponse } from '../admin/interfaces/responce.interface';
+
 import { DashboardResponseDto } from './dtos/dashboard.dto';
 
 @Controller('company')
@@ -46,7 +45,7 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async getProfile(
     @Request() req: ERequest,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const user = req.user;
     const companyId = user?.companyId?.toString() ?? '';
     return this._companyService.getProfile(companyId);
@@ -57,7 +56,7 @@ export class CompanyController {
   async updateProfile(
     @Request() req: ERequest,
     @Body() dto: UpdateProfileDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const user = req.user;
     const companyId = user?.companyId?.toString() ?? '';
     return this._companyService.updateProfile(companyId, dto);
@@ -88,7 +87,7 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async getHrUsers(
     @Request() req: ERequest,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     const user = req.user;
     const companyId = user?.companyId?.toString();
     return await this._companyService.getHrUsers(companyId!);
@@ -98,7 +97,7 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async getInterviewers(
     @Request() req: ERequest,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     const user = req.user;
     const companyId = user?.companyId?.toString();
     return await this._companyService.getInterviewers(companyId!);
@@ -108,7 +107,7 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async getUserProfile(
     @Request() req: ERequest,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const user = req.user;
     return this._companyService.getUserProfile(user!._id.toString());
   }
@@ -118,7 +117,7 @@ export class CompanyController {
   async updateUserProfile(
     @Body() dto: UpdateInternalUserDto,
     @Request() req: ERequest,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const user = req.user;
     return this._companyService.updateUserProfile(user!._id.toString(), dto);
   }
@@ -128,7 +127,7 @@ export class CompanyController {
   async UpdatePassword(
     @Body() dto: changePassDto,
     @Request() req: ERequest,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return await this._companyService.updatePassword(
       req.user!._id.toString(),
       dto,
@@ -140,7 +139,7 @@ export class CompanyController {
   async addTeamMembers(
     @Request() req: ERequest,
     @Body() dto: TeamMemberDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._companyService.addTeamMembers(companyId.toString(), dto);
   }
@@ -148,13 +147,13 @@ export class CompanyController {
   @Get('public/profile/:id')
   async getPublicProfile(
     @Param('id') id: string,
-  ): Promise<comapnyResponceInterface<populateProfileDto>> {
+  ): Promise<ApiResponse<populateProfileDto>> {
     return this._companyService.getPublicProfile(id);
   }
 
   @Delete('removeuser')
   @UseGuards(AuthGuard('access_token'))
-  async removeUser(@Query('id') id: string): Promise<PlainResponse> {
+  async removeUser(@Query('id') id: string): Promise<ApiResponse<unknown>> {
     return this._companyService.removeUser(id);
   }
 
@@ -162,7 +161,7 @@ export class CompanyController {
   @UseGuards(AuthGuard('access_token'))
   async getDashboard(
     @Request() req: ERequest,
-  ): Promise<comapnyResponceInterface<DashboardResponseDto>> {
+  ): Promise<ApiResponse<DashboardResponseDto>> {
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._companyService.getDashboardData(companyId);
   }

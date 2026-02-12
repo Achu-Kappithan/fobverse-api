@@ -1,20 +1,22 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IJobService } from './interfaces/jobs.service.interface';
-import { ResponseJobsDto } from './dtos/responce.job.dto';
+import { ResponseJobsDto } from './dtos/response.job.dto';
 import {
   IJobsRepository,
   JOBS_REPOSITORY,
 } from './interfaces/jobs.repository.interface';
 import { FilterQuery, Types } from 'mongoose';
-import { ApiResponce } from '../shared/interface/api.responce';
+import {
+  ApiResponse,
+  PaginatedResponse,
+} from '../shared/responses/api.response';
 import { MESSAGES } from '../shared/constants/constants.messages';
-import { PaginatedResponse } from '../admin/interfaces/responce.interface';
 import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
 import { Jobs } from './schema/jobs.schema';
 import { populatedjobResDto } from './dtos/populated.jobs.dto';
 import { MappingUtil } from '../shared/utils/mapping.util';
 import { PaginationUtil } from '../shared/utils/pagination.util';
-import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+import { CompanyProfileResponseDto } from '../company/dtos/response.allcompany';
 
 @Injectable()
 export class JobsService implements IJobService {
@@ -29,7 +31,7 @@ export class JobsService implements IJobService {
   async createJobs(
     id: string,
     dto: JobsDto,
-  ): Promise<ApiResponce<ResponseJobsDto>> {
+  ): Promise<ApiResponse<ResponseJobsDto>> {
     this.logger.log(
       `[JobService] data get for registration id: ${id} data: ${JSON.stringify(dto)}`,
     );
@@ -111,7 +113,7 @@ export class JobsService implements IJobService {
 
   //show job Details
 
-  async getJobDetails(id: string): Promise<ApiResponce<ResponseJobsDto>> {
+  async getJobDetails(id: string): Promise<ApiResponse<ResponseJobsDto>> {
     const data = await this._jobRepository.findById(id);
     this.logger.log(
       `[jobService] find jobDetails id: ${id} data: ${JSON.stringify(data)}`,
@@ -122,7 +124,7 @@ export class JobsService implements IJobService {
     };
   }
 
-  async populatedJobView(id: string): Promise<ApiResponce<populatedjobResDto>> {
+  async populatedJobView(id: string): Promise<ApiResponse<populatedjobResDto>> {
     const data = await this._jobRepository.publicJobView(id);
 
     const mappedJob = MappingUtil.map(ResponseJobsDto, data);
@@ -144,7 +146,7 @@ export class JobsService implements IJobService {
   async updateJobDetails(
     id: string,
     dto: JobsDto,
-  ): Promise<ApiResponce<ResponseJobsDto>> {
+  ): Promise<ApiResponse<ResponseJobsDto>> {
     const data = await this._jobRepository.update({ _id: id }, { $set: dto });
 
     return {

@@ -16,17 +16,17 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 import { Request as ERequest } from 'express';
-import { CandidateResponceInterface } from './interfaces/responce.interface';
-import { CandidateProfileResponseDto } from './dtos/candidate-responce.dto';
-import { CompanyProfileResponseDto } from '../company/dtos/responce.allcompany';
+
+import { CandidateProfileResponseDto } from './dtos/candidate-response.dto';
+import { CompanyProfileResponseDto } from '../company/dtos/response.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { PaginatedResponse } from '../shared/responses/api.response';
 import { CandidateApplicationResponseDto } from '../applications/dtos/candidate-application.response.dto';
 import { CandidateApplicationsQueryDto } from '../applications/dtos/candidate-applications-query.dto';
 import { AllStagesResponseDto } from '../interview/dtos/all-stages-response.dto';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
-import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
-import { generalResponce } from '../auth/interfaces/api-response.interface';
+import { ApiResponse } from '../shared/responses/api.response';
+import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
 
 @Controller('candidate')
 export class CandidateController {
@@ -39,7 +39,7 @@ export class CandidateController {
   @UseGuards(AuthGuard('access_token'))
   async getProfile(
     @Request() req: ERequest,
-  ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>> {
+  ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     const user = req.user as { id: string };
     return this._candiateService.getProfile(user.id);
   }
@@ -49,7 +49,7 @@ export class CandidateController {
   async updateProfile(
     @Body() dto: UpdateCandidateProfileDto,
     @Request() req: ERequest,
-  ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>> {
+  ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     const user = req.user as { id: string };
     return this._candiateService.updateProfile(dto, user.id);
   }
@@ -58,7 +58,7 @@ export class CandidateController {
   @UseGuards(AuthGuard('access_token'))
   async publicView(
     @Query('id') id: string,
-  ): Promise<CandidateResponceInterface<CandidateProfileResponseDto>> {
+  ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     return this._candiateService.publicView(id);
   }
 
@@ -82,13 +82,13 @@ export class CandidateController {
   @Get('application-details/:applicationId')
   async getApplicationStages(
     @Param('applicationId') applicationId: string,
-  ): Promise<CandidateResponceInterface<AllStagesResponseDto>> {
+  ): Promise<ApiResponse<AllStagesResponseDto>> {
     return await this._candiateService.getApplicationStages(applicationId);
   }
 
   @Get('home-data-public')
   async getHomeDataPublic(): Promise<
-    CandidateResponceInterface<{
+    ApiResponse<{
       jobs: ResponseJobsDto[];
       companies: CompanyProfileResponseDto[];
     }>
@@ -101,7 +101,7 @@ export class CandidateController {
   async UpdatePassword(
     @Body() dto: changePassDto,
     @Request() req: ERequest,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     const user = req.user as { _id: string };
     const id = user?._id?.toString();
     return await this._candiateService.updatePassword(id, dto);

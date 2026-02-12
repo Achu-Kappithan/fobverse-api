@@ -56,3 +56,8 @@ export interface CandidateApplicationAggregation {
     [key: string]: unknown;
   };
 }
+
+export interface AggregateResult {
+  metadata: { total: number }[];
+  data: populatedapplicationList[];
+}
