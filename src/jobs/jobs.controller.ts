@@ -10,28 +10,28 @@ import {
 } from '@nestjs/common';
 import { IJobService, JOBS_SERVICE } from './interfaces/jobs.service.interface';
 import { AuthGuard } from '@nestjs/passport';
-import { ResponseJobsDto } from './dtos/responce.job.dto';
-import { ApiResponce, ERequest } from '../shared/interface/api.responce';
-import { PaginatedResponse } from '../admin/interfaces/responce.interface';
+import { ResponseJobsDto } from './dtos/response.job.dto';
+import {
+  ApiResponse,
+  PaginatedResponse,
+} from '../shared/responses/api.response';
+import { ERequest } from '../shared/interfaces/auth.interface';
 import { JobsDto, jobsPagesAndFilterDto } from './dtos/createjobs.dto';
-
 @Controller('jobs')
 export class JobsController {
   constructor(
     @Inject(JOBS_SERVICE)
     private readonly _jobservices: IJobService,
   ) {}
-
   @Post('createjob')
   @UseGuards(AuthGuard('access_token'))
   async createJobs(
     @Body() dto: JobsDto,
     @Request() req: ERequest,
-  ): Promise<ApiResponce<ResponseJobsDto>> {
+  ): Promise<ApiResponse<ResponseJobsDto>> {
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._jobservices.createJobs(companyId.toString(), dto);
   }
-
   @Get('getalljobs')
   async getAllJobs(
     @Query() parms: jobsPagesAndFilterDto,
@@ -40,27 +40,23 @@ export class JobsController {
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._jobservices.getAllJobs(companyId.toString(), parms);
   }
-
   @Get('jobdetails')
   @UseGuards(AuthGuard('access_token'))
   async getjobDetails(@Query('id') id: string) {
     return this._jobservices.getJobDetails(id);
   }
-
   @Post('updatejob')
   @UseGuards(AuthGuard('access_token'))
   async updateJobDetails(
     @Query('id') id: string,
     @Body() dto: JobsDto,
-  ): Promise<ApiResponce<ResponseJobsDto>> {
+  ): Promise<ApiResponse<ResponseJobsDto>> {
     return this._jobservices.updateJobDetails(id.toString(), dto);
   }
-
   @Get('publicview')
   async jobPublicView(@Query('id') id: string) {
     return this._jobservices.populatedJobView(id);
   }
-
   @Get('getalljobs-public')
   async getAllJobsPublic(
     @Query() parms: jobsPagesAndFilterDto,

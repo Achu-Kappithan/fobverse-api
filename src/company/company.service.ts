@@ -14,9 +14,9 @@ import {
 import { CreateProfileDto } from './dtos/create.profile.dto';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from './dtos/responce.allcompany';
-import { comapnyResponceInterface } from './interface/responce.interface';
+  UserResponseDto,
+} from './dtos/response.allcompany';
+import { ApiResponse } from '../shared/responses/api.response';
 import { MappingUtil } from '../shared/utils/mapping.util';
 import { PaginationUtil } from '../shared/utils/pagination.util';
 import {
@@ -33,14 +33,9 @@ import {
 } from '../auth/interfaces/IAuthCandiateService';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
-import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
-import { ResponseJobsDto } from '../jobs/dtos/responce.job.dto';
-import {
-  PaginatedResponse,
-  PlainResponse,
-} from '../admin/interfaces/responce.interface';
-
+import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
+import { PaginatedResponse } from '../shared/responses/api.response';
 import { CompanyProfileDocument } from './schema/company.profile.schema';
 import {
   JOBS_REPOSITORY,
@@ -59,9 +54,8 @@ import {
   DashboardStatsDto,
   JobStatDto,
 } from './dtos/dashboard.dto';
-import { ApplicationResponceDto } from '../applications/dtos/application.responce';
-import { ScheduleResponseDto } from '../interview/dtos/interview.responce.dto';
-
+import { ApplicationResponseDto } from '../applications/dtos/application.response';
+import { ScheduleResponseDto } from '../interview/dtos/interview.response.dto';
 @Injectable()
 export class CompanyService implements IComapnyService {
   logger = new Logger(CompanyService.name);
@@ -77,8 +71,6 @@ export class CompanyService implements IComapnyService {
     @Inject(INTERVIEW_REPOSITORY)
     private readonly _interviewRepository: IInterviewRepository,
   ) {}
-
-  //for updating bolock /unblock Status
   async createProfile(
     dto: CreateProfileDto,
   ): Promise<CompanyProfileResponseDto> {
@@ -95,121 +87,85 @@ export class CompanyService implements IComapnyService {
     );
     if (!newProfile) {
       throw new InternalServerErrorException(
-        MESSAGES.AUTH.PROFILE_CREATION_FAIILD,
+        MESSAGES.AUTH.PROFILE_CREATION_FAILED,
       );
     }
-
     return MappingUtil.map(CompanyProfileResponseDto, newProfile);
   }
-
-  // for fetching company profile
-
   async getProfile(
     id: string,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const profiledata = await this._companyRepository.findById(id);
     return {
       message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
       data: MappingUtil.map(CompanyProfileResponseDto, profiledata),
     };
   }
-
-  // get Public Profile
-
-  async getPublicProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<populateProfileDto>> {
+  async getPublicProfile(id: string): Promise<ApiResponse<populateProfileDto>> {
     const profiledata = await this._companyRepository.publicPorfile(id);
-
     if (!profiledata) {
       throw new NotFoundException('Company not found');
     }
-
     const mappedProfile = MappingUtil.map(
       CompanyProfileResponseDto,
       profiledata,
     );
-
     const mappedJobs = MappingUtil.map(ResponseJobsDto, profiledata.jobs);
-
     const mappedData: populateProfileDto = {
       company: mappedProfile,
       jobs: mappedJobs,
     };
-
     return {
       message: MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
       data: mappedData,
     };
   }
-  // updating profile  wiht new data
-
   async updateProfile(
     id: string,
     dto: UpdateProfileDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const updatedata = await this._companyRepository.update(
       { _id: id },
       { $set: dto },
     );
-
     return {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
       data: MappingUtil.map(CompanyProfileResponseDto, updatedata),
     };
   }
-
-  //add internal users to the company
-
   async createUser(
     id: string,
     dto: InternalUserDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const data = await this._AuthService.createInternalUser(id, dto);
     return {
       message: MESSAGES.COMPANY.USER_REG_SUCCESS,
       data: data,
     };
   }
-
-  // get all Internal users
-
   async getInternalUsers(
     companyId: string,
     userId: string,
     pagination: PaginationDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     this.logger.log(
       `[ComapanyService] id get in Comapny service :${companyId}`,
     );
     return await this._AuthService.getAllUsers(companyId, userId, pagination);
   }
-
-  // get Hr Users
-
-  async getHrUsers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  async getHrUsers(companyId: string): Promise<ApiResponse<UserResponseDto[]>> {
     this.logger.log(`[companyService] fetch hr user of company ${companyId}`);
     return await this._AuthService.getHrUsers(companyId);
   }
-
-  // get Interviewers
-
   async getInterviewers(
     companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>> {
+  ): Promise<ApiResponse<UserResponseDto[]>> {
     this.logger.log(
       `[companyService] fetch Interviewers of company ${companyId}`,
     );
     return await this._AuthService.getInterviewers(companyId);
   }
-
-  //getUserProfile
-
-  async getUserProfile(
-    id: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  async getUserProfile(id: string): Promise<ApiResponse<UserResponseDto>> {
     this.logger.log(`[ComapayService] try to getUser Profile ${id}`);
     const userProfile = await this._AuthService.getUserProfile(id);
     return {
@@ -217,53 +173,40 @@ export class CompanyService implements IComapnyService {
       data: userProfile,
     };
   }
-
-  //updateUserProfile
-
   async updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
-  ): Promise<comapnyResponceInterface<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const data = await this._AuthService.updateUserProfile(id, dto);
     return {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
       data: data,
     };
   }
-
-  // update Password
-
   async updatePassword(
     id: string,
     dto: changePassDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return await this._AuthService.changePassword(id, dto);
   }
-
-  //addTeamMembers
-
   async addTeamMembers(
     id: string,
     dto: TeamMemberDto,
-  ): Promise<comapnyResponceInterface<CompanyProfileResponseDto>> {
+  ): Promise<ApiResponse<CompanyProfileResponseDto>> {
     const data = await this._companyRepository.addTeamMembers(id, dto);
-
     return {
       message: MESSAGES.COMPANY.PROFILE_UPDATE_SUCCESS,
       data: MappingUtil.map(CompanyProfileResponseDto, data),
     };
   }
-
-  async removeUser(id: string): Promise<PlainResponse> {
+  async removeUser(id: string): Promise<ApiResponse<unknown>> {
     return await this._AuthService.removeUser(id);
   }
-
   async getAllCompanies(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     const { page = 1, limit = 6, search } = pagination;
     const skip = (page - 1) * limit;
-
     const filter: FilterQuery<CompanyProfileDocument> = {};
     if (search) {
       filter.$or = [
@@ -271,15 +214,12 @@ export class CompanyService implements IComapnyService {
         { industry: { $regex: search, $options: 'i' } },
       ];
     }
-
     const { data: companies, total } =
       await this._companyRepository.findManyWithPagination(filter, {
         limit,
         skip,
       });
-
     const mappedData = MappingUtil.map(CompanyProfileResponseDto, companies);
-
     return PaginationUtil.toPaginatedResponse(
       mappedData,
       total,
@@ -288,12 +228,10 @@ export class CompanyService implements IComapnyService {
       MESSAGES.COMPANY.PROFILE_FETCH_SUCCESS,
     );
   }
-
   async getDashboardData(
     companyId: string,
-  ): Promise<comapnyResponceInterface<DashboardResponseDto>> {
+  ): Promise<ApiResponse<DashboardResponseDto>> {
     const comId = new Types.ObjectId(companyId);
-
     const [
       statsRepo,
       totalJobs,
@@ -310,33 +248,27 @@ export class CompanyService implements IComapnyService {
       this._applicationRepository.getJobApplicationStats(comId),
       this._interviewRepository.getUpcomingInterviewsForCompany(companyId, 5),
     ]);
-
     const stats: DashboardStatsDto = {
       ...statsRepo,
       totalJobs: totalJobs,
       activeJobs: totalJobs,
       interviewsScheduled: upcomingInterviewsRaw.length,
     };
-
     const recentApplications = MappingUtil.map(
-      ApplicationResponceDto,
+      ApplicationResponseDto,
       recentAppsRaw,
     );
-
     const jobStats = MappingUtil.map(JobStatDto, jobStatsData);
-
     const upcomingInterviews = MappingUtil.map(
       ScheduleResponseDto,
       upcomingInterviewsRaw,
     );
-
     const dashboardData: DashboardResponseDto = {
       stats,
       recentApplications: recentApplications,
       upcomingInterviews: upcomingInterviews,
       jobStats: jobStats,
     };
-
     return {
       message: 'Dashboard data fetched successfully',
       data: dashboardData,

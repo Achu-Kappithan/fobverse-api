@@ -1,7 +1,6 @@
 import { Expose } from 'class-transformer';
 import { notificationType } from '../schema/notification.schema';
-
-export class notificationResponceDto {
+export class notificationResponseDto {
   @Expose()
   _id: string;
   @Expose()

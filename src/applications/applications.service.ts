@@ -13,13 +13,13 @@ import {
   IApplicationRepository,
 } from './interfaces/application.repository.interface';
 import {
+  ApiResponse,
   PaginatedResponse,
-  PlainResponse,
-} from '../admin/interfaces/responce.interface';
+} from '../shared/responses/api.response';
 import { CreateApplicationDto } from './dtos/createapplication.dto';
 import { FilterQuery, Types } from 'mongoose';
 import { MESSAGES } from '../shared/constants/constants.messages';
-import { ApplicationResponceDto } from './dtos/application.responce';
+import { ApplicationResponseDto } from './dtos/application.response';
 import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { ApplicationDocument, Stages } from './schema/applications.schema';
 import { MappingUtil } from '../shared/utils/mapping.util';
@@ -42,13 +42,11 @@ import {
   NOTIFICATION_SERVICE,
 } from '../notification/interfaces/notification.service.interface';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
-import { applicationResponce } from './interfaces/responce.interface';
 import {
   populatedapplicationList,
   CandidateApplicationAggregation,
 } from './types/repository.types';
 import { CandidateApplicationResponseDto } from './dtos/candidate-application.response.dto';
-
 @Injectable()
 export class ApplicationsService implements IApplicationService {
   private readonly _logger = new Logger(ApplicationsService.name);
@@ -65,12 +63,11 @@ export class ApplicationsService implements IApplicationService {
     private readonly _notificationService: InotificationService,
     private readonly _emailService: EmailService,
   ) {}
-
   async createApplication(
     dto: CreateApplicationDto,
     id: string,
     companyId: string,
-  ): Promise<PlainResponse> {
+  ): Promise<ApiResponse<unknown>> {
     const jobid = new Types.ObjectId(dto.jobId);
     const candidateObjId = new Types.ObjectId(id);
     const companyObjId = new Types.ObjectId(companyId);
@@ -80,7 +77,6 @@ export class ApplicationsService implements IApplicationService {
       jobId: jobid,
       companyId: companyObjId,
     };
-
     if (!dto.resumeUrl) {
       const data = await this._candidateRepository.findOne({
         UserId: candidateObjId,
@@ -90,26 +86,20 @@ export class ApplicationsService implements IApplicationService {
       }
       updatedDto.resumeUrl = data.resumeUrl;
     }
-
     const parsedResumeText = await this._atsService.parsePdfFormUrl(
       updatedDto.resumeUrl!,
     );
-
     const jobDetails = await this._jobservice.populatedJobView(
       dto.jobId.toString(),
     );
-
     this._logger.log(
-      `[applicationService]job discription feth${JSON.stringify(jobDetails)}`,
+      `[applicationService]job description fetch${JSON.stringify(jobDetails)}`,
     );
-
     const atsScore = this._atsService.calculateScore(
       jobDetails.data?.jobDetails,
       parsedResumeText,
     );
-
     updatedDto.atsScore = Math.round(atsScore);
-
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
     );
@@ -117,80 +107,63 @@ export class ApplicationsService implements IApplicationService {
       candidateId: candidateObjId,
       jobId: jobid,
     });
-
     this._logger.log(
       `[ApplicationService] jobDetails of appliyed job ${JSON.stringify(previousapplication)}`,
     );
-
     if (previousapplication) {
       const jobid: string = previousapplication.jobId.toString();
       if (jobid === dto.jobId) {
-        throw new ConflictException(MESSAGES.APPLICATIONS.ALREDY_APPLYED);
+        throw new ConflictException(MESSAGES.APPLICATIONS.ALREADY_APPLIED);
       }
     }
-
     if (atsScore >= 60) {
       updatedDto.Stages = Stages.Shortlisted;
     } else {
       updatedDto.Rejected = true;
     }
-
     const data = await this._applicationRepository.create(updatedDto);
-
     await this._emailService.sendApplicationSubmitedEmail(
       updatedDto.email,
       jobDetails.data!,
     );
-
     await this._notificationService.createApplicationSubmittedNotification(
       id,
       jobDetails.data!.jobDetails.title,
     );
-
     if (!data) {
       throw new InternalServerErrorException(
-        MESSAGES.APPLICATIONS.SUBMITION_FAILD,
+        MESSAGES.APPLICATIONS.SUBMISSION_FAILED,
       );
     }
-
     return {
       message: MESSAGES.APPLICATIONS.SUBMIT_APPLICATION,
     };
   }
-
   async getAllApplications(
     companyId: string,
     dto: PaginatedApplicationDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const { page = 1, limit = 4, search, filtervalue, jobId } = dto;
     this._logger.log(
       `[ApplicationService] request getall application with dto :${JSON.stringify(dto)} and comapayId is : ${companyId}`,
     );
-
     const filter: FilterQuery<ApplicationDocument> = {};
-
     if (search) {
       filter.name = { $regex: `^${search}`, $options: 'i' };
     }
-
     if (filtervalue) {
       filter.Stages = { $regex: `^${filtervalue}`, $options: 'i' };
     }
-
     filter.companyId = new Types.ObjectId(companyId);
     filter.jobId = new Types.ObjectId(jobId);
-
     const skip = (page - 1) * limit;
     const { data, total } =
       await this._applicationRepository.populatedApplicationList(filter, {
         skip,
         limit,
       });
-
     const plaindata = data.map((job) => this._mapToPlainObject(job));
-
-    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
-
+    const mappedData = MappingUtil.map(ApplicationResponseDto, plaindata);
     return PaginationUtil.toPaginatedResponse(
       mappedData,
       total,
@@ -199,39 +172,30 @@ export class ApplicationsService implements IApplicationService {
       MESSAGES.COMPANY.USERS_GET_SUCCESS,
     );
   }
-
   async getCompanyApplicants(
     companyId: string,
     dto: PaginationDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const { page = 1, limit = 5, search, filtervalue } = dto;
     this._logger.log(
       `[ApplicationService] request get all company applicants with dto :${JSON.stringify(dto)} and companyId is : ${companyId}`,
     );
-
     const filter: FilterQuery<ApplicationDocument> = {};
-
     if (search) {
       filter.name = { $regex: `^${search}`, $options: 'i' };
     }
-
     if (filtervalue) {
       filter.Stages = { $regex: `^${filtervalue}`, $options: 'i' };
     }
-
     filter.companyId = new Types.ObjectId(companyId);
-
     const skip = (page - 1) * limit;
     const { data, total } =
       await this._applicationRepository.populatedApplicationList(filter, {
         skip,
         limit,
       });
-
     const plaindata = data.map((job) => this._mapToPlainObject(job));
-
-    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
-
+    const mappedData = MappingUtil.map(ApplicationResponseDto, plaindata);
     return PaginationUtil.toPaginatedResponse(
       mappedData,
       total,
@@ -240,40 +204,34 @@ export class ApplicationsService implements IApplicationService {
       MESSAGES.COMPANY.USERS_GET_SUCCESS,
     );
   }
-
   async updateAtsScore(
     dto: updateAtsScoreDto,
     companyId: string,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>> {
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>> {
     const page = 1;
     const limit = 4;
     this._logger.log(
       `[applicationService] updateing new ats score to ${dto.newscore}`,
     );
     const ids = [companyId, dto.jobId];
-
     const response = await this._applicationRepository.updateAtsScore(
       ids,
       dto.newscore,
     );
-
     if (!response.acknowledged) {
       throw new Error('Failed to update ATS scores for the specified job.');
     }
-
     const filter: FilterQuery<ApplicationDocument> = {
       companyId: new Types.ObjectId(companyId),
       jobId: new Types.ObjectId(dto.jobId),
       Stages: { $regex: `^${Stages.Shortlisted}`, $options: 'i' },
     };
-
     const skip = (page - 1) * limit;
     const { data, total } =
       await this._applicationRepository.populatedApplicationList(filter, {
         skip,
         limit,
       });
-
     if (!data || data.length === 0) {
       return {
         data: [],
@@ -284,11 +242,8 @@ export class ApplicationsService implements IApplicationService {
         itemsPerPage: limit,
       };
     }
-
     const plaindata = data.map((job) => this._mapToPlainObject(job));
-
-    const mappedData = MappingUtil.map(ApplicationResponceDto, plaindata);
-
+    const mappedData = MappingUtil.map(ApplicationResponseDto, plaindata);
     return PaginationUtil.toPaginatedResponse(
       mappedData,
       total,
@@ -297,18 +252,16 @@ export class ApplicationsService implements IApplicationService {
       MESSAGES.COMPANY.UPDATE_ATS_SCORE,
     );
   }
-
   async getjobDetails(
     appId: string,
     canId: string,
-  ): Promise<applicationResponce<ApplicationDetailsResponseDto>> {
+  ): Promise<ApiResponse<ApplicationDetailsResponseDto>> {
     console.log(appId, canId);
     const data = await this._applicationRepository.getApplicationDetails(appId);
     if (!data) {
       throw new NotFoundException('Application not found');
     }
     const plainData = this._mapToDetailedPlainObject(data);
-
     const mappedData = MappingUtil.map(
       ApplicationDetailsResponseDto,
       plainData,
@@ -316,23 +269,19 @@ export class ApplicationsService implements IApplicationService {
     this._logger.log(
       `[applicationService] applicationDetails fetched ${JSON.stringify(mappedData)}`,
     );
-
     return {
       message: MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
       data: mappedData,
     };
   }
-
   async updateStatus(
     appId: string,
     nextStage?: string,
     interviewResult?: string,
   ): Promise<ApplicationDocument | null> {
     const applicationId = new Types.ObjectId(appId);
-
     const application = await this._applicationRepository.findById(appId);
     if (!application) return null;
-
     const jobDetails = await this._jobservice.populatedJobView(
       application.jobId.toString(),
     );
@@ -342,13 +291,11 @@ export class ApplicationsService implements IApplicationService {
     };
     const companyName = jobData?.profile?.[0]?.name || 'the company';
     const jobTitle = jobData?.jobDetails?.title || 'the position';
-
     if (interviewResult === 'Pass' || nextStage === Stages.Shortlisted) {
       const updated = await this._applicationRepository.update(
         { _id: applicationId },
         { Stages: (nextStage as Stages) || Stages.Shortlisted },
       );
-
       if (updated) {
         await this._notificationService.createApplicationShortlistedNotification(
           application.candidateId.toString(),
@@ -366,7 +313,6 @@ export class ApplicationsService implements IApplicationService {
         { _id: applicationId },
         { Rejected: true },
       );
-
       if (updated) {
         await this._notificationService.createApplicationRejectedNotification(
           application.candidateId.toString(),
@@ -381,30 +327,24 @@ export class ApplicationsService implements IApplicationService {
       return updated;
     }
   }
-
   async getCandidateApplications(
     candidateId: string,
     dto: PaginationDto,
   ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>> {
     const { page = 1, limit = 10, search, filtervalue } = dto;
-
     this._logger.log(
       `[ApplicationService] Fetching applications for candidate: ${candidateId} with filters: ${JSON.stringify(dto)}`,
     );
-
     const skip = (page - 1) * limit;
-
     const { data, total } =
       await this._applicationRepository.getCandidateApplications(
         candidateId,
         { search, filtervalue },
         { skip, limit, sort: { createdAt: -1 } },
       );
-
     this._logger.log(
       `[ApplicationService] Found ${total} applications for candidate`,
     );
-
     const plainData = data.map((app: CandidateApplicationAggregation) => ({
       _id: app._id.toString(),
       jobId: app.jobId.toString(),
@@ -423,12 +363,10 @@ export class ApplicationsService implements IApplicationService {
       jobLocation: app.jobDetails?.location ?? [],
       jobType: app.jobDetails?.jobType ?? 'N/A',
     }));
-
     const mappedData = MappingUtil.map(
       CandidateApplicationResponseDto,
       plainData,
     );
-
     return PaginationUtil.toPaginatedResponse(
       mappedData,
       total,
@@ -437,7 +375,6 @@ export class ApplicationsService implements IApplicationService {
       MESSAGES.APPLICATIONS.FETCH_APPLICATION_DETAILS,
     );
   }
-
   private _mapToPlainObject(job: populatedapplicationList) {
     return {
       ...job,
@@ -453,7 +390,6 @@ export class ApplicationsService implements IApplicationService {
       jobDetails: job.jobDetails,
     };
   }
-
   private _mapToDetailedPlainObject(job: populatedapplicationList) {
     return {
       ...job,

@@ -15,12 +15,11 @@ import {
   UpdateResult,
 } from 'mongoose';
 import {
+  AggregateResult,
   CandidateApplicationAggregation,
   populatedapplicationList,
 } from '../types/repository.types';
-import { AggregateResult } from '../interfaces/responce.interface';
 import { JobStatDto } from '../../company/dtos/dashboard.dto';
-
 @Injectable()
 export class ApplicationRepository
   extends BaseRepository<ApplicationDocument>
@@ -32,7 +31,6 @@ export class ApplicationRepository
   ) {
     super(applicationModal);
   }
-
   async populatedApplicationList(
     filter: FilterQuery<ApplicationDocument> = {},
     options?: {
@@ -87,9 +85,7 @@ export class ApplicationRepository
         },
       },
     ];
-
     pipeline.push({ $sort: options?.sort || { createdAt: -1 } });
-
     pipeline.push({
       $facet: {
         metadata: [{ $count: 'total' }],
@@ -99,19 +95,15 @@ export class ApplicationRepository
         ],
       },
     });
-
     const [result] = await this.applicationModal
       .aggregate<AggregateResult>(pipeline)
       .exec();
-
     const data = result?.data || [];
     const total = result?.metadata?.[0]?.total || 0;
     return { data, total };
   }
-
   async updateAtsScore(ids: string[], minScore: number): Promise<UpdateResult> {
     const objectIds = ids.map((id) => new Types.ObjectId(id));
-
     return this.applicationModal.updateMany(
       { companyId: objectIds[0], jobId: objectIds[1] },
       [
@@ -133,7 +125,6 @@ export class ApplicationRepository
       ],
     );
   }
-
   async getApplicationDetails(
     appId: string,
   ): Promise<populatedapplicationList> {
@@ -184,10 +175,8 @@ export class ApplicationRepository
         },
       },
     ]);
-
     return applicaton[0] as populatedapplicationList;
   }
-
   async getCandidateApplications(
     candidateId: string,
     filter: {
@@ -202,7 +191,6 @@ export class ApplicationRepository
   ): Promise<{ data: CandidateApplicationAggregation[]; total: number }> {
     const pipeline: PipelineStage[] = [
       { $match: { candidateId: new Types.ObjectId(candidateId) } },
-
       {
         $lookup: {
           from: 'jobs',
@@ -217,7 +205,6 @@ export class ApplicationRepository
           preserveNullAndEmptyArrays: true,
         },
       },
-
       {
         $lookup: {
           from: 'companyprofiles',
@@ -233,13 +220,11 @@ export class ApplicationRepository
         },
       },
     ];
-
     if (filter.filtervalue) {
       pipeline.push({
         $match: { Stages: { $regex: `^${filter.filtervalue}`, $options: 'i' } },
       });
     }
-
     if (filter.search) {
       pipeline.push({
         $match: {
@@ -247,9 +232,7 @@ export class ApplicationRepository
         },
       });
     }
-
     pipeline.push({ $sort: options.sort || { createdAt: -1 } });
-
     pipeline.push({
       $facet: {
         metadata: [{ $count: 'total' }],
@@ -259,17 +242,14 @@ export class ApplicationRepository
         ],
       },
     });
-
     const [result] = await this.applicationModal
       .aggregate<AggregateResult>(pipeline)
       .exec();
-
     const data = (result?.data ||
       []) as unknown as CandidateApplicationAggregation[];
     const total = result?.metadata?.[0]?.total || 0;
     return { data, total };
   }
-
   async getDashboardStats(companyId: Types.ObjectId): Promise<{
     totalApplications: number;
     hiredCandidates: number;
@@ -280,7 +260,6 @@ export class ApplicationRepository
       hired: { count: number }[];
       notHiredOrRejected: { count: number }[];
     }
-
     const stats =
       await this.applicationModal.aggregate<DashboardStatsAggregation>([
         { $match: { companyId } },
@@ -300,7 +279,6 @@ export class ApplicationRepository
           },
         },
       ]);
-
     const result = stats[0];
     return {
       totalApplications: result.total[0]?.count || 0,
@@ -308,7 +286,6 @@ export class ApplicationRepository
       pendingApplications: result.notHiredOrRejected[0]?.count || 0,
     };
   }
-
   async getJobApplicationStats(
     companyId: Types.ObjectId,
   ): Promise<JobStatDto[]> {

@@ -8,7 +8,7 @@ import { IAdminService } from './interfaces/IAdminService';
 import {
   PaginatedResponse,
   PlainResponse,
-} from './interfaces/responce.interface';
+} from '../shared/responses/api.response';
 import { plainToInstance } from 'class-transformer';
 import { FilterQuery, Types } from 'mongoose';
 import {
@@ -30,25 +30,23 @@ import {
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import {
   CompanyProfileResponseDto,
-  UserResponceDto,
-} from '../company/dtos/responce.allcompany';
+  UserResponseDto,
+} from '../company/dtos/response.allcompany';
 import { CompanyProfile } from '../company/schema/company.profile.schema';
-import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-responce.dto';
+import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-response.dto';
 import { CandidateProfile } from '../candiate/schema/candidate.profile.schema';
 import { Jobs } from '../jobs/schema/jobs.schema';
-import { AllJobsAdminResponce } from '../jobs/dtos/responce.job.dto';
+import { AllJobsAdminResponse } from '../jobs/dtos/response.job.dto';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import {
   AUTH_SERVICE,
   IAuthService,
 } from '../auth/interfaces/IAuthCandiateService';
-import { ApiResponce } from '../shared/interface/api.responce';
+import { ApiResponse } from '../shared/responses/api.response';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
-import { generalResponce } from '../auth/interfaces/api-response.interface';
 import { UpdateAdminProfileDto } from './dtos/admin-profile.dto';
 import { AdminDashboardDto } from './dtos/admin-dashboard.dto';
 import { jobType } from '../jobs/schema/jobs.schema';
-
 @Injectable()
 export class AdminService implements IAdminService {
   logger = new Logger(AdminService.name);
@@ -64,7 +62,6 @@ export class AdminService implements IAdminService {
     @Inject(AUTH_SERVICE)
     readonly _authService: IAuthService,
   ) {}
-
   async getAllCompnys(
     dto: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
@@ -77,13 +74,11 @@ export class AdminService implements IAdminService {
     this.logger.debug(
       `[AdminService] Fetching companies with: Page ${page}, Limit ${limit}, Search "${search || 'N/A'}"`,
     );
-
     const { data, total } =
       await this._companyRepository.findManyWithPagination(filter, {
         limit,
         skip,
       });
-
     this.logger.debug(
       `[AdminService] Found ${data.length} companies on page, Total ${total}`,
     );
@@ -99,7 +94,6 @@ export class AdminService implements IAdminService {
       }),
       { excludeExtraneousValues: true },
     );
-
     const totalPages = Math.ceil(total / limit);
     return {
       message: MESSAGES.ADMIN.DATA_RETRIEVED,
@@ -110,29 +104,23 @@ export class AdminService implements IAdminService {
       itemsPerPage: limit,
     };
   }
-
   async getAllCandidates(
     dto: PaginationDto,
   ): Promise<PaginatedResponse<CandidateProfileResponseDto[]>> {
     const { page = 1, limit = 6, search } = dto;
-
     const filter: FilterQuery<CandidateProfile> = {};
-
     if (search) {
       filter.name = { $regex: search, $options: 'i' };
     }
-
     const skip = (page - 1) * limit;
     this.logger.debug(
       `[AdminService] Fetching companies with: Page ${page}, Limit ${limit}, Search "${search || 'N/A'}"`,
     );
-
     const { data, total } =
       await this._candidateRepository.findManyWithPagination(filter, {
         limit,
         skip,
       });
-
     this.logger.debug(
       `[adminService] fetch all candidate data ${JSON.stringify(data)}`,
     );
@@ -161,7 +149,6 @@ export class AdminService implements IAdminService {
       itemsPerPage: limit,
     };
   }
-
   async updateCompanyStatus(id: string): Promise<PlainResponse> {
     const data = await this._companyRepository.updateStatus(id);
     this.logger.debug(
@@ -171,7 +158,6 @@ export class AdminService implements IAdminService {
       message: MESSAGES.ADMIN.STATUS_UPDATED,
     };
   }
-
   async updateCandidateStatus(id: string): Promise<PlainResponse> {
     const data = await this._candidateRepository.updateStatus(id);
     this.logger.debug(
@@ -181,23 +167,18 @@ export class AdminService implements IAdminService {
       message: MESSAGES.ADMIN.STATUS_UPDATED,
     };
   }
-
   async getAllJobs(
     dto: PaginationDto,
-  ): Promise<PaginatedResponse<AllJobsAdminResponce[]>> {
+  ): Promise<PaginatedResponse<AllJobsAdminResponse[]>> {
     const { search, page = 1, limit = 6 } = dto;
-
     const filter: FilterQuery<Jobs> = {};
-
     if (search) {
       filter.title = { $regex: search, $options: 'i' };
     }
-
     const skip = (page - 1) * limit;
     this.logger.log(
       `[AdminService] findAllCompanys Using ${JSON.stringify(filter)} , ${page} , ${limit}`,
     );
-
     const { data, total } = await this._jobsRepository.findAllJobs(filter, {
       limit,
       skip,
@@ -205,7 +186,6 @@ export class AdminService implements IAdminService {
     this.logger.log(
       `[AdminService] All jobs Data  gets from the db ${JSON.stringify(data)}`,
     );
-
     const plainData = data.map((val) => {
       const company = val.companyId as { _id: Types.ObjectId; name: string };
       return {
@@ -214,11 +194,9 @@ export class AdminService implements IAdminService {
         companyId: company.name,
       };
     });
-
-    const mapdeData = plainToInstance(AllJobsAdminResponce, plainData, {
+    const mapdeData = plainToInstance(AllJobsAdminResponse, plainData, {
       excludeExtraneousValues: true,
     });
-
     const totalPages = Math.ceil(total / limit);
     return {
       message: MESSAGES.ADMIN.FETCH_ALL_JOBS,
@@ -229,7 +207,6 @@ export class AdminService implements IAdminService {
       itemsPerPage: limit,
     };
   }
-
   async updateJobStatus(id: string): Promise<PlainResponse> {
     const res = await this._jobsRepository.UpdatejobStatus(id);
     if (!res.acknowledged) {
@@ -239,8 +216,7 @@ export class AdminService implements IAdminService {
       message: MESSAGES.ADMIN.STATUS_UPDATED,
     };
   }
-
-  async getAdminProfile(id: string): Promise<ApiResponce<UserResponceDto>> {
+  async getAdminProfile(id: string): Promise<ApiResponse<UserResponseDto>> {
     this.logger.log(`[AdminService] try to getUser Profile ${id}`);
     const userProfile = await this._authService.getUserProfile(id);
     return {
@@ -248,26 +224,23 @@ export class AdminService implements IAdminService {
       data: userProfile,
     };
   }
-
   async updatePassword(
     id: string,
     dto: changePassDto,
-  ): Promise<generalResponce> {
+  ): Promise<ApiResponse<unknown>> {
     return await this._authService.changePassword(id, dto);
   }
-
   async upateUserProfile(
     id: string,
     dto: UpdateAdminProfileDto,
-  ): Promise<ApiResponce<UserResponceDto>> {
+  ): Promise<ApiResponse<UserResponseDto>> {
     const data = await this._authService.updateUserProfile(id, dto);
     return {
       message: MESSAGES.ADMIN.PROFILE_UPDATE_SUCCESS,
       data: data,
     };
   }
-
-  async getDashboardStats(): Promise<ApiResponce<AdminDashboardDto>> {
+  async getDashboardStats(): Promise<ApiResponse<AdminDashboardDto>> {
     const [
       totalCandidates,
       totalCompanies,
@@ -281,7 +254,6 @@ export class AdminService implements IAdminService {
       this._jobsRepository.count({}),
       this._jobsRepository.count({ activeStatus: true }),
     ]);
-
     const jobTypeStats = {
       fulltime: await this._jobsRepository.count({ jobType: jobType.FullTime }),
       parttime: await this._jobsRepository.count({
@@ -292,19 +264,16 @@ export class AdminService implements IAdminService {
       internship: 0,
       contract: 0,
     };
-
     const { data: recentJobsData } = await this._jobsRepository.findAllJobs(
       {},
       { limit: 4, skip: 0, sort: { createdAt: -1 } },
     );
-
     const recentJobs = await Promise.all(
       recentJobsData.map(async (job) => {
         const company = job.companyId as { name: string; logoUrl?: string };
         const applicantsCount = await this._applicationRepository.count({
           jobId: job._id,
         });
-
         return {
           _id: job._id.toString(),
           title: job.title,
@@ -316,7 +285,6 @@ export class AdminService implements IAdminService {
         };
       }),
     );
-
     const dashboardStats: AdminDashboardDto = {
       totalCandidates,
       totalCompanies,
@@ -326,7 +294,6 @@ export class AdminService implements IAdminService {
       jobTypeStats,
       recentJobs,
     };
-
     return {
       message: MESSAGES.ADMIN.DATA_RETRIEVED,
       data: dashboardStats,

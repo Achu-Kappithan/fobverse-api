@@ -8,7 +8,6 @@ import {
 import { IInterviewRepository } from '../interfaces/interview.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-
 @Injectable()
 export class InterviewRepository
   extends BaseRepository<InterviewDocument>
@@ -20,7 +19,6 @@ export class InterviewRepository
   ) {
     super(InterviewModel);
   }
-
   async getStageDetails(
     appId: string,
     stage: string,
@@ -31,28 +29,24 @@ export class InterviewRepository
       stage,
     });
   }
-
   async findAllByApplicationId(appId: string): Promise<InterviewDocument[]> {
     const applicationId = new Types.ObjectId(appId);
     return this.InterviewModel.find({
       applicationId,
     });
   }
-
   async updateFeedback(
     appId: string,
     stage: string,
     data: { overallFeedback: string; finalResult: string },
   ): Promise<InterviewDocument | null> {
     const applicationId = new Types.ObjectId(appId);
-
     return this.InterviewModel.findOneAndUpdate(
       { applicationId, stage },
       { $set: data },
       { new: true },
     );
   }
-
   async findSchedulesByInterviewer(
     interviewerId: string,
     status?: ReviewStatus,
@@ -61,11 +55,9 @@ export class InterviewRepository
     const query: Record<string, unknown> = {
       'evaluators.interviewerId': userId,
     };
-
     if (status) {
       query.status = status;
     }
-
     return this.InterviewModel.find(query)
       .populate({
         path: 'applicationId',
@@ -78,7 +70,6 @@ export class InterviewRepository
       .sort({ scheduledDate: 1, scheduledTime: 1 })
       .exec();
   }
-
   async getUpcomingInterviewsForCompany(
     companyId: string,
     limitCount: number,

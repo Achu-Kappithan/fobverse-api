@@ -1,27 +1,27 @@
-import { HttpStatus } from '@nestjs/common';
-
-export interface BaseApiResponse {
-  success: boolean;
-  statusCode: HttpStatus;
+export interface ApiResponse<T> {
+  success?: boolean;
+  statusCode?: number;
   message: string | string[];
-  path?: string;
-}
-
-export interface SuccessApiResponse<T> extends BaseApiResponse {
-  success: true;
   data?: T;
   meta?: PaginationMeta;
-  timestamp: string;
-  method: string;
-}
-
-export interface ErrorApiResponse extends BaseApiResponse {
-  success: false;
-  error: string;
+  timestamp?: string;
+  path?: string;
+  method?: string;
+  error?: string;
   details?: unknown;
 }
-
 export interface PaginationMeta {
+  totalItems: number;
+  currentPage: number;
+  itemsPerPage: number;
+  totalPages: number;
+}
+export interface PlainResponse {
+  message: string;
+}
+export interface PaginatedResponse<T> {
+  message: string;
+  data: T;
   totalItems: number;
   currentPage: number;
   itemsPerPage: number;

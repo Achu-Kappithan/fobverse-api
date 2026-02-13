@@ -8,7 +8,6 @@ import { NOTIFICATION_REPOSITORY } from './interfaces/notification.repository.in
 import { notificationRepository } from './repository/notification.repository';
 import { NotificationGateWay } from './notification.gateway';
 import { JwtService } from '@nestjs/jwt';
-
 @Module({
   imports: [
     MongooseModule.forFeature([

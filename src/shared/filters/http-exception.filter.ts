@@ -7,32 +7,26 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorApiResponse } from '../responses/api.response';
-
+import { ApiResponse } from '../responses/api.response';
 interface ErrorDetails {
   validationErrors?: string[];
   originalErrorMessage?: string;
   [key: string]: unknown;
 }
-
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly _logger = new Logger(HttpExceptionFilter.name);
-
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-
     let status: number;
     let frontendMessage: string;
     let errorName: string;
     const details: ErrorDetails = {};
-
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-
       if (typeof exceptionResponse === 'string') {
         frontendMessage = exceptionResponse;
         errorName = exception.name;
@@ -46,7 +40,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
           statusCode?: number;
           [key: string]: unknown;
         };
-
         if (Array.isArray(responseObj.message)) {
           frontendMessage = responseObj.message.join('; ');
           details.validationErrors = responseObj.message;
@@ -54,9 +47,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           frontendMessage =
             responseObj.message || 'An unexpected error occurred.';
         }
-
         errorName = responseObj.error || exception.name;
-
         const { ...restDetails } = responseObj;
         Object.assign(details, restDetails);
       } else {
@@ -71,7 +62,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         details.originalErrorMessage = exception.message;
       }
     }
-
     const logMessage = `
         [${request.method} ${request.url}]
         Status: ${status}
@@ -84,24 +74,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
         Timestamp: ${new Date().toISOString()}
         Stack: ${exception instanceof Error ? exception.stack : 'N/A'}
     `;
-
     if (status >= 500) {
       this._logger.error(logMessage);
     } else {
       this._logger.warn(logMessage);
     }
-
-    const responsePayload: ErrorApiResponse = {
+    const responsePayload: ApiResponse<Record<string, unknown>> = {
       success: false,
       statusCode: status,
       message: frontendMessage,
       error: errorName,
     };
-
     if (Object.keys(details).length > 0) {
       responsePayload.details = details;
     }
-
     response.status(status).json(responsePayload);
   }
 }

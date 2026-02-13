@@ -9,7 +9,6 @@ import { Model, Types, UpdateResult } from 'mongoose';
 import { InternalUserDto, TeamMemberDto } from '../dtos/update.profile.dtos';
 import { BaseRepository } from '../../shared/repositories/base.repository';
 import { populatedComapnyProfile } from '../types/repository.types';
-
 @Injectable()
 export class CompanyRepository
   extends BaseRepository<CompanyProfileDocument>
@@ -21,7 +20,6 @@ export class CompanyRepository
   ) {
     super(profileModel);
   }
-
   async updateStatus(id: string): Promise<UpdateResult> {
     return await this.profileModel.updateOne({ _id: id }, [
       {
@@ -31,7 +29,6 @@ export class CompanyRepository
       },
     ]);
   }
-
   async addInternalUser(
     id: string,
     dto: InternalUserDto,
@@ -42,7 +39,6 @@ export class CompanyRepository
       { new: true },
     );
   }
-
   async addTeamMembers(
     id: string,
     dto: TeamMemberDto,
@@ -53,7 +49,6 @@ export class CompanyRepository
       { new: true },
     );
   }
-
   async publicPorfile(id: string): Promise<populatedComapnyProfile> {
     const objid = new Types.ObjectId(id);
     const data = await this.profileModel.aggregate([

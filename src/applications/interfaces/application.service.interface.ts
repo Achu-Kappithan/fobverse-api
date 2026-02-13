@@ -1,55 +1,46 @@
 import {
+  ApiResponse,
   PaginatedResponse,
-  PlainResponse,
-} from '../../admin/interfaces/responce.interface';
+} from '../../shared/responses/api.response';
 import { PaginatedApplicationDto } from '../dtos/application.pagination.dto';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
-import { ApplicationResponceDto } from '../dtos/application.responce';
+import { ApplicationResponseDto } from '../dtos/application.response';
 import { ApplicationDetailsResponseDto } from '../dtos/application-details.response.dto';
 import { CreateApplicationDto } from '../dtos/createapplication.dto';
 import { updateAtsScoreDto } from '../dtos/update.atsScore.dto';
 import { ApplicationDocument } from '../schema/applications.schema';
-import { applicationResponce } from './responce.interface';
 import { CandidateApplicationResponseDto } from '../dtos/candidate-application.response.dto';
 import { CandidateApplicationsQueryDto } from '../dtos/candidate-applications-query.dto';
-
 export interface IApplicationService {
   createApplication(
     dto: CreateApplicationDto,
     id: string,
     companyId: string,
-  ): Promise<PlainResponse>;
-
+  ): Promise<ApiResponse<unknown>>;
   getAllApplications(
     companyId: string,
     dto: PaginatedApplicationDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
-
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>>;
   getCompanyApplicants(
     companyId: string,
     dto: PaginationDto,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
-
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>>;
   updateAtsScore(
     dto: updateAtsScoreDto,
     companyId: string,
-  ): Promise<PaginatedResponse<ApplicationResponceDto[]>>;
-
+  ): Promise<PaginatedResponse<ApplicationResponseDto[]>>;
   getjobDetails(
     appId: string,
     canId: string,
-  ): Promise<applicationResponce<ApplicationDetailsResponseDto>>;
-
+  ): Promise<ApiResponse<ApplicationDetailsResponseDto>>;
   updateStatus(
     appId: string,
     nextStage?: string,
     interviewResult?: string,
   ): Promise<ApplicationDocument | null>;
-
   getCandidateApplications(
     candidateId: string,
     dto: CandidateApplicationsQueryDto,
   ): Promise<PaginatedResponse<CandidateApplicationResponseDto[]>>;
 }
-
 export const APPLICATION_SERVICE = 'APPLICATION_SERVICE';

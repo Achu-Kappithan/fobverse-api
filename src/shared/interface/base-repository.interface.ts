@@ -1,5 +1,4 @@
 import { Document, FilterQuery, PipelineStage, UpdateQuery } from 'mongoose';
-
 export interface IBaseRepository<T extends Document> {
   create(document: T | Partial<T>): Promise<T>;
   findById(id: string): Promise<T | null>;
@@ -16,11 +15,8 @@ export interface IBaseRepository<T extends Document> {
       projection?: Record<string, unknown>;
     },
   ): Promise<{ data: T[]; total: number }>;
-
   count(filter: FilterQuery<T>): Promise<number>;
-
   aggregate<R = unknown>(pipeline: PipelineStage[]): Promise<R[]>;
-
   findMany(
     filter?: FilterQuery<T>,
     options?: {

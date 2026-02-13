@@ -3,7 +3,6 @@ import { ApplicationDocument } from '../schema/applications.schema';
 import { JobsDocument } from '../../jobs/schema/jobs.schema';
 import { CompanyProfileDocument } from '../../company/schema/company.profile.schema';
 import { Types } from 'mongoose';
-
 export type populatedapplicationList = ApplicationDocument & {
   profile?: CandidateProfileDocument;
   jobDetails?: JobsDocument;
@@ -13,18 +12,15 @@ export type populatedapplicationList = ApplicationDocument & {
     [key: string]: unknown;
   };
 };
-
 export type applicationPorfileDetails = ApplicationDocument & {
   profile?: CandidateProfileDocument;
   jobDetails?: JobsDocument;
   candidateUser?: unknown;
 };
-
 export type PopulatedCandidateApplication = ApplicationDocument & {
   jobDetails?: JobsDocument;
   companyDetails?: CompanyProfileDocument;
 };
-
 export interface CandidateApplicationAggregation {
   _id: Types.ObjectId;
   jobId: Types.ObjectId;
@@ -55,4 +51,8 @@ export interface CandidateApplicationAggregation {
     logoUrl?: string;
     [key: string]: unknown;
   };
+}
+export interface AggregateResult {
+  metadata: { total: number }[];
+  data: populatedapplicationList[];
 }

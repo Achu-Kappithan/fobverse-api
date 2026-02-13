@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-
 export interface VideoRoomResponseInterface {
   _id?: Types.ObjectId;
   roomId: string;

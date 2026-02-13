@@ -1,10 +1,4 @@
-import {
-  generalResponce,
-  LoginResponce,
-  RegisterResponce,
-  tokenresponce,
-  verificatonResponce,
-} from './api-response.interface';
+import { ApiResponse } from '../../shared/responses/api.response';
 import {
   forgotPasswordDto,
   LoginDto,
@@ -15,82 +9,55 @@ import { userDto } from '../dto/user.dto';
 import { Response } from 'express';
 import { RegisterCandidateDto } from '../dto/register-candidate.dto';
 import { PaginationDto } from '../../shared/dtos/pagination.dto';
-import {
-  PaginatedResponse,
-  PlainResponse,
-} from '../../admin/interfaces/responce.interface';
-import { UserResponceDto } from '../../company/dtos/responce.allcompany';
+import { PaginatedResponse } from '../../shared/responses/api.response';
+import { UserResponseDto } from '../../company/dtos/response.allcompany';
 import {
   changePassDto,
   InternalUserDto,
   UpdateInternalUserDto,
 } from '../../company/dtos/update.profile.dtos';
-import { comapnyResponceInterface } from '../../company/interface/responce.interface';
-
 export interface IAuthService {
   validateUser(email: string, password: string, role: string): Promise<userDto>;
-
-  registerCandidate(dto: RegisterCandidateDto): Promise<RegisterResponce>;
-
-  verifyEmail(token: string): Promise<verificatonResponce>;
-
-  login(user: userDto, res: Response): LoginResponce<userDto>;
-
-  regenerateAccessToken(paylod: UserDocument, res: Response): tokenresponce;
-
+  registerCandidate(
+    dto: RegisterCandidateDto,
+  ): Promise<ApiResponse<{ user: UserDocument }>>;
+  verifyEmail(token: string): Promise<ApiResponse<{ user: UserDocument }>>;
+  login(user: userDto, res: Response): ApiResponse<userDto>;
+  regenerateAccessToken(
+    paylod: UserDocument,
+    res: Response,
+  ): ApiResponse<{ newAccess: string }>;
   googleLogin(
     idToken: string,
     role: string,
     res: Response,
-  ): Promise<LoginResponce<userDto>>;
-
+  ): Promise<ApiResponse<userDto>>;
   findByEmail(email: string): Promise<UserDocument | null>;
-
   linkGoogleAccount(id: string, googleId: string): Promise<UserDocument | null>;
-
   findById(id: string): Promise<UserDocument | null>;
-
   validateAdmin(dto: LoginDto): Promise<userDto>;
-
   validateEmailAndRoleExistence(
     dto: forgotPasswordDto,
-  ): Promise<generalResponce>;
-  updateNewPassword(dto: UpdatePasswordDto): Promise<generalResponce>;
-
-  companyUserLogin(
-    dto: LoginDto,
-    res: Response,
-  ): Promise<LoginResponce<userDto>>;
-
+  ): Promise<ApiResponse<unknown>>;
+  updateNewPassword(dto: UpdatePasswordDto): Promise<ApiResponse<unknown>>;
+  companyUserLogin(dto: LoginDto, res: Response): Promise<ApiResponse<userDto>>;
   getAllUsers(
     companyId: string,
     userId: string,
     pagination: PaginationDto,
-  ): Promise<PaginatedResponse<UserResponceDto[]>>;
-
+  ): Promise<PaginatedResponse<UserResponseDto[]>>;
   createInternalUser(
     id: string,
     dto: InternalUserDto,
-  ): Promise<UserResponceDto>;
-
-  getUserProfile(id: string): Promise<UserResponceDto>;
-
+  ): Promise<UserResponseDto>;
+  getUserProfile(id: string): Promise<UserResponseDto>;
   updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
-  ): Promise<UserResponceDto>;
-
-  changePassword(id: string, dto: changePassDto): Promise<generalResponce>;
-
-  removeUser(id: string): Promise<PlainResponse>;
-
-  getHrUsers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
-
-  getInterviewers(
-    companyId: string,
-  ): Promise<comapnyResponceInterface<UserResponceDto[]>>;
+  ): Promise<UserResponseDto>;
+  changePassword(id: string, dto: changePassDto): Promise<ApiResponse<unknown>>;
+  removeUser(id: string): Promise<ApiResponse<unknown>>;
+  getHrUsers(companyId: string): Promise<ApiResponse<UserResponseDto[]>>;
+  getInterviewers(companyId: string): Promise<ApiResponse<UserResponseDto[]>>;
 }
-
 export const AUTH_SERVICE = 'AUTH_SERVICE';

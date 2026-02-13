@@ -1,6 +1,6 @@
-import { ApiResponce } from '../../shared/interface/api.responce';
+import { ApiResponse } from '../../shared/responses/api.response';
 import { CancelInterviewDto } from '../dtos/cancelInterview.dto';
-import { ScheduleResponseDto } from '../dtos/interview.responce.dto';
+import { ScheduleResponseDto } from '../dtos/interview.response.dto';
 import {
   ScheduleInterviewDto,
   UpdateFeedbackDto,
@@ -8,55 +8,44 @@ import {
 } from '../dtos/interviewshedule.dto';
 import { AllStagesResponseDto } from '../dtos/all-stages-response.dto';
 import { ReviewStatus } from '../schema/interview.schema';
-
 export interface IInterviewService {
   sheduleInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
   getStageDetails(
     applicationId: string,
     stage: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
   getAllStagesByApplicationId(
     applicationId: string,
-  ): Promise<ApiResponce<AllStagesResponseDto>>;
-
+  ): Promise<ApiResponse<AllStagesResponseDto>>;
   updateFeedback(
     dto: UpdateFeedbackDto,
     interviewerId: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
-  reSheduleInterview(
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
+  reScheduleInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
   cancelIntterview(
     dto: CancelInterviewDto,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
   updateFinalResult(
     dto: UpdateFinalResultDto,
     hrId: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
   sheduleTelyInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
-  reSheduleTelyInterview(
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
+  reScheduleTelyInterview(
     dto: ScheduleInterviewDto,
     scheduledBy: string,
-  ): Promise<ApiResponce<ScheduleResponseDto>>;
-
+  ): Promise<ApiResponse<ScheduleResponseDto>>;
   getUserSchedules(
     userId: string,
     status?: ReviewStatus,
-  ): Promise<ApiResponce<ScheduleResponseDto[]>>;
+  ): Promise<ApiResponse<ScheduleResponseDto[]>>;
 }
-
 export const INTERVIEW_SERVICE = 'INTERVIEW_SERVICE';

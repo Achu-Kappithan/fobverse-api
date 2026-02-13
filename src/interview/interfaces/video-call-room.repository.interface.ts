@@ -2,9 +2,7 @@ import {
   VideoCallRoom,
   VideoCallRoomDocument,
 } from '../schema/video-call-room.schema';
-
 export const VIDEO_CALL_ROOM_REPOSITORY = 'VIDEO_CALL_ROOM_REPOSITORY';
-
 export interface IVideoCallRoomRepository {
   create(roomData: Partial<VideoCallRoom>): Promise<VideoCallRoomDocument>;
   findByRoomId(roomId: string): Promise<VideoCallRoomDocument | null>;

@@ -11,7 +11,6 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtRefreshPayload } from '../interfaces/jwt-payload.interface';
 import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
 import { UserDocument } from '../schema/user.schema';
-
 @Injectable()
 export class jwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -46,17 +45,14 @@ export class jwtRefreshStrategy extends PassportStrategy(
       `[Strategy Init] JwtAccessStrategy initialized. Secret status: ${_configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`,
     );
   }
-
   async validate(payload: JwtRefreshPayload): Promise<UserDocument> {
     const { UserId } = payload;
     const candidate = await this._authService.findById(UserId);
-
     if (!candidate) {
       throw new UnauthorizedException(
         'Refresh token invalid: Candidate not found.',
       );
     }
-
     return candidate.toObject({
       getters: true,
       virtuals: true,

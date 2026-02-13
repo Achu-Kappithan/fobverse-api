@@ -12,12 +12,10 @@ import {
 import { notificationType } from './schema/notification.schema';
 import { Types } from 'mongoose';
 import { NotificationGateWay } from './notification.gateway';
-import { ApiResponce } from '../shared/interface/api.responce';
+import { ApiResponse, PlainResponse } from '../shared/responses/api.response';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { plainToInstance } from 'class-transformer';
-import { notificationResponceDto } from './dtos/notification.responce.dto';
-import { PlainResponse } from '../admin/interfaces/responce.interface';
-
+import { notificationResponseDto } from './dtos/notification.response.dto';
 @Injectable()
 export class NotificationService implements InotificationService {
   logger = new Logger(NotificationService.name);
@@ -26,7 +24,6 @@ export class NotificationService implements InotificationService {
     private readonly _notificationRepository: InotificationRepository,
     private readonly _notificationGateway: NotificationGateWay,
   ) {}
-
   async createInterviewScheduledNotification(
     candidateId: string,
     interview: { date: string; time: string },
@@ -48,7 +45,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewRescheduledNotification(
     candidateId: string,
     interview: { date: string; time: string },
@@ -73,7 +69,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewCancelledNotification(candidateId: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
     const notification = await this._notificationRepository.create({
@@ -88,7 +83,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createApplicationSubmittedNotification(
     candidateId: string,
     jobTitle: string,
@@ -106,7 +100,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createApplicationShortlistedNotification(
     candidateId: string,
     jobTitle: string,
@@ -124,7 +117,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createApplicationRejectedNotification(
     candidateId: string,
     jobTitle: string,
@@ -142,7 +134,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewPassedNotification(candidateId: string, stage: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
     const notification = await this._notificationRepository.create({
@@ -157,7 +148,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewFailedNotification(candidateId: string, stage: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
     const notification = await this._notificationRepository.create({
@@ -172,10 +162,9 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async getCandidateNotifications(
     candidateId: string,
-  ): Promise<ApiResponce<notificationResponceDto[]>> {
+  ): Promise<ApiResponse<notificationResponseDto[]>> {
     const data =
       await this._notificationRepository.findByRecipient(candidateId);
     const plaindata = data.map((val) => {
@@ -186,20 +175,17 @@ export class NotificationService implements InotificationService {
         candidateId: obj.candidateId.toString(),
       };
     });
-
-    const mappedData = plainToInstance(notificationResponceDto, plaindata, {
+    const mappedData = plainToInstance(notificationResponseDto, plaindata, {
       excludeExtraneousValues: true,
     });
-
     return {
       message: MESSAGES.NOTIFICATION.FETCH_NOTIFICATIONS,
       data: mappedData,
     };
   }
-
   async getUnreadCount(
     candidateId: string,
-  ): Promise<ApiResponce<{ count: number }>> {
+  ): Promise<ApiResponse<{ count: number }>> {
     const data =
       await this._notificationRepository.findUnreadCount(candidateId);
     return {
@@ -207,17 +193,16 @@ export class NotificationService implements InotificationService {
       data: { count: data },
     };
   }
-
   async markAsRead(
     notificationId: string,
-  ): Promise<ApiResponce<notificationResponceDto>> {
+  ): Promise<ApiResponse<notificationResponseDto>> {
     const data = await this._notificationRepository.update(
       { _id: notificationId },
       {
         isRead: true,
       },
     );
-    const mappedData = plainToInstance(notificationResponceDto, {
+    const mappedData = plainToInstance(notificationResponseDto, {
       ...data,
       _id: data?._id.toString(),
       candidateId: data?.candidateId.toString(),
@@ -227,12 +212,10 @@ export class NotificationService implements InotificationService {
       data: mappedData,
     };
   }
-
   async markAllAsRead(candidateId: string): Promise<PlainResponse> {
     const result =
       await this._notificationRepository.markAsAllRead(candidateId);
     console.log('all read updation result', result);
-
     if (!result.acknowledged) {
       throw new InternalServerErrorException();
     }

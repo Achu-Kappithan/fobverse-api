@@ -7,15 +7,13 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SuccessApiResponse, PaginationMeta } from '../responses/api.response';
+import { PaginationMeta, ApiResponse } from '../responses/api.response';
 import { Request, Response } from 'express';
-
 interface ServiceResponsePayload<T> {
   message?: string;
   data?: T;
   [key: string]: unknown;
 }
-
 interface PaginatedServiceResult<T> {
   message?: string;
   data: T[];
@@ -24,31 +22,27 @@ interface PaginatedServiceResult<T> {
   itemsPerPage: number;
   totalPages: number;
 }
-
 @Injectable()
 export class ResponseInterceptor<T>
   implements
     NestInterceptor<
       T | ServiceResponsePayload<T> | PaginatedServiceResult<T>,
-      SuccessApiResponse<T>
+      ApiResponse<T>
     >
 {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<SuccessApiResponse<T>> {
+  ): Observable<ApiResponse<T>> {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-
     return next.handle().pipe(
       map((responseBody: unknown) => {
         let finalMessage: string;
         let finalData: unknown;
         let finalMeta: PaginationMeta | undefined = undefined;
-
         const statusCode = response.statusCode || HttpStatus.OK;
-
         const responseBodyObj = responseBody as Record<string, unknown>;
         const isPaginatedResponse =
           responseBody &&
@@ -59,7 +53,6 @@ export class ResponseInterceptor<T>
           'currentPage' in responseBodyObj &&
           'itemsPerPage' in responseBodyObj &&
           'totalPages' in responseBodyObj;
-
         if (isPaginatedResponse) {
           const paginatedPayload = responseBody as PaginatedServiceResult<T>;
           finalMessage = paginatedPayload.message || 'Operation successful';
@@ -86,7 +79,6 @@ export class ResponseInterceptor<T>
           finalMessage = 'Operation successful';
           finalData = responseBody;
         }
-
         return {
           success: true,
           statusCode: statusCode,
