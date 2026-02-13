@@ -72,7 +72,7 @@ export class AuthController {
     const cookieOptions = {
       httpOnly: true,
       secure: this._configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'strict' as const,
+      sameSite: 'lax' as const,
       path: '/',
     };
     res.clearCookie('access_token', cookieOptions);

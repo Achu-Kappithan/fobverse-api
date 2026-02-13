@@ -18,7 +18,7 @@ export function setJwtCookie(
     httpOnly: isHttpOnly,
     secure: configService.get<string>('NODE_ENV') === 'production',
     maxAge: maxAgeMs,
-    sameSite: 'strict',
+    sameSite: 'lax',
     path: '/',
   });
 }
