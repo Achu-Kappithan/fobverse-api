@@ -14,7 +14,6 @@ import { ApplicationsModule } from './applications/applications.module';
 import { AtsSortingModule } from './ats-sorting/ats-sorting.module';
 import { InterviewModule } from './interview/interview.module';
 import { NotificationModule } from './notification/notification.module';
-
 @Module({
   imports: [
     ConfigModule.forRoot({

@@ -8,7 +8,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-
 @WebSocketGateway({
   cors: {
     origin: 'http://localhost:4200',
@@ -19,14 +18,11 @@ export class VideoCallGateway implements OnGatewayDisconnect {
   private readonly _logger = new Logger(VideoCallGateway.name);
   @WebSocketServer()
   server: Server;
-
   private roomParticipants = new Map<
     string,
     Map<string, { userId: string; peerId: string; name: string }>
   >();
-
   private socketToUser = new Map<string, { roomId: string; userId: string }>();
-
   @SubscribeMessage('send-peer-id')
   handlePeerId(
     @MessageBody() data: { peerId: string; interviewId: string },
@@ -34,7 +30,6 @@ export class VideoCallGateway implements OnGatewayDisconnect {
   ) {
     client.to(data.interviewId).emit('receive-peer-id', data.peerId);
   }
-
   @SubscribeMessage('join-video-room')
   async handleJoinRoom(
     @MessageBody()
@@ -45,42 +40,34 @@ export class VideoCallGateway implements OnGatewayDisconnect {
     this._logger.log(
       `[VideoCall] User ${data.name} (${data.userId}) joining room: "${roomId}" with socket ${client.id}`,
     );
-
     await client.join(roomId);
-
     this.socketToUser.set(client.id, {
       roomId: data.roomId,
       userId: data.userId,
     });
-
     if (!this.roomParticipants.has(roomId)) {
       this.roomParticipants.set(roomId, new Map());
     }
     const participants = this.roomParticipants.get(roomId)!;
     const existingParticipants = Array.from(participants.values());
-
     participants.set(data.userId, {
       userId: data.userId,
       peerId: data.peerId,
       name: data.name,
     });
-
     client.to(roomId).emit('user-joined-video', {
       ...data,
       roomSize: participants.size,
     });
-
     client.emit('room-joined', {
       roomId,
       roomSize: participants.size,
       otherPeers: existingParticipants,
     });
-
     this._logger.log(
       `[VideoCall] User ${data.name} joined. Room "${roomId}" now has ${participants.size} participant(s). Sent ${existingParticipants.length} otherPeers to joiner.`,
     );
   }
-
   @SubscribeMessage('leave-video-room')
   async handleLeaveRoom(
     @MessageBody() data: { roomId: string; userId: string },
@@ -88,7 +75,6 @@ export class VideoCallGateway implements OnGatewayDisconnect {
   ) {
     const roomId = data.roomId.trim();
     this._logger.log(`[VideoCall] User ${data.userId} leaving room: ${roomId}`);
-
     let count = 0;
     const room = this.roomParticipants.get(roomId);
     if (room) {
@@ -98,9 +84,7 @@ export class VideoCallGateway implements OnGatewayDisconnect {
         this.roomParticipants.delete(roomId);
       }
     }
-
     this.socketToUser.delete(client.id);
-
     await client.leave(roomId);
     client.to(roomId).emit('user-left-video', {
       ...data,
@@ -110,29 +94,23 @@ export class VideoCallGateway implements OnGatewayDisconnect {
       `[VideoCall] User Left. Room "${roomId}" now has ${count} participant(s).`,
     );
   }
-
   handleDisconnect(client: Socket) {
     const userInfo = this.socketToUser.get(client.id);
-
     if (!userInfo) {
       return;
     }
-
     const { roomId, userId } = userInfo;
     this._logger.log(
       `[VideoCall] Socket ${client.id} disconnected. Cleaning up user ${userId} from room ${roomId}`,
     );
-
     const room = this.roomParticipants.get(roomId);
     if (room) {
       const participant = room.get(userId);
       room.delete(userId);
       const count = room.size;
-
       if (count === 0) {
         this.roomParticipants.delete(roomId);
       }
-
       if (participant) {
         this.server.to(roomId).emit('user-left-video', {
           roomId,
@@ -141,15 +119,12 @@ export class VideoCallGateway implements OnGatewayDisconnect {
           roomSize: count,
         });
       }
-
       this._logger.log(
         `[VideoCall] Auto-cleanup complete. Room "${roomId}" now has ${count} participant(s).`,
       );
     }
-
     this.socketToUser.delete(client.id);
   }
-
   @SubscribeMessage('video-message')
   handleVideoMessage(
     @MessageBody()

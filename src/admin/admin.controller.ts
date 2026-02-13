@@ -21,17 +21,14 @@ import { AllJobsAdminResponse } from '../jobs/dtos/response.job.dto';
 import { ApiResponse } from '../shared/responses/api.response';
 import { Request as ERequest } from 'express';
 import { changePassDto } from '../company/dtos/update.profile.dtos';
-
 import { UpdateAdminProfileDto } from './dtos/admin-profile.dto';
 import { AdminDashboardDto } from './dtos/admin-dashboard.dto';
-
 @Controller('admin')
 export class AdminController {
   constructor(
     @Inject(ADMIN_SERVICE)
     private readonly _adminService: IAdminService,
   ) {}
-
   @Get('getallcompany')
   @UseGuards(AuthGuard('access_token'))
   async getAllcompany(
@@ -39,7 +36,6 @@ export class AdminController {
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return await this._adminService.getAllCompnys(dto);
   }
-
   @Get('getAllcandidates')
   @UseGuards(AuthGuard('access_token'))
   async getAllCandidates(
@@ -47,13 +43,11 @@ export class AdminController {
   ): Promise<PaginatedResponse<CandidateProfileResponseDto[]>> {
     return this._adminService.getAllCandidates(dto);
   }
-
   @Get('company/updatestatus')
   @UseGuards(AuthGuard('access_token'))
   async updateStatus(@Query('id') id: string): Promise<ApiResponse<unknown>> {
     return this._adminService.updateCompanyStatus(id);
   }
-
   @Get('candidate/updatestatus')
   @UseGuards(AuthGuard('access_token'))
   async updateCandidateStatus(
@@ -61,7 +55,6 @@ export class AdminController {
   ): Promise<ApiResponse<unknown>> {
     return this._adminService.updateCandidateStatus(id);
   }
-
   @Get('jobs/getalljobs')
   @UseGuards(AuthGuard('access_token'))
   async getAllJobs(
@@ -69,7 +62,6 @@ export class AdminController {
   ): Promise<PaginatedResponse<AllJobsAdminResponse[]>> {
     return this._adminService.getAllJobs(parms);
   }
-
   @Get('jobs/updatejobstatus')
   @UseGuards(AuthGuard('access_token'))
   async updateJobStatus(
@@ -77,7 +69,6 @@ export class AdminController {
   ): Promise<ApiResponse<unknown>> {
     return this._adminService.updateJobStatus(id);
   }
-
   @Get('profile')
   @UseGuards(AuthGuard('access_token'))
   async getProfie(
@@ -86,7 +77,6 @@ export class AdminController {
     const user = request.user as { _id: string };
     return this._adminService.getAdminProfile(user._id.toString());
   }
-
   @Post('updatepassword')
   @UseGuards(AuthGuard('access_token'))
   async UpdatePassword(
@@ -96,7 +86,6 @@ export class AdminController {
     const user = req.user as { _id: string };
     return await this._adminService.updatePassword(user._id.toString(), dto);
   }
-
   @Post('updateprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateUserProfile(
@@ -106,7 +95,6 @@ export class AdminController {
     const user = req.user as { _id: string };
     return this._adminService.upateUserProfile(user._id.toString(), dto);
   }
-
   @Get('dashboard-stats')
   @UseGuards(AuthGuard('access_token'))
   async getDashboardStats(): Promise<ApiResponse<AdminDashboardDto>> {

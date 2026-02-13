@@ -17,19 +17,14 @@ export interface IApplicationRepository
       projection?: Record<string, unknown>;
     },
   ): Promise<{ data: populatedapplicationList[]; total: number }>;
-
   updateAtsScore(ids: string[], minScore: number): Promise<UpdateResult>;
-
   getApplicationDetails(appId: string): Promise<populatedapplicationList>;
-
   getDashboardStats(companyId: Types.ObjectId): Promise<{
     totalApplications: number;
     hiredCandidates: number;
     pendingApplications: number;
   }>;
-
   getJobApplicationStats(companyId: Types.ObjectId): Promise<JobStatDto[]>;
-
   getCandidateApplications(
     candidateId: string,
     filter: {

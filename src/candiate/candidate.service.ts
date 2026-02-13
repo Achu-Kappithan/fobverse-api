@@ -24,7 +24,6 @@ import {
   IComapnyService,
 } from '../company/interface/profile.service.interface';
 import { CompanyProfileResponseDto } from '../company/dtos/response.allcompany';
-
 import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import {
@@ -47,11 +46,9 @@ import {
   AUTH_SERVICE,
   IAuthService,
 } from '../auth/interfaces/IAuthCandiateService';
-
 @Injectable()
 export class CandidateService implements ICandidateService {
   private readonly _logger = new Logger(CandidateService.name);
-
   constructor(
     @Inject(CANDIDATE_REPOSITORY)
     private readonly _candidateRepository: ICandidateRepository,
@@ -66,17 +63,14 @@ export class CandidateService implements ICandidateService {
     @Inject(AUTH_SERVICE)
     private readonly _authService: IAuthService,
   ) {}
-
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
     this._logger.debug(`Finding user by email: ${email}`);
     return this._candidateRepository.findByEmail(email);
   }
-
   async findById(id: string): Promise<CandidateProfileDocument | null> {
     this._logger.debug(`Finding user by Id:${id}`);
     return this._candidateRepository.findById(id);
   }
-
   async createProfile(
     dto: CreateCandidateProfileDto,
   ): Promise<CandidateProfileResponseDto> {
@@ -89,7 +83,6 @@ export class CandidateService implements ICandidateService {
     };
     const newprofile = await this._candidateRepository.create(updateDto);
     this._logger.debug(`new profile created ${JSON.stringify(newprofile)}`);
-
     if (!newprofile) {
       throw new InternalServerErrorException(
         MESSAGES.AUTH.PROFILE_CREATION_FAILED,
@@ -97,11 +90,9 @@ export class CandidateService implements ICandidateService {
     }
     return MappingUtil.map(CandidateProfileResponseDto, newprofile);
   }
-
   async findAllCandidate(): Promise<CandidateProfileDocument[] | null> {
     return await this._candidateRepository.findAll();
   }
-
   async getProfile(
     id: string,
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
@@ -112,13 +103,11 @@ export class CandidateService implements ICandidateService {
     if (!ProfileData) {
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_FETCH_FAIL);
     }
-
     return {
       message: MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
       data: MappingUtil.map(CandidateProfileResponseDto, ProfileData),
     };
   }
-
   async updateProfile(
     dto: UpdateCandidateProfileDto,
     id: string,
@@ -131,20 +120,17 @@ export class CandidateService implements ICandidateService {
       { UserId: userId },
       { $set: dto },
     );
-
     if (!profileData) {
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_UPDATE_FAIL);
     }
     this._logger.log(
       `[CandidateService], updated profile data ${JSON.stringify(profileData)}`,
     );
-
     return {
       message: MESSAGES.CANDIDATE.PROFILE_UPDATE_SUCCESS,
       data: MappingUtil.map(CandidateProfileResponseDto, profileData),
     };
   }
-
   async publicView(
     id: string,
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
@@ -152,19 +138,16 @@ export class CandidateService implements ICandidateService {
     if (!ProfileData) {
       throw new NotFoundException(MESSAGES.CANDIDATE.PROFILE_FETCH_FAIL);
     }
-
     return {
       message: MESSAGES.CANDIDATE.PROFILE_FETCH_SUCCESS,
       data: MappingUtil.map(CandidateProfileResponseDto, ProfileData),
     };
   }
-
   async getAllCompanies(
     pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._companyService.getAllCompanies(pagination);
   }
-
   async getMyApplications(
     candidateId: string,
     dto: CandidateApplicationsQueryDto,
@@ -177,7 +160,6 @@ export class CandidateService implements ICandidateService {
       dto,
     );
   }
-
   async getApplicationStages(
     applicationId: string,
   ): Promise<ApiResponse<AllStagesResponseDto>> {
@@ -186,17 +168,14 @@ export class CandidateService implements ICandidateService {
     );
     const stages =
       await this._interviewService.getAllStagesByApplicationId(applicationId);
-
     if (!stages.data) {
       throw new NotFoundException('Stages data not found');
     }
-
     return {
       message: stages.message,
       data: stages.data,
     };
   }
-
   async getHomeDataPublic(): Promise<
     ApiResponse<{
       jobs: ResponseJobsDto[];
@@ -207,7 +186,6 @@ export class CandidateService implements ICandidateService {
       this._jobService.getAllJobs(null, { page: 1, limit: 6 }),
       this._companyService.getAllCompanies({ page: 1, limit: 4 }),
     ]);
-
     return {
       message: 'Home data fetched successfully',
       data: {
@@ -216,7 +194,6 @@ export class CandidateService implements ICandidateService {
       },
     };
   }
-
   async updatePassword(
     id: string,
     dto: changePassDto,

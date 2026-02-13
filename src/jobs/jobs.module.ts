@@ -6,7 +6,6 @@ import { JOBS_REPOSITORY } from './interfaces/jobs.repository.interface';
 import { JobRepository } from './repository/jobs.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Jobs, JobSchema } from './schema/jobs.schema';
-
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Jobs.name, schema: JobSchema }]),

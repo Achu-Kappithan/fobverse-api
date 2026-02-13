@@ -11,16 +11,13 @@ import {
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
 @Injectable()
 export class JwtTokenService {
   private readonly _logger = new Logger(JwtTokenService.name);
-
   constructor(
     private readonly _configService: ConfigService,
     private _jwtService: JwtService,
   ) {}
-
   generateVerificationToken(payload: JwtVerificationPayload): string {
     try {
       const token = this._jwtService.sign(payload, {
@@ -39,7 +36,6 @@ export class JwtTokenService {
       );
     }
   }
-
   generateAccessToken(payload: JwtAccessPayload): string {
     try {
       const token = this._jwtService.sign(payload, {
@@ -56,7 +52,6 @@ export class JwtTokenService {
       );
     }
   }
-
   generateRefreshToken(payload: JwtRefreshPayload): string {
     try {
       const token = this._jwtService.sign(payload, {
@@ -73,7 +68,6 @@ export class JwtTokenService {
       );
     }
   }
-
   GeneratePassResetToken(payload: passwordResetPayload): string {
     try {
       const token = this._jwtService.sign(payload, {

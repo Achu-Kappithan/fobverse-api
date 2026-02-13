@@ -14,11 +14,9 @@ import {
 } from '../interfaces/jwt-payload.interface';
 import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
 import { Request } from 'express';
-
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   private readonly _logger = new Logger(GoogleStrategy.name);
-
   constructor(
     private readonly _configService: ConfigService,
     private readonly _jwtTokenService: JwtTokenService,
@@ -32,7 +30,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       scope: ['profile', 'email'],
     });
   }
-
   async validate(
     req: Request,
     accessToken: string,
@@ -42,10 +39,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<void> {
     try {
       this._logger.debug(`Google profile received: ${JSON.stringify(profile)}`);
-
       const userEmail = profile.emails?.[0]?.value ?? null;
       const googleId = profile.id;
-
       if (!userEmail) {
         this._logger.warn(
           `Google profile missing email for user ID: ${googleId}`,
@@ -54,9 +49,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           'Google profile missing email. Cannot proceed with login.',
         );
       }
-
       let user = await this._authService.findByEmail(userEmail);
-
       if (!user) {
         this._logger.log(
           `Creating new user with googleId ${googleId} and ${userEmail}`,
@@ -70,24 +63,20 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           googleId,
         );
       }
-
       const AccessPayload: JwtAccessPayload = {
         email: user!.email,
         UserId: user!._id.toString(),
         role: user!.role,
         profileId: user?.companyId?.toString(),
       };
-
       const RefreshPayload: JwtRefreshPayload = {
         email: user!.email,
         UserId: user!._id.toString(),
       };
-
       const newAccessToken =
         this._jwtTokenService.generateAccessToken(AccessPayload);
       const newRefreshToken =
         this._jwtTokenService.generateRefreshToken(RefreshPayload);
-
       done(null, {
         user,
         accessToken: newAccessToken,

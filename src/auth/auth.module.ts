@@ -17,7 +17,6 @@ import { jwtConfig } from '../shared/configs/jwt.config';
 import { CandiateModule } from '../candiate/candidate.module';
 import { EmailModule } from '../email/email.module';
 import { CompanyModule } from '../company/company.module';
-
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

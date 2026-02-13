@@ -16,7 +16,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateCandidateProfileDto } from './dtos/update-candidate-profile.dto';
 import { Request as ERequest } from 'express';
-
 import { CandidateProfileResponseDto } from './dtos/candidate-response.dto';
 import { CompanyProfileResponseDto } from '../company/dtos/response.allcompany';
 import { PaginationDto } from '../shared/dtos/pagination.dto';
@@ -27,14 +26,12 @@ import { AllStagesResponseDto } from '../interview/dtos/all-stages-response.dto'
 import { changePassDto } from '../company/dtos/update.profile.dtos';
 import { ApiResponse } from '../shared/responses/api.response';
 import { ResponseJobsDto } from '../jobs/dtos/response.job.dto';
-
 @Controller('candidate')
 export class CandidateController {
   constructor(
     @Inject(CANDIDATE_SERVICE)
     private readonly _candidateService: ICandidateService,
   ) {}
-
   @Get('getprofile')
   @UseGuards(AuthGuard('access_token'))
   async getProfile(
@@ -43,7 +40,6 @@ export class CandidateController {
     const user = req.user as { id: string };
     return this._candidateService.getProfile(user.id);
   }
-
   @Post('updateprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateProfile(
@@ -53,7 +49,6 @@ export class CandidateController {
     const user = req.user as { id: string };
     return this._candidateService.updateProfile(dto, user.id);
   }
-
   @Get('/public/profile')
   @UseGuards(AuthGuard('access_token'))
   async publicView(
@@ -61,14 +56,12 @@ export class CandidateController {
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     return this._candidateService.publicView(id);
   }
-
   @Get('all-companies')
   async getAllCompanies(
     @Query() pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._candidateService.getAllCompanies(pagination);
   }
-
   @Get('my-applications')
   @UseGuards(AuthGuard('access_token'))
   async getMyApplications(
@@ -78,14 +71,12 @@ export class CandidateController {
     const user = req.user as { id: string };
     return this._candidateService.getMyApplications(user.id, dto);
   }
-
   @Get('application-details/:applicationId')
   async getApplicationStages(
     @Param('applicationId') applicationId: string,
   ): Promise<ApiResponse<AllStagesResponseDto>> {
     return await this._candidateService.getApplicationStages(applicationId);
   }
-
   @Get('home-data-public')
   async getHomeDataPublic(): Promise<
     ApiResponse<{
@@ -95,7 +86,6 @@ export class CandidateController {
   > {
     return await this._candidateService.getHomeDataPublic();
   }
-
   @Post('change-pwd')
   @UseGuards(AuthGuard('access_token'))
   async UpdatePassword(

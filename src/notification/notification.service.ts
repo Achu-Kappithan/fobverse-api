@@ -16,7 +16,6 @@ import { ApiResponse, PlainResponse } from '../shared/responses/api.response';
 import { MESSAGES } from '../shared/constants/constants.messages';
 import { plainToInstance } from 'class-transformer';
 import { notificationResponseDto } from './dtos/notification.response.dto';
-
 @Injectable()
 export class NotificationService implements InotificationService {
   logger = new Logger(NotificationService.name);
@@ -25,7 +24,6 @@ export class NotificationService implements InotificationService {
     private readonly _notificationRepository: InotificationRepository,
     private readonly _notificationGateway: NotificationGateWay,
   ) {}
-
   async createInterviewScheduledNotification(
     candidateId: string,
     interview: { date: string; time: string },
@@ -47,7 +45,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewRescheduledNotification(
     candidateId: string,
     interview: { date: string; time: string },
@@ -72,7 +69,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewCancelledNotification(candidateId: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
     const notification = await this._notificationRepository.create({
@@ -87,7 +83,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createApplicationSubmittedNotification(
     candidateId: string,
     jobTitle: string,
@@ -105,7 +100,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createApplicationShortlistedNotification(
     candidateId: string,
     jobTitle: string,
@@ -123,7 +117,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createApplicationRejectedNotification(
     candidateId: string,
     jobTitle: string,
@@ -141,7 +134,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewPassedNotification(candidateId: string, stage: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
     const notification = await this._notificationRepository.create({
@@ -156,7 +148,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async createInterviewFailedNotification(candidateId: string, stage: string) {
     const candidateObjId = new Types.ObjectId(candidateId);
     const notification = await this._notificationRepository.create({
@@ -171,7 +162,6 @@ export class NotificationService implements InotificationService {
     );
     return notification;
   }
-
   async getCandidateNotifications(
     candidateId: string,
   ): Promise<ApiResponse<notificationResponseDto[]>> {
@@ -185,17 +175,14 @@ export class NotificationService implements InotificationService {
         candidateId: obj.candidateId.toString(),
       };
     });
-
     const mappedData = plainToInstance(notificationResponseDto, plaindata, {
       excludeExtraneousValues: true,
     });
-
     return {
       message: MESSAGES.NOTIFICATION.FETCH_NOTIFICATIONS,
       data: mappedData,
     };
   }
-
   async getUnreadCount(
     candidateId: string,
   ): Promise<ApiResponse<{ count: number }>> {
@@ -206,7 +193,6 @@ export class NotificationService implements InotificationService {
       data: { count: data },
     };
   }
-
   async markAsRead(
     notificationId: string,
   ): Promise<ApiResponse<notificationResponseDto>> {
@@ -226,12 +212,10 @@ export class NotificationService implements InotificationService {
       data: mappedData,
     };
   }
-
   async markAllAsRead(candidateId: string): Promise<PlainResponse> {
     const result =
       await this._notificationRepository.markAsAllRead(candidateId);
     console.log('all read updation result', result);
-
     if (!result.acknowledged) {
       throw new InternalServerErrorException();
     }

@@ -1,0 +1,61 @@
+services:
+  - type: web
+    name: fobverse-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build:prod
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: JWT_VERIFICATION_SECRET
+        sync: false
+      - key: JWT_VERIFICATION_EXPIRES_IN
+        value: 1h
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 1d
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: COOKIES_EXP_IN
+        value: 7d
+      - key: CLIENT_ID
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
+      - key: CALLBACK_URL
+        sync: false
+      - key: LOG_FILE_NAME
+        value: logs/prod-application-%DATE%.log
+      - key: LOG_DATE_PATTERN
+        value: YYYY-MM-DD
+      - key: LOG_ZIPPED_ARCHIVE
+        value: true
+      - key: LOG_MAX_SIZE
+        value: 20m
+      - key: LOG_MAX_FILES
+        value: 30d
+      - key: LOG_LEVEL
+        value: info
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

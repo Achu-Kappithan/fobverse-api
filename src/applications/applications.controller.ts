@@ -27,14 +27,12 @@ import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { ApplicationResponseDto } from './dtos/application.response';
 import { ApplicationDetailsResponseDto } from './dtos/application-details.response.dto';
 import { updateAtsScoreDto } from './dtos/update.atsScore.dto';
-
 @Controller('applications')
 export class ApplicationsController {
   constructor(
     @Inject(APPLICATION_SERVICE)
     private readonly applicationsService: IApplicationService,
   ) {}
-
   @Post('applyjob')
   @UseGuards(AuthGuard('access_token'))
   async applayJob(
@@ -49,7 +47,6 @@ export class ApplicationsController {
       id,
     );
   }
-
   @Get('applicants')
   @UseGuards(AuthGuard('access_token'))
   async getApplications(
@@ -62,7 +59,6 @@ export class ApplicationsController {
       dto,
     );
   }
-
   @Get('all-applicants')
   @UseGuards(AuthGuard('access_token'))
   async getCompanyApplicants(
@@ -75,7 +71,6 @@ export class ApplicationsController {
       dto,
     );
   }
-
   @Patch('updateScore')
   @UseGuards(AuthGuard('access_token'))
   async updateAtsScore(
@@ -88,7 +83,6 @@ export class ApplicationsController {
       user.companyId!.toString(),
     );
   }
-
   @Get('applicationDetails/:appId/:canId')
   @UseGuards(AuthGuard('access_token'))
   async getApplicationDetails(

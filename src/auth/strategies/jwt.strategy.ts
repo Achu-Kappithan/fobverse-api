@@ -11,14 +11,12 @@ import { JwtAccessPayload } from '../interfaces/jwt-payload.interface';
 import { Request } from 'express';
 import { AUTH_SERVICE, IAuthService } from '../interfaces/IAuthCandiateService';
 import { UserDocument } from '../schema/user.schema';
-
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
   Strategy,
   'access_token',
 ) {
   logger = new Logger(JwtAccessStrategy.name);
-
   constructor(
     private readonly _configService: ConfigService,
     @Inject(AUTH_SERVICE)
@@ -42,29 +40,24 @@ export class JwtAccessStrategy extends PassportStrategy(
       secretOrKey: _configService.get<string>('JWT_ACCESS_SECRET') || '',
     });
   }
-
   async validate(payload: JwtAccessPayload): Promise<UserDocument> {
     this.logger.log(
       `[Validate] JwtAccessStrategy validate method called with payload: ${JSON.stringify(payload)}`,
     );
-
     if (!payload.UserId) {
       this.logger.warn(
         `[Validate] Token payload missing userId. Payload: ${JSON.stringify(payload)}`,
       );
       throw new UnauthorizedException('Invalid token payload: userId missing.');
     }
-
     const { UserId } = payload;
     const user = await this._authService.findById(UserId);
-
     if (!user) {
       this.logger.warn(
         `[Validate] user not found in DB for userId: ${payload.UserId}`,
       );
       throw new UnauthorizedException('Access denied: user not found.');
     }
-
     if (!user.isVerified) {
       this.logger.warn(
         `[Validate] Candidate ${user.email} is not verified. Access denied.`,

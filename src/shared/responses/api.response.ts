@@ -10,19 +10,15 @@ export interface ApiResponse<T> {
   error?: string;
   details?: unknown;
 }
-
 export interface PaginationMeta {
   totalItems: number;
   currentPage: number;
   itemsPerPage: number;
   totalPages: number;
 }
-
-// Legacy compatibility interfaces (to be phased out)
 export interface PlainResponse {
   message: string;
 }
-
 export interface PaginatedResponse<T> {
   message: string;
   data: T;

@@ -7,7 +7,6 @@ import { CandiateModule } from '../candiate/candidate.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { AuthModule } from '../auth/auth.module';
 import { ApplicationsModule } from '../applications/applications.module';
-
 @Module({
   imports: [
     CompanyModule,

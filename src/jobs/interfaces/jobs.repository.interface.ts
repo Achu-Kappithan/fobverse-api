@@ -2,10 +2,8 @@ import { IBaseRepository } from '../../shared/interface/base-repository.interfac
 import { JobsDocument } from '../schema/jobs.schema';
 import { FilterQuery, UpdateResult, ProjectionType } from 'mongoose';
 import { populatedJobDetails } from '../types/repository.types';
-
 export interface IJobsRepository extends IBaseRepository<JobsDocument> {
   UpdatejobStatus(id: string): Promise<UpdateResult>;
-
   findAllJobs(
     filter?: FilterQuery<JobsDocument>,
     Options?: {
@@ -15,8 +13,6 @@ export interface IJobsRepository extends IBaseRepository<JobsDocument> {
       projection?: ProjectionType<JobsDocument>;
     },
   ): Promise<{ data: JobsDocument[]; total: number }>;
-
   publicJobView(id: string): Promise<populatedJobDetails>;
 }
-
 export const JOBS_REPOSITORY = 'JOBS_REPOSITORY';

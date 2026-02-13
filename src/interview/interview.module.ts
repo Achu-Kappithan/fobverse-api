@@ -16,7 +16,6 @@ import {
 } from './schema/video-call-room.schema';
 import { VideoCallRoomRepository } from './repository/video-call-room.repository';
 import { VIDEO_CALL_ROOM_REPOSITORY } from './interfaces/video-call-room.repository.interface';
-
 @Module({
   imports: [
     MongooseModule.forFeature([

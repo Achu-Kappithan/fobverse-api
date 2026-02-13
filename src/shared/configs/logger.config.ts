@@ -4,7 +4,6 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
-
 export const loggerConfig = (env: string): WinstonModuleOptions => {
   const transports: winston.transport[] = [
     new winston.transports.Console({
@@ -17,7 +16,6 @@ export const loggerConfig = (env: string): WinstonModuleOptions => {
       ),
     }),
   ];
-
   if (env === 'production' || env === 'development') {
     transports.push(
       new DailyRotateFile({
@@ -34,7 +32,6 @@ export const loggerConfig = (env: string): WinstonModuleOptions => {
       }),
     );
   }
-
   return {
     transports,
   };

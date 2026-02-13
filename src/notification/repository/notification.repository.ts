@@ -7,7 +7,6 @@ import {
 import { InotificationRepository } from '../interfaces/notification.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, UpdateResult } from 'mongoose';
-
 @Injectable()
 export class notificationRepository
   extends BaseRepository<notificationDocument>
@@ -19,7 +18,6 @@ export class notificationRepository
   ) {
     super(notificationModel);
   }
-
   async findByRecipient(recipientId: string): Promise<notificationDocument[]> {
     const candidateObjId = new Types.ObjectId(recipientId);
     return await this.notificationModel
@@ -27,7 +25,6 @@ export class notificationRepository
       .sort({ createdAt: -1 })
       .exec();
   }
-
   async findUnreadCount(recipientId: string): Promise<number> {
     const CandidateObjId = new Types.ObjectId(recipientId);
     return await this.notificationModel.countDocuments({
@@ -35,7 +32,6 @@ export class notificationRepository
       isRead: false,
     });
   }
-
   async markAsAllRead(candidateId: string): Promise<UpdateResult> {
     const candidateObjId = new Types.ObjectId(candidateId);
     return this.notificationModel.updateMany(

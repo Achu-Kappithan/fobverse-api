@@ -1,9 +1,7 @@
 import { Request } from 'express';
 import { CandidateProfileDocument } from '../../candiate/schema/candidate.profile.schema';
 import { CompanyProfileDocument } from '../../company/schema/company.profile.schema';
-
 import { Types } from 'mongoose';
-
 export interface AuthUser {
   _id: Types.ObjectId;
   UserId: string;
@@ -12,11 +10,9 @@ export interface AuthUser {
   profileId?: string;
   companyId?: string;
 }
-
 export interface ERequest extends Request {
   user?: AuthUser;
 }
-
 export interface populatedpData {
   _id: Types.ObjectId;
   name: string;
@@ -28,7 +24,6 @@ export interface populatedpData {
   profile: CandidateProfileDocument;
   companyId?: Types.ObjectId;
 }
-
 export interface PopulatedCompany {
   _id: Types.ObjectId;
   name: string;

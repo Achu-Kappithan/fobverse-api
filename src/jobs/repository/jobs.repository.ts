@@ -11,7 +11,6 @@ import {
 } from 'mongoose';
 import { BaseRepository } from '../../shared/repositories/base.repository';
 import { populatedJobDetails } from '../types/repository.types';
-
 @Injectable()
 export class JobRepository
   extends BaseRepository<JobsDocument>
@@ -22,7 +21,6 @@ export class JobRepository
   ) {
     super(jobModel);
   }
-
   async UpdatejobStatus(id: string): Promise<UpdateResult> {
     return await this.jobModel.updateOne({ _id: id }, [
       {
@@ -32,7 +30,6 @@ export class JobRepository
       },
     ]);
   }
-
   async findAllJobs(
     filter: FilterQuery<JobsDocument> = {},
     options?: {
@@ -45,34 +42,28 @@ export class JobRepository
     const query = this.jobModel
       .find(filter, options?.projection)
       .populate('companyId', 'name logoUrl');
-
     if (options?.sort) {
       query.sort(options.sort);
     } else {
       query.sort({ createdAt: -1 });
     }
-
     if (options?.skip !== undefined) {
       query.skip(options.skip);
     }
     if (options?.limit !== undefined) {
       query.limit(options.limit);
     }
-
     const [data, total] = await Promise.all([
       query.exec(),
       this.jobModel.countDocuments(filter).exec(),
     ]);
-
     return { data, total };
   }
-
   async countDocuments(
     filter: FilterQuery<JobsDocument> = {},
   ): Promise<number> {
     return this.jobModel.countDocuments(filter).exec();
   }
-
   async publicJobView(id: string): Promise<populatedJobDetails> {
     const data = await this.jobModel.aggregate([
       {
@@ -89,7 +80,6 @@ export class JobRepository
         },
       },
     ]);
-
     return data[0] as populatedJobDetails;
   }
 }

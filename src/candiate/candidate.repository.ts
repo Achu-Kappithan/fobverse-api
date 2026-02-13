@@ -7,7 +7,6 @@ import {
   CandidateProfileDocument,
 } from './schema/candidate.profile.schema';
 import { BaseRepository } from '../shared/repositories/base.repository';
-
 @Injectable()
 export class CandidateRepository
   extends BaseRepository<CandidateProfileDocument>
@@ -19,11 +18,9 @@ export class CandidateRepository
   ) {
     super(candidateModel);
   }
-
   async findByEmail(email: string): Promise<CandidateProfileDocument | null> {
     return this.candidateModel.findOne({ email });
   }
-
   async updateStatus(id: string): Promise<UpdateResult> {
     return await this.candidateModel.updateOne({ _id: id }, [
       {

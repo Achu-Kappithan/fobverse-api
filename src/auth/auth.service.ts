@@ -59,12 +59,10 @@ import {
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { CandidateProfileResponseDto } from '../candiate/dtos/candidate-response.dto';
 import { PaginatedResponse } from '../shared/responses/api.response';
-
 @Injectable()
 export class AuthService implements IAuthService {
   private readonly _logger = new Logger(AuthService.name);
   private _googleClint: OAuth2Client;
-
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly _authRepository: IAuthRepository,
@@ -81,69 +79,48 @@ export class AuthService implements IAuthService {
       this._configService.get<string>('CLIENT_ID'),
     );
   }
-
-  // find user by Email
-
   async findByEmail(email: string): Promise<UserDocument | null> {
     this._logger.debug(`Finding user by email: ${email}`);
     return this._authRepository.findByEmail(email);
   }
-
-  //find user by Id
-
   async findById(id: string): Promise<UserDocument | null> {
     this._logger.log(`Finding user by Id:${id}`);
     const user = await this._authRepository.findById(id);
     return user;
   }
-
-  //vaildate user for login
-
   async validateUser(
     email: string,
     password: string,
     role: UserRole,
   ): Promise<userDto> {
     this._logger.debug(`Attempting to validate user: ${email}`);
-
     const profileData = await this._authRepository.findCandidateByEmail(email);
-
     if (!profileData) {
       this._logger.warn(`Login attempt for ${email}: User not found.`);
       throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
-
     if (!profileData.password) {
       throw new BadRequestException(MESSAGES.AUTH.ACCOUNT_LINKED_WITH_GOOGLE);
     }
-
     if (!(await bcrypt.compare(password, profileData.password))) {
       this._logger.warn(`Login attempt for ${email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
-
     if ((profileData.role as UserRole) !== role) {
       this._logger.warn(`Mismath of User Role ${role}`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_USER_ROLE);
     }
-
     if (!profileData.isVerified) {
       this._logger.warn(`Login attempt for ${email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
     }
-
     if (!profileData.profile.isActive) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
     }
-
     const mappedData = plainToInstance(userDto, profileData);
-
     this._logger.log(`User ${email} successfully validated.`);
     return mappedData;
   }
-
-  //complete user login process
-
   login(user: userDto, res: Response): ApiResponse<userDto> {
     this._logger.debug(
       `[AuthService.login] Preparing payload for tokens for user: ${user.email}`,
@@ -155,24 +132,20 @@ export class AuthService implements IAuthService {
       profileId: user.companyId?.toString(),
       name: user.name,
     };
-
     const RefreshPayload: JwtRefreshPayload = {
       UserId: (user._id as unknown as Types.ObjectId).toString(),
       email: user.email,
     };
-
     const AccessToken =
       this._jwtTokenService.generateAccessToken(AccessPayload);
     const RefreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
-
     const accessTokenExpiresIn = this._configService.get<string>(
       'JWT_ACCESS_EXPIRES_IN',
     );
     const refreshTokenExpiresIn = this._configService.get<string>(
       'JWT_REFRESH_EXPIRES_IN',
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -182,7 +155,6 @@ export class AuthService implements IAuthService {
       true,
       parseInt(accessTokenExpiresIn!),
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -192,17 +164,12 @@ export class AuthService implements IAuthService {
       false,
       parseInt(refreshTokenExpiresIn!),
     );
-
     const mappedData = plainToInstance(userDto, user);
-
     return {
       message: MESSAGES.AUTH.LOGIN_SUCCESS,
       data: mappedData,
     };
   }
-
-  //  registering new user
-
   async registerCandidate(
     dto: RegisterCandidateDto,
   ): Promise<ApiResponse<{ user: UserDocument }>> {
@@ -210,7 +177,6 @@ export class AuthService implements IAuthService {
     if (existingUser) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
-
     const newUser = await this.createUser(
       dto.name,
       dto.email,
@@ -223,14 +189,12 @@ export class AuthService implements IAuthService {
         UserId: newUser._id.toString(),
         email: newUser.email,
       };
-
       const verificationToken = this._jwtService.sign(verificationPayload, {
         secret: this._configService.get<string>('JWT_VERIFICATION_SECRET'),
         expiresIn: this._configService.get<string>(
           'JWT_VERIFICATION_EXPIRES_IN',
         ),
       });
-
       await this._emailService.sendVerificationEmail(
         newUser.email,
         verificationToken,
@@ -239,7 +203,6 @@ export class AuthService implements IAuthService {
         `Verification email token generated: ${verificationToken}`,
       );
     }
-
     return {
       message: MESSAGES.AUTH.REGISTRATION_SUCCESS,
       data: {
@@ -250,9 +213,6 @@ export class AuthService implements IAuthService {
       },
     };
   }
-
-  // create a new user
-
   async createUser(
     name: string,
     email: string,
@@ -269,9 +229,6 @@ export class AuthService implements IAuthService {
     this._logger.log(`Creating new candidate: ${email}`);
     return await this._authRepository.create(newUser);
   }
-
-  // Email verification  (Registration Process)
-
   async verifyEmail(
     token: string,
   ): Promise<ApiResponse<{ user: UserDocument }>> {
@@ -280,7 +237,6 @@ export class AuthService implements IAuthService {
       if (!token) {
         throw new BadRequestException(MESSAGES.AUTH.VERIFICATION_TOKEN_MISSING);
       }
-
       payload = await this._jwtService.verify(token, {
         secret: this._configService.get<string>('JWT_VERIFICATION_SECRET'),
       });
@@ -295,40 +251,32 @@ export class AuthService implements IAuthService {
         MESSAGES.AUTH.VERIFICATION_LINK_INVALID_OR_EXPIRED,
       );
     }
-
     const user = await this._authRepository.findById(payload.UserId);
-
     if (!user) {
       this._logger.warn(
         `Email verification attempt for non-existent user ID: ${payload.UserId}`,
       );
       throw new BadRequestException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
-
     if (user.isVerified) {
       this._logger.log(`User ${user.email} is already verified.`);
       throw new BadRequestException(MESSAGES.AUTH.EMAIL_ALREADY_VERIFIED);
     }
-
     const verifieduser = await this._authRepository.updateVerificationStatus(
       user._id.toString(),
       true,
     );
-
     const profiledataDto: CreateProfileDto = {
       UserId: verifieduser!._id.toString(),
       name: verifieduser!.name,
     };
-
     let newProfile:
       | CandidateProfileResponseDto
       | CompanyProfileResponseDto
       | undefined;
-
     this._logger.log(
       `User ${JSON.stringify(verifieduser)} successfully verified.`,
     );
-
     if (user.role == UserRole.CANDIDATE) {
       newProfile = await this._candidateService.createProfile(profiledataDto);
     } else if (user.role === UserRole.COMPANY_ADMIN) {
@@ -343,7 +291,6 @@ export class AuthService implements IAuthService {
         );
       }
     }
-
     return {
       message: MESSAGES.AUTH.EMAIL_VERIFIED,
       data: {
@@ -351,9 +298,6 @@ export class AuthService implements IAuthService {
       },
     };
   }
-
-  // create new Access Token user RefreshTokens
-
   regenerateAccessToken(
     paylod: UserDocument,
     res: Response,
@@ -365,14 +309,11 @@ export class AuthService implements IAuthService {
       profileId: paylod?.companyId?.toString(),
       name: paylod.name,
     };
-
     const newAccessToken =
       this._jwtTokenService.generateAccessToken(tokenPaylod);
-
     const accessTokenExpiresIn = this._configService.get<string>(
       'JWT_ACCESS_EXPIRES_IN',
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -382,15 +323,11 @@ export class AuthService implements IAuthService {
       true,
       parseInt(accessTokenExpiresIn!),
     );
-
     return {
       message: MESSAGES.AUTH.ACCESS_TOKEN_REFRESHED,
       data: { newAccess: newAccessToken },
     };
   }
-
-  // google Login
-
   async googleLogin(
     idToken: string,
     role: UserRole,
@@ -399,39 +336,30 @@ export class AuthService implements IAuthService {
     this._logger.log(
       `[authService] googleId${idToken} and User role is ${role}`,
     );
-
     const ticket = await this._googleClint.verifyIdToken({
       idToken,
       audience: this._configService.get<string>('CLIENT_ID'),
     });
-
     const payload = ticket.getPayload();
     this._logger.log(
       `[authService] get details from the google payload${JSON.stringify(payload)}`,
     );
-
     if (!payload) {
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_GOOGLE_TOKEN);
     }
-
     const googleId = payload.sub;
     const email = payload.email;
     const name = payload.name;
     const isVerified = payload.email_verified;
-
     if (!email) {
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_GOOGLE_TOKEN);
     }
-
     let user: populatedpData | UserDocument | null;
-
     user = await this._authRepository.findCandidateByEmail(email);
     console.log('get candidate using email ', user);
-
     if (user && user.role !== (role as string)) {
       throw new ConflictException(MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
-
     if (!user) {
       user = await this._authRepository.create({
         name: name!,
@@ -440,23 +368,19 @@ export class AuthService implements IAuthService {
         isVerified: isVerified!,
         role: role,
       } as UserDocument);
-
       if (!user) {
         throw new UnauthorizedException(MESSAGES.AUTH.PROFILE_CREATION_FAILED);
       }
-
       const profiledata: CreateProfileDto = {
         UserId: user._id.toString(),
         name: user.name,
       };
-
       await this._candidateService.createProfile(profiledata);
     } else {
       const populatedUser = user;
       if (!populatedUser.profile.isActive) {
         throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
       }
-
       if (
         !user.googleId &&
         user.googleId !== googleId &&
@@ -475,7 +399,6 @@ export class AuthService implements IAuthService {
       }
       this._logger.log(`existing user logged in  view  googleId`);
     }
-
     const AccessPayload: JwtAccessPayload = {
       UserId: user._id.toString(),
       email: user.email,
@@ -483,24 +406,20 @@ export class AuthService implements IAuthService {
       profileId: user?.companyId?.toString(),
       name: user.name,
     };
-
     const RefreshPayload: JwtRefreshPayload = {
       UserId: user._id.toString(),
       email: user.email,
     };
-
     const accessToken =
       this._jwtTokenService.generateAccessToken(AccessPayload);
     const refreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
-
     const accessTokenExpiresIn = this._configService.get<string>(
       'JWT_ACCESS_EXPIRES_IN',
     );
     const refreshTokenExpiresIn = this._configService.get<string>(
       'JWT_REFRESH_EXPIRES_IN',
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -510,7 +429,6 @@ export class AuthService implements IAuthService {
       true,
       parseInt(accessTokenExpiresIn!),
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -520,49 +438,37 @@ export class AuthService implements IAuthService {
       false,
       parseInt(refreshTokenExpiresIn!),
     );
-
     const mappedData = plainToInstance(userDto, user);
-
     return {
       message: MESSAGES.AUTH.LOGIN_SUCCESS,
       data: mappedData,
     };
   }
-
-  // link google id to existing User
-
   async linkGoogleAccount(
     id: string,
     googleId: string,
   ): Promise<UserDocument | null> {
     return this._authRepository.UpdateGoogleId(id, googleId);
   }
-
   async validateAdmin(dto: LoginDto): Promise<userDto> {
     this._logger.debug('[authService] adminLogin dto', dto);
-
     const user = await this._authRepository.findUserbyEmailAndRole(
       dto.email,
       dto.role,
     );
-
     if (!user) {
       this._logger.warn(`Login attempt for ${dto.email}: User not found.`);
       throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
-
     if (!user.isVerified) {
       this._logger.warn(`Login attempt for ${dto.email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
     }
-
     if (!(await bcrypt.compare(dto.password, user.password!))) {
       this._logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
-
     this._logger.log(`User ${dto.email} successfully validated.`);
-
     const mappedData = plainToInstance(
       userDto,
       {
@@ -576,9 +482,6 @@ export class AuthService implements IAuthService {
     );
     return mappedData;
   }
-
-  // validate Email with User role  for Updateing password
-
   async validateEmailAndRoleExistence(
     dto: forgotPasswordDto,
   ): Promise<ApiResponse<unknown>> {
@@ -587,56 +490,44 @@ export class AuthService implements IAuthService {
       '[authService] data from the frondend  for reset password',
       dto,
     );
-
     const user = await this._authRepository.findUserbyEmailAndRole(email, role);
     this._logger.debug(
       '[authService] fetch user from db for udpateing password ',
       user,
     );
-
     if (!user) {
       throw new UnauthorizedException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
-
     if (!user.isVerified) {
       throw new UnauthorizedException(MESSAGES.AUTH.UNVERIFIED_USER);
     }
-
     const Tokenpayload: passwordResetPayload = {
       id: user._id.toString(),
       email: user.email,
       role: user.role,
     };
-
     const verificationToken =
       this._jwtTokenService.GeneratePassResetToken(Tokenpayload);
     this._logger.debug(
       `[authService] create token for password updation${verificationToken}`,
     );
-
     await this._emailService.sendForgotPasswordEmail(
       user.email,
       verificationToken,
     );
-
     return {
       message: MESSAGES.AUTH.PASSWORD_RESET_LINK_SENT,
     };
   }
-
-  // update  New password
-
   async updateNewPassword(
     dto: UpdatePasswordDto,
   ): Promise<ApiResponse<unknown>> {
     const { password, token } = dto;
     let payload: passwordResetPayload;
-
     try {
       if (!token) {
         throw new BadRequestException(MESSAGES.AUTH.VERIFICATION_TOKEN_MISSING);
       }
-
       payload = await this._jwtService.verify(token, {
         secret: this._configService.get<string>('JWT_VERIFICATION_SECRET'),
       });
@@ -649,27 +540,21 @@ export class AuthService implements IAuthService {
         MESSAGES.AUTH.VERIFICATION_LINK_INVALID_OR_EXPIRED,
       );
     }
-
     const hashPassword = await bcrypt.hash(password, 10);
-
     await this._authRepository.update(
       { _id: payload.id },
       { $set: { password: hashPassword } },
     );
-
     return {
       message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS,
     };
   }
-
   async companyUserLogin(
     dto: LoginDto,
     res: Response,
   ): Promise<ApiResponse<userDto>> {
     this._logger.log(`[AuthSevice] ComapnyUsers${dto.role}try to login`);
-
     const user = await this._authRepository.findCompanyByEmail(dto.email);
-
     if (!user) {
       throw new NotFoundException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
@@ -681,21 +566,17 @@ export class AuthService implements IAuthService {
       this._logger.warn(`Login attempt for ${dto.email}: Invalid password.`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_EMAIL_PASSWORD);
     }
-
     if ((user.role as UserRole) !== dto.role) {
       this._logger.warn(`Mismath of User Role ${dto.role}`);
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_USER_ROLE);
     }
-
     if (!user.isVerified) {
       this._logger.warn(`Login attempt for ${dto.email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
     }
-
     if (!user.profile.isActive) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
     }
-
     const jwtAccessPayload: JwtAccessPayload = {
       UserId: user._id.toString(),
       email: user.email,
@@ -703,24 +584,20 @@ export class AuthService implements IAuthService {
       profileId: user.companyId?.toString(),
       name: user.name,
     };
-
     const RefreshPayload: JwtRefreshPayload = {
       email: user.email,
       UserId: user._id.toString(),
     };
-
     const accessToken =
       this._jwtTokenService.generateAccessToken(jwtAccessPayload);
     const refreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
-
     const accessTokenExpiresIn = this._configService.get<string>(
       'JWT_ACCESS_EXPIRES_IN',
     );
     const refreshTokenExpiresIn = this._configService.get<string>(
       'JWT_REFRESH_EXPIRES_IN',
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -730,7 +607,6 @@ export class AuthService implements IAuthService {
       true,
       parseInt(accessTokenExpiresIn!),
     );
-
     setJwtCookie(
       res,
       this._configService,
@@ -740,29 +616,22 @@ export class AuthService implements IAuthService {
       false,
       parseInt(refreshTokenExpiresIn!),
     );
-
     const mappedData = plainToInstance(userDto, user);
     return {
       message: MESSAGES.AUTH.LOGIN_SUCCESS,
       data: mappedData,
     };
   }
-
-  //create InternalUsers
-
   async createInternalUser(
     id: string,
     dto: InternalUserDto,
   ): Promise<UserResponseDto> {
     const existinguser = await this._authRepository.findByEmail(dto.email);
-
     if (existinguser) {
       this._logger.log(`[AuthService] Email already exists ${dto.email}`);
       throw new ConflictException(MESSAGES.COMPANY.ALREADY_EXIST);
     }
-
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-
     const newUser = {
       name: dto.name,
       email: dto.email,
@@ -771,12 +640,10 @@ export class AuthService implements IAuthService {
       isVerified: true,
       companyId: new Types.ObjectId(id),
     } as UserDocument;
-
     const data = await this._authRepository.create(newUser);
     this._logger.log(
       `[comapnyService] new company member is added${JSON.stringify(data)}`,
     );
-
     const mappedData = plainToInstance(
       UserResponseDto,
       {
@@ -786,8 +653,6 @@ export class AuthService implements IAuthService {
     );
     return mappedData;
   }
-
-  // getUsers
   async getAllUsers(
     companyId: string,
     userId: string,
@@ -795,29 +660,23 @@ export class AuthService implements IAuthService {
   ): Promise<PaginatedResponse<UserResponseDto[]>> {
     const { search, page = 1, limit = 6, filtervalue } = pagination;
     const filter: FilterQuery<UserDocument> = {};
-
     if (search) {
       filter.$or = [
         { name: { $regex: `^${search}`, $options: 'i' } },
         { role: { $regex: `^${search}`, $options: 'i' } },
       ];
     }
-
     if (filtervalue) {
       filter.role = { $regex: `^${filtervalue}`, $options: 'i' };
     }
-
     const companyObjId = new Types.ObjectId(companyId);
     filter.companyId = companyObjId;
-
     const userObjId = new Types.ObjectId(userId);
     filter._id = { $ne: userObjId };
-
     this._logger.log(
       `[AuthService] comapny id for get internal users :${companyId} Serchquery ${JSON.stringify(filter)} and filterQuery: ${filtervalue}`,
     );
     const skip = (page - 1) * limit;
-
     const { data, total } = await this._authRepository.findManyWithPagination(
       filter,
       {
@@ -832,7 +691,6 @@ export class AuthService implements IAuthService {
         _id: user._id.toString(),
       };
     });
-
     const mappedData = plainToInstance(UserResponseDto, plaindata);
     const totalPages = Math.ceil(total / limit);
     return {
@@ -844,9 +702,6 @@ export class AuthService implements IAuthService {
       itemsPerPage: limit,
     };
   }
-
-  // get hrUsers
-
   async getHrUsers(companyId: string): Promise<ApiResponse<UserResponseDto[]>> {
     const companyObjId = new Types.ObjectId(companyId);
     const data = await this._authRepository.findHrUsers(companyObjId);
@@ -863,7 +718,6 @@ export class AuthService implements IAuthService {
       data: mappedData,
     };
   }
-
   async getInterviewers(
     companyId: string,
   ): Promise<ApiResponse<UserResponseDto[]>> {
@@ -882,9 +736,6 @@ export class AuthService implements IAuthService {
       data: mappedData,
     };
   }
-
-  //get UserProfile
-
   async getUserProfile(id: string): Promise<UserResponseDto> {
     this._logger.log('[AuthService] geting Company active userprofile', id);
     const data = await this._authRepository.findById(id);
@@ -894,9 +745,6 @@ export class AuthService implements IAuthService {
     );
     return mappedData;
   }
-
-  // update User Profile
-
   async updateUserProfile(
     id: string,
     dto: UpdateInternalUserDto,
@@ -908,9 +756,6 @@ export class AuthService implements IAuthService {
     );
     return mappedData;
   }
-
-  //Update Password
-
   async changePassword(
     id: string,
     dto: changePassDto,
@@ -919,7 +764,6 @@ export class AuthService implements IAuthService {
       `[AuthsService] Try to Update password id: ${id} newPass : ${dto.newPass}`,
     );
     const User = await this._authRepository.findById(id);
-
     if (!User) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_NOT_FOUND);
     }
@@ -938,12 +782,10 @@ export class AuthService implements IAuthService {
       { _id: id },
       { $set: { password: newHashedPassword } },
     );
-
     return {
       message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS,
     };
   }
-
   async removeUser(id: string): Promise<ApiResponse<unknown>> {
     const filter: FilterQuery<UserDocument> = {};
     const userObjId = new Types.ObjectId(id);

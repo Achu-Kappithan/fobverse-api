@@ -31,16 +31,13 @@ import {
 import { PaginationDto } from '../shared/dtos/pagination.dto';
 import { ERequest } from '../shared/interfaces/auth.interface';
 import { populateProfileDto } from './dtos/populatedprofile.res.dto';
-
 import { DashboardResponseDto } from './dtos/dashboard.dto';
-
 @Controller('company')
 export class CompanyController {
   constructor(
     @Inject(COMPANY_SERVICE)
     private readonly _companyService: IComapnyService,
   ) {}
-
   @Get('profile')
   @UseGuards(AuthGuard('access_token'))
   async getProfile(
@@ -50,7 +47,6 @@ export class CompanyController {
     const companyId = user?.companyId?.toString() ?? '';
     return this._companyService.getProfile(companyId);
   }
-
   @Patch('updateprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateProfile(
@@ -61,14 +57,12 @@ export class CompanyController {
     const companyId = user?.companyId?.toString() ?? '';
     return this._companyService.updateProfile(companyId, dto);
   }
-
   @Post('createuser')
   @UseGuards(AuthGuard('access_token'))
   async createUser(@Request() req: ERequest, @Body() dto: InternalUserDto) {
     const companyId = req.user?.companyId?.toString() ?? '';
     return await this._companyService.createUser(companyId, dto);
   }
-
   @Get('internalusers')
   @UseGuards(AuthGuard('access_token'))
   async getInternalUsers(
@@ -82,7 +76,6 @@ export class CompanyController {
       parms,
     );
   }
-
   @Get('hrusers')
   @UseGuards(AuthGuard('access_token'))
   async getHrUsers(
@@ -92,7 +85,6 @@ export class CompanyController {
     const companyId = user?.companyId?.toString();
     return await this._companyService.getHrUsers(companyId!);
   }
-
   @Get('interviewers')
   @UseGuards(AuthGuard('access_token'))
   async getInterviewers(
@@ -102,7 +94,6 @@ export class CompanyController {
     const companyId = user?.companyId?.toString();
     return await this._companyService.getInterviewers(companyId!);
   }
-
   @Get('userprofile')
   @UseGuards(AuthGuard('access_token'))
   async getUserProfile(
@@ -111,7 +102,6 @@ export class CompanyController {
     const user = req.user;
     return this._companyService.getUserProfile(user!._id.toString());
   }
-
   @Post('updateuserprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateUserProfile(
@@ -121,7 +111,6 @@ export class CompanyController {
     const user = req.user;
     return this._companyService.updateUserProfile(user!._id.toString(), dto);
   }
-
   @Post('updatepassword')
   @UseGuards(AuthGuard('access_token'))
   async UpdatePassword(
@@ -133,7 +122,6 @@ export class CompanyController {
       dto,
     );
   }
-
   @Post('addteammember')
   @UseGuards(AuthGuard('access_token'))
   async addTeamMembers(
@@ -143,20 +131,17 @@ export class CompanyController {
     const companyId = req.user?.companyId?.toString() ?? '';
     return this._companyService.addTeamMembers(companyId.toString(), dto);
   }
-
   @Get('public/profile/:id')
   async getPublicProfile(
     @Param('id') id: string,
   ): Promise<ApiResponse<populateProfileDto>> {
     return this._companyService.getPublicProfile(id);
   }
-
   @Delete('removeuser')
   @UseGuards(AuthGuard('access_token'))
   async removeUser(@Query('id') id: string): Promise<ApiResponse<unknown>> {
     return this._companyService.removeUser(id);
   }
-
   @Get('dashboard')
   @UseGuards(AuthGuard('access_token'))
   async getDashboard(

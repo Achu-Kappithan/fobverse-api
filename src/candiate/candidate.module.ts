@@ -14,7 +14,6 @@ import { ApplicationsModule } from '../applications/applications.module';
 import { InterviewModule } from '../interview/interview.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { AuthModule } from '../auth/auth.module';
-
 @Module({
   imports: [
     MongooseModule.forFeature([

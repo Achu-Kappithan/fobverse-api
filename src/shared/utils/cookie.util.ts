@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-
 export function setJwtCookie(
   response: Response,
   configService: ConfigService,
@@ -15,7 +14,6 @@ export function setJwtCookie(
       `[CookieUtil] Invalid expiration time for cookie ${cookieName}: ${expirationTimeEnvKey}. Using default (session).`,
     );
   }
-
   response.cookie(cookieName, token, {
     httpOnly: isHttpOnly,
     secure: configService.get<string>('NODE_ENV') === 'production',

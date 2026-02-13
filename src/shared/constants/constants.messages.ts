@@ -1,20 +1,15 @@
 export const MESSAGES = {
   AUTH: {
-    // Success Messages
     ACCESS_TOKEN_REFRESHED: 'Access token refreshed successfully',
     PASSWORD_RESET_LINK_SENT:
       'Password reset link sent. Please check your email to update your password.',
     PASSWORD_RESET_SUCCESS:
       "You've successfully reset your password. Please log in to continue.",
-
-    // Conflict / BadRequest
     EMAIL_ALREADY_VERIFIED: 'Email already verified.',
     EMAIL_ALREADY_EXISTS: 'User already exists. Try with another email.',
     CANNOT_UPDATE_PASSWORD: "Can't update password. Try again.",
     PASSWORD_MISMATCH_ERROR:
       'The current password you entered is incorrect. Please try again.',
-
-    // Unauthorized
     INVALID_GOOGLE_TOKEN: 'Invalid Google Token',
     FAILED_USER_CREATION_DURING_LOGIN:
       'Failed to create new user during the login',
@@ -32,12 +27,7 @@ export const MESSAGES = {
     ACCOUNT_LINKED_WITH_GOOGLE:
       'This account is linked with Google. Use Google to sign in.',
     PROFILE_CREATION_FAILED: 'Profile creation failed. Please try again.',
-
-    // Forbidden
     USER_BLOCKED: 'You are currently blocked. Please contact the admin.',
-
-    // Registration/Login
-
     REGISTRATION_SUCCESS: 'User registered successfully.',
     LOGIN_SUCCESS: 'User logged in successfully.',
     EMAIL_SEND: 'Email sent successfully.',
@@ -51,7 +41,6 @@ export const MESSAGES = {
     USERS_GET_SUCCESS: 'Internal Users get Successfully',
     USER_REG_SUCCESS: 'User registration  completed',
     USER_PROFILE_GET: 'User profile get Successfully',
-
     NEW_JOB_ADDED: 'New Job Successfully added',
     FETCH_ALL_JOBS: 'fetch all jobs',
     GET_JOBDETAIS: 'Job details successfully fetched',
@@ -91,7 +80,6 @@ export const MESSAGES = {
     UPDATE_STAGE_FAILD: 'Failed to update Stage',
     FETCH_SUCCESS: 'User schedules fetched successfully',
   },
-
   NOTIFICATION: {
     FETCH_UNREAD_COUNT: 'Interview Notification',
     FETCH_NOTIFICATIONS: 'Fetch Notifications',

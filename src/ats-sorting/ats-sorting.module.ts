@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AtsSortingService } from './ats-sorting.service';
 import { AtsSortingController } from './ats-sorting.controller';
 import { ATS_SERVICE } from './interfaces/ats.service.interface';
-
 @Module({
   controllers: [AtsSortingController],
   providers: [
