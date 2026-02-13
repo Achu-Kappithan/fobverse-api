@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
-import * as cookeParser from 'cookie-parser';
+import * as cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -30,7 +30,7 @@ async function bootstrap() {
       disableErrorMessages: process.env.NODE_ENV === 'production',
     }),
   );
-  app.use(cookeParser());
+  app.use(cookieParser());
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector)),
     new ResponseInterceptor(),
