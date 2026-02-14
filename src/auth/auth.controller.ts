@@ -75,11 +75,13 @@ export class AuthController {
       httpOnly: boolean;
       secure: boolean;
       sameSite: 'none' | 'lax';
+      domain?: string;
       path: string;
     } = {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
+      domain: isProduction ? '.achuu.online' : undefined,
       path: '/',
     };
     res.clearCookie('access_token', cookieOptions);
