@@ -42,7 +42,11 @@ export class jwtRefreshStrategy extends PassportStrategy(
       secretOrKey: _configService.get<string>('JWT_REFRESH_SECRET') || '',
     });
     this.logger.debug(
-      `[Strategy Init] JwtAccessStrategy initialized. Secret status: ${_configService.get<string>('JWT_SECRET') ? 'SET' : 'NOT_SET_OR_EMPTY'}`,
+      `[Strategy Init] jwtRefreshStrategy initialized. Secret status: ${
+        _configService.get<string>('JWT_REFRESH_SECRET')
+          ? 'SET'
+          : 'NOT_SET_OR_EMPTY'
+      }`,
     );
   }
   async validate(payload: JwtRefreshPayload): Promise<UserDocument> {

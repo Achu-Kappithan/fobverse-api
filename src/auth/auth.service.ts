@@ -153,7 +153,6 @@ export class AuthService implements IAuthService {
       AccessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
-      parseInt(accessTokenExpiresIn!),
     );
     setJwtCookie(
       res,
@@ -162,7 +161,6 @@ export class AuthService implements IAuthService {
       RefreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
-      parseInt(refreshTokenExpiresIn!),
     );
     const mappedData = plainToInstance(userDto, user);
     return {
@@ -319,9 +317,8 @@ export class AuthService implements IAuthService {
       this._configService,
       'access_token',
       newAccessToken,
-      'JWT_ACCESS_TOKEN_EXPIRATION_TIME_MS',
+      'JWT_ACCESS_EXPIRES_IN',
       true,
-      parseInt(accessTokenExpiresIn!),
     );
     return {
       message: MESSAGES.AUTH.ACCESS_TOKEN_REFRESHED,
@@ -427,7 +424,6 @@ export class AuthService implements IAuthService {
       accessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
-      parseInt(accessTokenExpiresIn!),
     );
     setJwtCookie(
       res,
@@ -436,7 +432,6 @@ export class AuthService implements IAuthService {
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
-      parseInt(refreshTokenExpiresIn!),
     );
     const mappedData = plainToInstance(userDto, user);
     return {
@@ -605,7 +600,6 @@ export class AuthService implements IAuthService {
       accessToken,
       'JWT_ACCESS_EXPIRES_IN',
       true,
-      parseInt(accessTokenExpiresIn!),
     );
     setJwtCookie(
       res,
@@ -614,7 +608,6 @@ export class AuthService implements IAuthService {
       refreshToken,
       'JWT_REFRESH_EXPIRES_IN',
       false,
-      parseInt(refreshTokenExpiresIn!),
     );
     const mappedData = plainToInstance(userDto, user);
     return {
