@@ -14,11 +14,15 @@ export function setJwtCookie(
       `[CookieUtil] Invalid expiration time for cookie ${cookieName}: ${expirationTimeEnvKey}. Using default (session).`,
     );
   }
+
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+
   response.cookie(cookieName, token, {
     httpOnly: isHttpOnly,
-    secure: configService.get<string>('NODE_ENV') === 'production',
+    secure: isProduction,
     maxAge: maxAgeMs,
     sameSite: 'lax',
     path: '/',
+    domain: isProduction ? '.achuu.online' : undefined,
   });
 }

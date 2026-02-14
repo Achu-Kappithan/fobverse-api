@@ -69,11 +69,20 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    const cookieOptions = {
+    const isProduction =
+      this._configService.get<string>('NODE_ENV') === 'production';
+    const cookieOptions: {
+      httpOnly: boolean;
+      secure: boolean;
+      sameSite: 'lax';
+      path: string;
+      domain?: string;
+    } = {
       httpOnly: true,
-      secure: this._configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax' as const,
+      secure: isProduction,
+      sameSite: 'lax',
       path: '/',
+      domain: isProduction ? '.achuu.online' : undefined,
     };
     res.clearCookie('access_token', cookieOptions);
     res.clearCookie('refresh_token', { ...cookieOptions, httpOnly: false });
