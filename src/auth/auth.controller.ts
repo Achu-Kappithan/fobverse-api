@@ -80,10 +80,11 @@ export class AuthController {
     } = {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: 'lax',
       domain: isProduction ? '.achuu.online' : undefined,
       path: '/',
     };
+
     res.clearCookie('access_token', cookieOptions);
     res.clearCookie('refresh_token', { ...cookieOptions, httpOnly: false });
     return { message: MESSAGES.AUTH.LOGOUT_SUCCESS };

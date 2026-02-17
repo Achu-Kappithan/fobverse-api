@@ -55,9 +55,10 @@ export function setJwtCookie(
     httpOnly: isHttpOnly,
     secure: isProduction,
     maxAge: parsedMaxAge ?? undefined,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: 'lax',
     domain: isProduction ? '.achuu.online' : undefined,
     path: '/',
   });
 }
+
 
