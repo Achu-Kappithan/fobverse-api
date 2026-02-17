@@ -1,4 +1,7 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ContactItem } from '../schema/candidate.profile.schema';
+
 export class UpdateCandidateProfileDto {
   @IsOptional()
   @IsString()
@@ -10,15 +13,27 @@ export class UpdateCandidateProfileDto {
   @IsOptional()
   coverUrl?: string;
   @IsOptional()
-  contactInfo?: { type: string; value: string }[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ContactItem)
+  contactInfo?: ContactItem[];
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   education?: string[];
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   skills?: string[];
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   experience?: string[];
   @IsOptional()
+  @IsString()
   resumeUrl?: string;
   @IsOptional()
-  portfolioLinks?: string;
+  @IsArray()
+  @IsString({ each: true })
+  portfolioLinks?: string[];
 }

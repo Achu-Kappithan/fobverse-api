@@ -114,6 +114,10 @@ export class AuthService implements IAuthService {
       this._logger.warn(`Login attempt for ${email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
     }
+    if (!profileData.profile) {
+      this._logger.warn(`Login attempt for ${email}: Profile not found.`);
+      throw new NotFoundException('User profile not found. Please contact support.');
+    }
     if (!profileData.profile.isActive) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
     }
@@ -568,6 +572,10 @@ export class AuthService implements IAuthService {
     if (!user.isVerified) {
       this._logger.warn(`Login attempt for ${dto.email}: User not verified.`);
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
+    }
+    if (!user.profile) {
+      this._logger.warn(`Login attempt for ${dto.email}: Company profile not found.`);
+      throw new NotFoundException('Company profile not found. Please contact support.');
     }
     if (!user.profile.isActive) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);

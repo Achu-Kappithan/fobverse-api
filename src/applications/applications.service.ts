@@ -86,20 +86,34 @@ export class ApplicationsService implements IApplicationService {
       }
       updatedDto.resumeUrl = data.resumeUrl;
     }
-    const parsedResumeText = await this._atsService.parsePdfFormUrl(
-      updatedDto.resumeUrl!,
-    );
     const jobDetails = await this._jobservice.populatedJobView(
       dto.jobId.toString(),
     );
     this._logger.log(
       `[applicationService]job description fetch${JSON.stringify(jobDetails)}`,
     );
+    if (!jobDetails.data) {
+      throw new NotFoundException('Job details not found');
+    }
+
+    let parsedResumeText = '';
+    try {
+      parsedResumeText = await this._atsService.parsePdfFormUrl(
+        updatedDto.resumeUrl!,
+      );
+    } catch (error: unknown) {
+      this._logger.error(
+        `[ApplicationService] Error parsing resume: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      // Fallback to empty text if parsing fails to avoid 500
+      parsedResumeText = '';
+    }
+
     const atsScore = this._atsService.calculateScore(
-      jobDetails.data?.jobDetails,
+      jobDetails.data.jobDetails,
       parsedResumeText,
     );
-    updatedDto.atsScore = Math.round(atsScore);
+    updatedDto.atsScore = isNaN(atsScore) ? 0 : Math.round(atsScore);
     this._logger.log(
       `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
     );
@@ -111,25 +125,37 @@ export class ApplicationsService implements IApplicationService {
       `[ApplicationService] jobDetails of appliyed job ${JSON.stringify(previousapplication)}`,
     );
     if (previousapplication) {
-      const jobid: string = previousapplication.jobId.toString();
-      if (jobid === dto.jobId) {
+      const prevJobId: string = previousapplication.jobId.toString();
+      if (prevJobId === dto.jobId) {
         throw new ConflictException(MESSAGES.APPLICATIONS.ALREADY_APPLIED);
       }
     }
-    if (atsScore >= 60) {
+    if (updatedDto.atsScore >= 60) {
       updatedDto.Stages = Stages.Shortlisted;
     } else {
       updatedDto.Rejected = true;
     }
     const data = await this._applicationRepository.create(updatedDto);
-    await this._emailService.sendApplicationSubmitedEmail(
-      updatedDto.email,
-      jobDetails.data!,
-    );
-    await this._notificationService.createApplicationSubmittedNotification(
-      id,
-      jobDetails.data!.jobDetails.title,
-    );
+    
+    // Non-blocking operations or handled errors
+    try {
+      await this._emailService.sendApplicationSubmitedEmail(
+        updatedDto.email,
+        jobDetails.data,
+      );
+    } catch (error) {
+      this._logger.warn(`Failed to send application submitted email: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+
+    try {
+      await this._notificationService.createApplicationSubmittedNotification(
+        id,
+        jobDetails.data.jobDetails.title,
+      );
+    } catch (error) {
+      this._logger.warn(`Failed to create application submitted notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+
     if (!data) {
       throw new InternalServerErrorException(
         MESSAGES.APPLICATIONS.SUBMISSION_FAILED,

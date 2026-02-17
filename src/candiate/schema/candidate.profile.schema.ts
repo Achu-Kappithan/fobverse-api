@@ -1,9 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { Expose } from 'class-transformer';
+import { IsString } from 'class-validator';
 @Schema({ _id: false })
 export class ContactItem {
+  @Expose()
+  @IsString()
   @Prop({ required: true })
   type: string;
+  @Expose()
+  @IsString()
   @Prop({ required: true })
   value: string;
 }

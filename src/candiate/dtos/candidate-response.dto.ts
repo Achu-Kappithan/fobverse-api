@@ -1,6 +1,8 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { ContactItem } from '../schema/candidate.profile.schema';
 export class CandidateProfileResponseDto {
   @Expose()
+  @Transform(({ obj }) => obj._id?.toString() || obj.id)
   id: string;
   @Exclude()
   UserId: string;
@@ -15,7 +17,8 @@ export class CandidateProfileResponseDto {
   @Expose()
   coverUrl?: string;
   @Expose()
-  contactInfo?: { type: string; value: string }[];
+  @Type(() => ContactItem)
+  contactInfo?: ContactItem[];
   @Expose()
   education?: string[];
   @Expose()
@@ -25,7 +28,7 @@ export class CandidateProfileResponseDto {
   @Expose()
   resumeUrl?: string;
   @Expose()
-  portfolioLinks?: string;
+  portfolioLinks?: string[];
   @Expose()
   createdAt?: Date;
   @Expose()
