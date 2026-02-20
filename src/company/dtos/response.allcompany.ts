@@ -23,6 +23,7 @@ export class CompanyProfileResponseDto {
   @Expose()
   industry?: string;
   @Expose()
+  @Type(() => ContactInfoItem)
   contactInfo?: ContactInfoItem[];
   @Expose()
   officeLocation?: string[];
@@ -31,7 +32,7 @@ export class CompanyProfileResponseDto {
   @Expose()
   imageGallery: string[];
   @Expose()
-  benafits?: string[];
+  benefits?: string[];
   @Expose()
   logoUrl?: string;
   @Expose()

@@ -33,6 +33,7 @@ export class JobsController {
     return this._jobservices.createJobs(companyId.toString(), dto);
   }
   @Get('getalljobs')
+  @UseGuards(AuthGuard('access_token'))
   async getAllJobs(
     @Query() parms: jobsPagesAndFilterDto,
     @Request() req: ERequest,

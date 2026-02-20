@@ -1,6 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProfileDto } from './create.profile.dto';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ContactItem } from '../schema/company.profile.schema';
 import { UserRole } from '../../auth/schema/user.schema';
 export class TeamMemberDto {
   @IsNotEmpty()
@@ -33,28 +33,50 @@ export class UpdateInternalUserDto {
   @IsNotEmpty()
   profileImg: string;
 }
-export class UpdateProfileDto extends PartialType(CreateProfileDto) {
-  name: string;
+export class UpdateProfileDto {
   @IsOptional()
+  @IsString()
+  name?: string;
+  @IsOptional()
+  @IsString()
   industry?: string;
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   officeLocation?: string[];
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   techStack?: string[];
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   imageGallery?: string[];
   @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TeamMemberDto)
   teamMembers?: TeamMemberDto[];
   @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InternalUserDto)
   internalUsers?: InternalUserDto[];
   @IsOptional()
-  benafits?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  benefits?: string[];
   @IsOptional()
+  @IsString()
   logoUrl?: string;
   @IsOptional()
+  @IsString()
   description?: string;
   @IsOptional()
-  contactInfo?: { type: string; value: string }[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ContactItem)
+  contactInfo?: ContactItem[];
 }
 export class changePassDto {
   @IsNotEmpty()
