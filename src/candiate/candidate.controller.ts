@@ -9,6 +9,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   CANDIDATE_SERVICE,
   ICandidateService,
@@ -32,6 +33,8 @@ export class CandidateController {
     @Inject(CANDIDATE_SERVICE)
     private readonly _candidateService: ICandidateService,
   ) {}
+  // 60 requests per 1 minute — standard authenticated read
+  @Throttle({ 'read-standard': { limit: 60, ttl: 60000 } })
   @Get('getprofile')
   @UseGuards(AuthGuard('access_token'))
   async getProfile(
@@ -40,6 +43,8 @@ export class CandidateController {
     const user = req.user as { id: string };
     return this._candidateService.getProfile(user.id);
   }
+  // 10 requests per 1 minute — prevent profile spam flooding
+  @Throttle({ 'write-moderate': { limit: 10, ttl: 60000 } })
   @Post('updateprofile')
   @UseGuards(AuthGuard('access_token'))
   async updateProfile(
@@ -49,6 +54,8 @@ export class CandidateController {
     const user = req.user as { id: string };
     return this._candidateService.updateProfile(dto, user.id);
   }
+  // 60 requests per 1 minute — standard authenticated read
+  @Throttle({ 'read-standard': { limit: 60, ttl: 60000 } })
   @Get('/public/profile')
   @UseGuards(AuthGuard('access_token'))
   async publicView(
@@ -56,12 +63,16 @@ export class CandidateController {
   ): Promise<ApiResponse<CandidateProfileResponseDto>> {
     return this._candidateService.publicView(id);
   }
+  // 30 requests per 1 minute — unauthenticated public endpoint, scraping risk
+  @Throttle({ 'read-public': { limit: 30, ttl: 60000 } })
   @Get('all-companies')
   async getAllCompanies(
     @Query() pagination: PaginationDto,
   ): Promise<PaginatedResponse<CompanyProfileResponseDto[]>> {
     return this._candidateService.getAllCompanies(pagination);
   }
+  // 60 requests per 1 minute — standard authenticated read
+  @Throttle({ 'read-standard': { limit: 60, ttl: 60000 } })
   @Get('my-applications')
   @UseGuards(AuthGuard('access_token'))
   async getMyApplications(
@@ -71,12 +82,16 @@ export class CandidateController {
     const user = req.user as { id: string };
     return this._candidateService.getMyApplications(user.id, dto);
   }
+  // 30 requests per 1 minute — public route, limit enumeration
+  @Throttle({ 'read-public': { limit: 30, ttl: 60000 } })
   @Get('application-details/:applicationId')
   async getApplicationStages(
     @Param('applicationId') applicationId: string,
   ): Promise<ApiResponse<AllStagesResponseDto>> {
     return await this._candidateService.getApplicationStages(applicationId);
   }
+  // 30 requests per 1 minute — public homepage data, scraping risk
+  @Throttle({ 'read-public': { limit: 30, ttl: 60000 } })
   @Get('home-data-public')
   async getHomeDataPublic(): Promise<
     ApiResponse<{
@@ -86,6 +101,8 @@ export class CandidateController {
   > {
     return await this._candidateService.getHomeDataPublic();
   }
+  // 5 requests per 15 minutes — password change brute-force protection
+  @Throttle({ 'auth-strict': { limit: 5, ttl: 900000 } })
   @Post('change-pwd')
   @UseGuards(AuthGuard('access_token'))
   async UpdatePassword(

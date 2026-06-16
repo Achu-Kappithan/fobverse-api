@@ -13,6 +13,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import { AUTH_SERVICE, IAuthService } from './interfaces/IAuthCandiateService';
 import {
@@ -44,15 +45,21 @@ export class AuthController {
       user: user,
     };
   }
+  // 5 requests per 15 minutes — prevents spam account creation
+  @Throttle({ 'auth-strict': { limit: 5, ttl: 900000 } })
   @Post('/register')
   @HttpCode(HttpStatus.CREATED)
   async registerCandidate(@Body() registerDto: RegisterCandidateDto) {
     return this._authService.registerCandidate(registerDto);
   }
+  // 10 requests per 5 minutes — email token enumeration risk is low
+  @Throttle({ 'auth-moderate': { limit: 10, ttl: 300000 } })
   @Get('verify-email')
   async verifyEmail(@Query('token') token: string) {
     return await this._authService.verifyEmail(token);
   }
+  // 5 requests per 15 minutes — primary brute-force protection
+  @Throttle({ 'auth-strict': { limit: 5, ttl: 900000 } })
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   async Login(
@@ -104,6 +111,8 @@ export class AuthController {
       message: 'completed',
     };
   }
+  // 10 requests per 5 minutes — refresh token cycling abuse
+  @Throttle({ 'auth-moderate': { limit: 10, ttl: 300000 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt-refresh'))
@@ -114,6 +123,8 @@ export class AuthController {
     const user = req.user as UserDocument;
     return this._authService.regenerateAccessToken(user, response);
   }
+  // 10 requests per 5 minutes — OAuth callback abuse
+  @Throttle({ 'auth-moderate': { limit: 10, ttl: 300000 } })
   @Get('google')
   @HttpCode(HttpStatus.ACCEPTED)
   async googleAuthCallback(
@@ -122,6 +133,8 @@ export class AuthController {
   ): Promise<ApiResponse<userDto>> {
     return this._authService.googleLogin(query.googleId, query.role, response);
   }
+  // 3 requests per 15 minutes — strictest limit: admin account protection
+  @Throttle({ 'auth-admin': { limit: 3, ttl: 900000 } })
   @Post('admin/login')
   @HttpCode(HttpStatus.OK)
   async adminLogin(
@@ -131,6 +144,8 @@ export class AuthController {
     const user = await this._authService.validateAdmin(dto);
     return this._authService.login(user, response);
   }
+  // 5 requests per 15 minutes — same risk profile as candidate login
+  @Throttle({ 'auth-strict': { limit: 5, ttl: 900000 } })
   @Post('companyuserslogin')
   async companyUsersLogin(
     @Body() dto: LoginDto,
@@ -138,6 +153,8 @@ export class AuthController {
   ) {
     return this._authService.companyUserLogin(dto, res);
   }
+  // 3 requests per 15 minutes — prevent email harvesting via forgot password
+  @Throttle({ 'auth-admin': { limit: 3, ttl: 900000 } })
   @Post('forgotpassword')
   @HttpCode(HttpStatus.CREATED)
   async updatePassword(
@@ -145,6 +162,8 @@ export class AuthController {
   ): Promise<ApiResponse<unknown>> {
     return this._authService.validateEmailAndRoleExistence(dto);
   }
+  // 5 requests per 15 minutes — prevent password reset token brute-force
+  @Throttle({ 'auth-strict': { limit: 5, ttl: 900000 } })
   @Post('updatepassword')
   async updateNewPassword(
     @Body() dto: UpdatePasswordDto,
