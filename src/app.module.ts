@@ -24,6 +24,7 @@ import Redis from 'ioredis';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -40,39 +41,42 @@ import Redis from 'ioredis';
       },
       inject: [ConfigService],
     }),
-    // ─── Rate Limiting ──────────────────────────────────────────────────────────
-    // Redis-backed throttler with 8 named profiles (overridable per-route).
-    // The global guard (see providers) applies the 'default' profile to ALL routes.
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        throttlers: [
-          // Baseline — applies to every route not decorated with @Throttle()
-          { name: 'default', limit: 100, ttl: 60000 },
-          // Auth routes — strict limits to prevent brute-force & credential stuffing
-          { name: 'auth-strict', limit: 5, ttl: 900000 }, // 5 req / 15 min
-          { name: 'auth-admin', limit: 3, ttl: 900000 }, // 3 req / 15 min (admin)
-          { name: 'auth-moderate', limit: 10, ttl: 300000 }, // 10 req / 5 min (refresh/oauth)
-          // Write operations — moderate limits for profile/data mutations
-          { name: 'write-moderate', limit: 10, ttl: 60000 }, // 10 req / 1 min
-          // Read operations
-          { name: 'read-standard', limit: 60, ttl: 60000 }, // 60 req / 1 min (authenticated)
-          { name: 'read-public', limit: 30, ttl: 60000 }, // 30 req / 1 min (unauthenticated)
-          // Job applications — prevent bot spam
-          { name: 'apply-job', limit: 10, ttl: 300000 }, // 10 req / 5 min
-        ],
-        storage: new ThrottlerStorageRedisService(
-          new Redis({
-            host: config.get<string>('REDIS_HOST') ?? 'localhost',
-            port: config.get<number>('REDIS_PORT') ?? 6379,
-            password: config.get<string>('REDIS_PASSWORD') || undefined,
-            tls: config.get<string>('REDIS_TLS') === 'true' ? {} : undefined,
-          }),
-        ),
-      }),
+      useFactory: (config: ConfigService) => {
+        const host = config.get<string>('REDIS_HOST') ?? 'localhost';
+        const port = Number(config.get<string | number>('REDIS_PORT') ?? 6379);
+        const password = config.get<string>('REDIS_PASSWORD');
+        const tlsValue = config.get<string>('REDIS_TLS');
+        const tls = tlsValue === 'true' ? {} : undefined;
+
+        console.log(
+          `[Redis Connection] Host: ${host}, Port: ${port}, TLS Enabled: ${tlsValue === 'true'}, Password Configured: ${!!password}`,
+        );
+
+        return {
+          throttlers: [
+            { name: 'default', limit: 100, ttl: 60000 },
+            { name: 'auth-strict', limit: 5, ttl: 900000 },
+            { name: 'auth-admin', limit: 3, ttl: 900000 },
+            { name: 'auth-moderate', limit: 10, ttl: 300000 },
+            { name: 'write-moderate', limit: 10, ttl: 60000 },
+            { name: 'read-standard', limit: 60, ttl: 60000 },
+            { name: 'read-public', limit: 30, ttl: 60000 },
+            { name: 'apply-job', limit: 10, ttl: 300000 },
+          ],
+          storage: new ThrottlerStorageRedisService(
+            new Redis({
+              host,
+              port,
+              password: password || undefined,
+              tls,
+            }),
+          ),
+        };
+      },
     }),
-    // ────────────────────────────────────────────────────────────────────────────
     SharedModule,
     CandiateModule,
     AuthModule,
@@ -87,8 +91,6 @@ import Redis from 'ioredis';
   ],
   controllers: [],
   providers: [
-    // Apply rate limiting globally to all routes.
-    // Uses the custom guard so it reads the real client IP behind Render.com's proxy.
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,
