@@ -7,6 +7,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { IApplicationService } from './interfaces/application.service.interface';
 import {
   APPLICATION_REPOSITORY,
@@ -37,6 +38,7 @@ import {
   ATS_SERVICE,
   IAtsService,
 } from '../ats-sorting/interfaces/ats.service.interface';
+import { AtsWorkerPoolService } from '../ats-sorting/ats-worker-pool.service';
 import {
   InotificationService,
   NOTIFICATION_SERVICE,
@@ -50,6 +52,7 @@ import { CandidateApplicationResponseDto } from './dtos/candidate-application.re
 @Injectable()
 export class ApplicationsService implements IApplicationService {
   private readonly _logger = new Logger(ApplicationsService.name);
+
   constructor(
     @Inject(APPLICATION_REPOSITORY)
     private readonly _applicationRepository: IApplicationRepository,
@@ -62,6 +65,8 @@ export class ApplicationsService implements IApplicationService {
     @Inject(NOTIFICATION_SERVICE)
     private readonly _notificationService: InotificationService,
     private readonly _emailService: EmailService,
+    private readonly _atsWorkerPool: AtsWorkerPoolService,
+    private readonly _configService: ConfigService,
   ) {}
   async createApplication(
     dto: CreateApplicationDto,
@@ -71,80 +76,82 @@ export class ApplicationsService implements IApplicationService {
     const jobid = new Types.ObjectId(dto.jobId);
     const candidateObjId = new Types.ObjectId(id);
     const companyObjId = new Types.ObjectId(companyId);
+
     const updatedDto = {
       ...dto,
       candidateId: candidateObjId,
       jobId: jobid,
       companyId: companyObjId,
     };
+
     if (!dto.resumeUrl) {
-      const data = await this._candidateRepository.findOne({
+      const profile = await this._candidateRepository.findOne({
         UserId: candidateObjId,
       });
-      if (!data?.resumeUrl) {
-        throw new BadRequestException('Resume not found in Porfile');
+      if (!profile?.resumeUrl) {
+        throw new BadRequestException('Resume not found in Profile');
       }
-      updatedDto.resumeUrl = data.resumeUrl;
+      updatedDto.resumeUrl = profile.resumeUrl;
     }
+
     const jobDetails = await this._jobservice.populatedJobView(
       dto.jobId.toString(),
     );
     this._logger.log(
-      `[applicationService]job description fetch${JSON.stringify(jobDetails)}`,
+      `[ApplicationService] Job details fetched for jobId: ${dto.jobId.toString()}`,
     );
     if (!jobDetails.data) {
       throw new NotFoundException('Job details not found');
     }
 
-    let parsedResumeText = '';
-    try {
-      parsedResumeText = await this._atsService.parsePdfFormUrl(
-        updatedDto.resumeUrl!,
-      );
-    } catch (error: unknown) {
-      this._logger.error(
-        `[ApplicationService] Error parsing resume: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-      // Fallback to empty text if parsing fails to avoid 500
-      parsedResumeText = '';
-    }
-
-    const atsScore = this._atsService.calculateScore(
-      jobDetails.data.jobDetails,
-      parsedResumeText,
-    );
-    updatedDto.atsScore = isNaN(atsScore) ? 0 : Math.round(atsScore);
-    this._logger.log(
-      `[ApplicatonService] data  for applying  user ,${JSON.stringify(updatedDto)}`,
-    );
-    const previousapplication = await this._applicationRepository.findOne({
+    const previousApplication = await this._applicationRepository.findOne({
       candidateId: candidateObjId,
       jobId: jobid,
     });
-    this._logger.log(
-      `[ApplicationService] jobDetails of appliyed job ${JSON.stringify(previousapplication)}`,
-    );
-    if (previousapplication) {
-      const prevJobId: string = previousapplication.jobId.toString();
+    if (previousApplication) {
+      const prevJobId = previousApplication.jobId.toString();
       if (prevJobId === dto.jobId) {
         throw new ConflictException(MESSAGES.APPLICATIONS.ALREADY_APPLIED);
       }
     }
-    if (updatedDto.atsScore >= 60) {
-      updatedDto.Stages = Stages.Shortlisted;
-    } else {
-      updatedDto.Rejected = true;
-    }
+
+    updatedDto.atsScore = 0;
+    updatedDto.Stages = Stages.Default;
+
     const data = await this._applicationRepository.create(updatedDto);
-    
-    // Non-blocking operations or handled errors
+
+    if (!data) {
+      throw new InternalServerErrorException(
+        MESSAGES.APPLICATIONS.SUBMISSION_FAILED,
+      );
+    }
+
+    void this._atsWorkerPool.runAtsJob({
+      applicationId: data._id.toString(),
+      resumeUrl: updatedDto.resumeUrl!,
+      cloudinaryBaseUrl:
+        this._configService.get<string>('CLOUDINARY_BASEURL') ?? '',
+      atsCriteria: 60,
+      jobDetails: {
+        title: jobDetails.data.jobDetails.title,
+        description: jobDetails.data.jobDetails.description,
+        responsibility: jobDetails.data.jobDetails.responsibility,
+        skills: jobDetails.data.jobDetails.skills ?? [],
+        location: jobDetails.data.jobDetails.location ?? [],
+      },
+    });
+
     try {
       await this._emailService.sendApplicationSubmitedEmail(
         updatedDto.email,
         jobDetails.data,
       );
-    } catch (error) {
-      this._logger.warn(`Failed to send application submitted email: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } catch (error: unknown) {
+      this._logger.warn(
+        `[ApplicationService] Email send failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
     }
 
     try {
@@ -152,19 +159,17 @@ export class ApplicationsService implements IApplicationService {
         id,
         jobDetails.data.jobDetails.title,
       );
-    } catch (error) {
-      this._logger.warn(`Failed to create application submitted notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-
-    if (!data) {
-      throw new InternalServerErrorException(
-        MESSAGES.APPLICATIONS.SUBMISSION_FAILED,
+    } catch (error: unknown) {
+      this._logger.warn(
+        `[ApplicationService] Notification failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
       );
     }
-    return {
-      message: MESSAGES.APPLICATIONS.SUBMIT_APPLICATION,
-    };
+
+    return { message: MESSAGES.APPLICATIONS.SUBMIT_APPLICATION };
   }
+
   async getAllApplications(
     companyId: string,
     dto: PaginatedApplicationDto,

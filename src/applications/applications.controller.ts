@@ -10,6 +10,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   APPLICATION_SERVICE,
   IApplicationService,
@@ -33,6 +34,8 @@ export class ApplicationsController {
     @Inject(APPLICATION_SERVICE)
     private readonly applicationsService: IApplicationService,
   ) {}
+  // 10 requests per 5 minutes — prevents bot application spam
+  @Throttle({ 'apply-job': { limit: 10, ttl: 300000 } })
   @Post('applyjob')
   @UseGuards(AuthGuard('access_token'))
   async applayJob(
@@ -47,6 +50,8 @@ export class ApplicationsController {
       id,
     );
   }
+  // 30 requests per 1 minute — paginated list read
+  @Throttle({ 'read-standard': { limit: 30, ttl: 60000 } })
   @Get('applicants')
   @UseGuards(AuthGuard('access_token'))
   async getApplications(
@@ -59,6 +64,8 @@ export class ApplicationsController {
       dto,
     );
   }
+  // 30 requests per 1 minute — paginated list read
+  @Throttle({ 'read-standard': { limit: 30, ttl: 60000 } })
   @Get('all-applicants')
   @UseGuards(AuthGuard('access_token'))
   async getCompanyApplicants(
@@ -71,6 +78,8 @@ export class ApplicationsController {
       dto,
     );
   }
+  // 20 requests per 1 minute — ATS score update
+  @Throttle({ 'write-moderate': { limit: 20, ttl: 60000 } })
   @Patch('updateScore')
   @UseGuards(AuthGuard('access_token'))
   async updateAtsScore(
@@ -83,6 +92,8 @@ export class ApplicationsController {
       user.companyId!.toString(),
     );
   }
+  // 30 requests per 1 minute — standard authenticated read
+  @Throttle({ 'read-standard': { limit: 30, ttl: 60000 } })
   @Get('applicationDetails/:appId/:canId')
   @UseGuards(AuthGuard('access_token'))
   async getApplicationDetails(

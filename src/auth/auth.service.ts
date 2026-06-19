@@ -116,7 +116,9 @@ export class AuthService implements IAuthService {
     }
     if (!profileData.profile) {
       this._logger.warn(`Login attempt for ${email}: Profile not found.`);
-      throw new NotFoundException('User profile not found. Please contact support.');
+      throw new NotFoundException(
+        'User profile not found. Please contact support.',
+      );
     }
     if (!profileData.profile.isActive) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
@@ -144,12 +146,6 @@ export class AuthService implements IAuthService {
       this._jwtTokenService.generateAccessToken(AccessPayload);
     const RefreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
-    const accessTokenExpiresIn = this._configService.get<string>(
-      'JWT_ACCESS_EXPIRES_IN',
-    );
-    const refreshTokenExpiresIn = this._configService.get<string>(
-      'JWT_REFRESH_EXPIRES_IN',
-    );
     setJwtCookie(
       res,
       this._configService,
@@ -313,9 +309,6 @@ export class AuthService implements IAuthService {
     };
     const newAccessToken =
       this._jwtTokenService.generateAccessToken(tokenPaylod);
-    const accessTokenExpiresIn = this._configService.get<string>(
-      'JWT_ACCESS_EXPIRES_IN',
-    );
     setJwtCookie(
       res,
       this._configService,
@@ -415,12 +408,6 @@ export class AuthService implements IAuthService {
       this._jwtTokenService.generateAccessToken(AccessPayload);
     const refreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
-    const accessTokenExpiresIn = this._configService.get<string>(
-      'JWT_ACCESS_EXPIRES_IN',
-    );
-    const refreshTokenExpiresIn = this._configService.get<string>(
-      'JWT_REFRESH_EXPIRES_IN',
-    );
     setJwtCookie(
       res,
       this._configService,
@@ -574,8 +561,12 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedException(MESSAGES.AUTH.EMAIL_NOT_VERIFIED);
     }
     if (!user.profile) {
-      this._logger.warn(`Login attempt for ${dto.email}: Company profile not found.`);
-      throw new NotFoundException('Company profile not found. Please contact support.');
+      this._logger.warn(
+        `Login attempt for ${dto.email}: Company profile not found.`,
+      );
+      throw new NotFoundException(
+        'Company profile not found. Please contact support.',
+      );
     }
     if (!user.profile.isActive) {
       throw new ForbiddenException(MESSAGES.AUTH.USER_BLOCKED);
@@ -595,12 +586,6 @@ export class AuthService implements IAuthService {
       this._jwtTokenService.generateAccessToken(jwtAccessPayload);
     const refreshToken =
       this._jwtTokenService.generateRefreshToken(RefreshPayload);
-    const accessTokenExpiresIn = this._configService.get<string>(
-      'JWT_ACCESS_EXPIRES_IN',
-    );
-    const refreshTokenExpiresIn = this._configService.get<string>(
-      'JWT_REFRESH_EXPIRES_IN',
-    );
     setJwtCookie(
       res,
       this._configService,

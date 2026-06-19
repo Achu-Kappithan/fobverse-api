@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ApplicationsController } from './applications.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Applications, ApplicationSchema } from './schema/applications.schema';
@@ -11,8 +12,10 @@ import { JobsModule } from '../jobs/jobs.module';
 import { EmailModule } from '../email/email.module';
 import { AtsSortingModule } from '../ats-sorting/ats-sorting.module';
 import { NotificationModule } from '../notification/notification.module';
+
 @Module({
   imports: [
+    ConfigModule,
     MongooseModule.forFeature([
       { name: Applications.name, schema: ApplicationSchema },
     ]),

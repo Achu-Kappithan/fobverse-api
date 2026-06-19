@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ThrottlerException } from '@nestjs/throttler';
 import { ApiResponse } from '../responses/api.response';
 interface ErrorDetails {
   validationErrors?: string[];
@@ -24,6 +25,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let frontendMessage: string;
     let errorName: string;
     const details: ErrorDetails = {};
+
+    // ─── Special case: Rate limit exceeded (429 Too Many Requests) ───────────
+    if (exception instanceof ThrottlerException) {
+      const logMessage = `
+        [${request.method} ${request.url}]
+        Status: 429
+        IP: ${request.ip || 'N/A'}
+        Timestamp: ${new Date().toISOString()}
+      `;
+      this._logger.warn(`Rate limit exceeded: ${logMessage}`);
+      const throttleResponse: ApiResponse<Record<string, unknown>> = {
+        success: false,
+        statusCode: HttpStatus.TOO_MANY_REQUESTS,
+        message: 'Too many requests. Please slow down and try again later.',
+        error: 'TooManyRequests',
+      };
+      response.status(HttpStatus.TOO_MANY_REQUESTS).json(throttleResponse);
+      return;
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
