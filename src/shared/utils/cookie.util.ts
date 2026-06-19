@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config';
 export function parseDurationToMs(
   duration: string | number | undefined,
 ): number | null {
-  if (duration === undefined || duration === null || duration === '') return null;
+  if (duration === undefined || duration === null || duration === '')
+    return null;
   if (typeof duration === 'number') return duration;
 
   if (/^\d+$/.test(duration)) {
@@ -60,5 +61,3 @@ export function setJwtCookie(
     path: '/',
   });
 }
-
-

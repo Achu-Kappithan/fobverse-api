@@ -16,19 +16,19 @@ import { Request } from 'express';
  */
 @Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
-  protected async getTracker(req: Request): Promise<string> {
+  protected getTracker(req: Request): Promise<string> {
     const forwardedFor = req.headers['x-forwarded-for'] as string | undefined;
     if (forwardedFor) {
       // X-Forwarded-For can be a comma-separated list: "client, proxy1, proxy2"
       // The first value is always the original client IP
-      return forwardedFor.split(',')[0].trim();
+      return Promise.resolve(forwardedFor.split(',')[0].trim());
     }
 
     const realIp = req.headers['x-real-ip'] as string | undefined;
     if (realIp) {
-      return realIp.trim();
+      return Promise.resolve(realIp.trim());
     }
 
-    return req.ip ?? 'unknown';
+    return Promise.resolve(req.ip ?? 'unknown');
   }
 }

@@ -51,22 +51,23 @@ import Redis from 'ioredis';
           // Baseline — applies to every route not decorated with @Throttle()
           { name: 'default', limit: 100, ttl: 60000 },
           // Auth routes — strict limits to prevent brute-force & credential stuffing
-          { name: 'auth-strict', limit: 5, ttl: 900000 },   // 5 req / 15 min
-          { name: 'auth-admin', limit: 3, ttl: 900000 },    // 3 req / 15 min (admin)
-          { name: 'auth-moderate', limit: 10, ttl: 300000 },// 10 req / 5 min (refresh/oauth)
+          { name: 'auth-strict', limit: 5, ttl: 900000 }, // 5 req / 15 min
+          { name: 'auth-admin', limit: 3, ttl: 900000 }, // 3 req / 15 min (admin)
+          { name: 'auth-moderate', limit: 10, ttl: 300000 }, // 10 req / 5 min (refresh/oauth)
           // Write operations — moderate limits for profile/data mutations
-          { name: 'write-moderate', limit: 10, ttl: 60000 },// 10 req / 1 min
+          { name: 'write-moderate', limit: 10, ttl: 60000 }, // 10 req / 1 min
           // Read operations
           { name: 'read-standard', limit: 60, ttl: 60000 }, // 60 req / 1 min (authenticated)
-          { name: 'read-public', limit: 30, ttl: 60000 },   // 30 req / 1 min (unauthenticated)
+          { name: 'read-public', limit: 30, ttl: 60000 }, // 30 req / 1 min (unauthenticated)
           // Job applications — prevent bot spam
-          { name: 'apply-job', limit: 10, ttl: 300000 },    // 10 req / 5 min
+          { name: 'apply-job', limit: 10, ttl: 300000 }, // 10 req / 5 min
         ],
         storage: new ThrottlerStorageRedisService(
           new Redis({
             host: config.get<string>('REDIS_HOST') ?? 'localhost',
             port: config.get<number>('REDIS_PORT') ?? 6379,
             password: config.get<string>('REDIS_PASSWORD') || undefined,
+            tls: config.get<string>('REDIS_TLS') === 'true' ? {} : undefined,
           }),
         ),
       }),

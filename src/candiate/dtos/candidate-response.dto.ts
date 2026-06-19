@@ -2,8 +2,12 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { ContactItem } from '../schema/candidate.profile.schema';
 export class CandidateProfileResponseDto {
   @Expose()
-  @Transform(({ obj }) => obj._id?.toString() || obj.id)
+  @Transform(
+    ({ obj }: { obj: { _id?: { toString(): string }; id?: string } }) =>
+      obj._id?.toString() ?? obj.id,
+  )
   id: string;
+
   @Exclude()
   UserId: string;
   @Expose()

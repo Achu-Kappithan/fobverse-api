@@ -38,8 +38,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const throttleResponse: ApiResponse<Record<string, unknown>> = {
         success: false,
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
-        message:
-          'Too many requests. Please slow down and try again later.',
+        message: 'Too many requests. Please slow down and try again later.',
         error: 'TooManyRequests',
       };
       response.status(HttpStatus.TOO_MANY_REQUESTS).json(throttleResponse);
